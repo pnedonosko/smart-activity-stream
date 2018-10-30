@@ -39,7 +39,6 @@ public class AbstractTest {
   public void endRequestLifecycle() {
     PortalContainer container = PortalContainer.getInstance();
 
-    //
     EntityManagerService entityMgrService =
                                           (EntityManagerService) container.getComponentInstanceOfType(EntityManagerService.class);
     if (entityMgrService.getEntityManager() != null && entityMgrService.getEntityManager().getTransaction() != null
