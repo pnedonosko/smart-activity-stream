@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.datacollector.AbstractTest;
-import org.exoplatform.datacollector.DataCollectorService;
+import org.exoplatform.datacollector.ActivityRelevancyService;
 import org.exoplatform.datacollector.TestUtils;
 import org.exoplatform.datacollector.dao.RelevanceDAO;
 import org.exoplatform.datacollector.domain.RelevanceEntity;
@@ -18,7 +18,7 @@ import org.junit.Test;
 public class DataCollectorServiceTest extends AbstractTest {
   PortalContainer      container = null;
 
-  DataCollectorService dataCollectorService;
+  ActivityRelevancyService dataCollectorService;
 
   RelevanceDAO         relevanceStorage;
 
@@ -39,7 +39,7 @@ public class DataCollectorServiceTest extends AbstractTest {
     */
     relevanceStorage = mock(RelevanceDAO.class);
 
-    dataCollectorService = new DataCollectorService(relevanceStorage);
+    dataCollectorService = new ActivityRelevancyService(relevanceStorage);
 
     when(relevanceStorage.find(TestUtils.EXISTING_RELEVANCE_ID)).thenReturn(TestUtils.getExistingRelevance());
     when(relevanceStorage.find(TestUtils.UNEXISTING_RELEVANCE_ID)).thenReturn(null);

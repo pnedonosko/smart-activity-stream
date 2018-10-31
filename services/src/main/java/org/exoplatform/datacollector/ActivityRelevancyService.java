@@ -37,20 +37,20 @@ import org.picocontainer.Startable;
 /**
  * The Class DataCollectorService.
  */
-public class DataCollectorService implements Startable {
+public class ActivityRelevancyService implements Startable {
 
 	/** The DAO for RelevanceEntity */
 	protected final RelevanceDAO relevanceStorage;
 
 	/** The Constant LOG. */
-	protected static final Log LOG = ExoLogger.getLogger(DataCollectorService.class);
+	protected static final Log LOG = ExoLogger.getLogger(ActivityRelevancyService.class);
 
 	/**
 	 * Instantiates a Data collector Service
 	 * 
 	 * @param relevanceStorage is the DAO for RelevanceEntity
 	 */
-	public DataCollectorService(RelevanceDAO relevanceStorage) {
+	public ActivityRelevancyService(RelevanceDAO relevanceStorage) {
 		this.relevanceStorage = relevanceStorage;
 	}
 
@@ -66,7 +66,7 @@ public class DataCollectorService implements Startable {
 	 * @param activityManager
 	 * @param relevanceStorage
 	 */
-	public DataCollectorService(RepositoryService jcrService,
+	public ActivityRelevancyService(RepositoryService jcrService,
             					SessionProviderService sessionProviders,
             					NodeHierarchyCreator hierarchyCreator,
             					OrganizationService organization,
