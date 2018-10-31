@@ -30,7 +30,7 @@
 		</modifySql>
 	</changeSet>
 
-	<!-- Definition of DTC_RELEVANCES constraints -->
+	<!-- Definition of ST_ACTIVITY_RELEVANCY constraints -->
 	<changeSet author="data-collector" id="1.0.0-2">
 		<addPrimaryKey tableName="ST_ACTIVITY_RELEVANCY"
 			columnNames="USER_ID, ACTIVITY_ID" constraintName="PK_ST_RELPART" />
