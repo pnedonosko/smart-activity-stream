@@ -4,8 +4,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import org.exoplatform.datacollector.domain.RelevanceEntity;
-import org.exoplatform.datacollector.domain.RelevanceId;
+import org.exoplatform.smartactivitystream.relevancy.domain.RelevanceEntity;
+import org.exoplatform.smartactivitystream.relevancy.domain.RelevanceId;
 
 import liquibase.Liquibase;
 import liquibase.database.Database;

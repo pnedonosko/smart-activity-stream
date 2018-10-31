@@ -7,10 +7,10 @@ import static org.mockito.Mockito.when;
 
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.datacollector.AbstractTest;
-import org.exoplatform.datacollector.ActivityRelevancyService;
 import org.exoplatform.datacollector.TestUtils;
-import org.exoplatform.datacollector.dao.RelevanceDAO;
-import org.exoplatform.datacollector.domain.RelevanceEntity;
+import org.exoplatform.smartactivitystream.relevancy.ActivityRelevancyService;
+import org.exoplatform.smartactivitystream.relevancy.dao.RelevanceDAO;
+import org.exoplatform.smartactivitystream.relevancy.domain.RelevanceEntity;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

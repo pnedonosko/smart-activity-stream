@@ -1,4 +1,4 @@
-package org.exoplatform.datacollector.rest;
+package org.exoplatform.smartactivitystream.relevancy.rest;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
@@ -11,12 +11,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.exoplatform.datacollector.ActivityRelevancyService;
-import org.exoplatform.datacollector.domain.RelevanceEntity;
-import org.exoplatform.datacollector.domain.RelevanceId;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
+import org.exoplatform.smartactivitystream.relevancy.ActivityRelevancyService;
+import org.exoplatform.smartactivitystream.relevancy.domain.RelevanceEntity;
+import org.exoplatform.smartactivitystream.relevancy.domain.RelevanceId;
 
 /**
  * The REST service for Data Collectors

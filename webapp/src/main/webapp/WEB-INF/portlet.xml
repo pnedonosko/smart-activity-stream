@@ -7,7 +7,7 @@
   <portlet>
     <portlet-name>DataCollectorPortlet</portlet-name>
     <display-name xml:lang="EN">Data Collector portlet</display-name>
-    <portlet-class>org.exoplatform.datacollector.portlet.DataCollectorPortlet</portlet-class>
+    <portlet-class>org.exoplatform.smartactivitystream.relevancy.portlet.DataCollectorPortlet</portlet-class>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>

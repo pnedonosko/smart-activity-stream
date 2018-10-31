@@ -1,4 +1,4 @@
-package org.exoplatform.datacollector.portlet;
+package org.exoplatform.smartactivitystream.relevancy.portlet;
 
 import javax.portlet.GenericPortlet;
 import javax.portlet.RenderRequest;

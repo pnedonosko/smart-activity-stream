@@ -6,7 +6,7 @@
   <persistence-unit name="exo-pu" transaction-type="RESOURCE_LOCAL">
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
 
-    <class>org.exoplatform.datacollector.domain.RelevanceEntity</class>
+    <class>org.exoplatform.smartactivitystream.relevancy.domain.RelevanceEntity</class>
 
 
     <properties>

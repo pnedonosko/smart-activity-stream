@@ -8,15 +8,15 @@
 		<type>org.exoplatform.commons.persistence.impl.EntityManagerService</type>
 	</component>
 	<component>
-		<type>org.exoplatform.datacollector.dao.RelevanceDAO</type>
+		<type>org.exoplatform.smartactivitystream.relevancy.dao.RelevanceDAO</type>
 	</component>
 
 	<component>
-		<type>org.exoplatform.datacollector.rest.RESTActivityRelevancyService</type>
+		<type>org.exoplatform.smartactivitystream.relevancy.rest.RESTActivityRelevancyService</type>
 	</component>
 	
 	<component>
-		<type>org.exoplatform.datacollector.ActivityRelevancyService</type>
+		<type>org.exoplatform.smartactivitystream.relevancy.ActivityRelevancyService</type>
 	</component>
 
 	<external-component-plugins>

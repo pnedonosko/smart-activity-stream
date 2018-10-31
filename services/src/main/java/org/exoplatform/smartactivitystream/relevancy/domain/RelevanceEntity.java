@@ -1,4 +1,4 @@
-package org.exoplatform.datacollector.domain;
+package org.exoplatform.smartactivitystream.relevancy.domain;
 
 import java.util.Date;
 
