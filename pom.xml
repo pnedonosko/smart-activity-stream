@@ -62,7 +62,6 @@
     <junit.version>4.12</junit.version>
     
     <mockito.version>2.0.13-beta</mockito.version>
-    <h2database.version>1.2.145</h2database.version>
   </properties>
   
   <dependencyManagement>
@@ -85,14 +84,14 @@
       </dependency>
       <!-- Extension modules -->
       <dependency>
-        <groupId>org.exoplatform.addons.data-collector</groupId>
-        <artifactId>data-collector-services</artifactId>
+        <groupId>org.exoplatform.addons.smart-activity-stream</groupId>
+        <artifactId>smart-activity-stream-services</artifactId>
         <version>${project.version}</version>
         <type>jar</type>
       </dependency>
       <dependency>
-        <groupId>org.exoplatform.addons.data-collector</groupId>
-        <artifactId>data-collector-webapp</artifactId>
+        <groupId>org.exoplatform.addons.smart-activity-stream</groupId>
+        <artifactId>smart-activity-stream-webapp</artifactId>
         <version>${project.version}</version>
         <type>war</type>
       </dependency>
@@ -114,12 +113,6 @@
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
         <version>${mockito.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.h2database</groupId>
-        <artifactId>h2</artifactId>
-        <version>${h2database.version}</version>
         <scope>test</scope>
       </dependency>
     </dependencies>

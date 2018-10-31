@@ -16,7 +16,7 @@ public class AbstractTest {
 
   @BeforeClass
   public static void createTable() throws SQLException, ClassNotFoundException, LiquibaseException {
-    TestUtils.initH2DB();
+    TestUtils.initHSQLDB();
   }
 
   @AfterClass
