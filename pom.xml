@@ -41,10 +41,10 @@
   </modules>
   
   <scm>
-    <connection>scm:git:git://github.com/pnedonosko/exo-data-collector.git</connection>
-    <developerConnection>scm:git:git@github.com:pnedonosko/exo-data-collector.git</developerConnection>
+    <connection>scm:git:git://github.com/exo-addons/smart-activity-stream.git</connection>
+    <developerConnection>scm:git:git@github.com:exo-addons/smart-activity-stream.git</developerConnection>
     <tag>HEAD</tag>
-    <url>https://github.com/pnedonosko/exo-data-collector</url>
+    <url>https://github.com/exo-addons/smart-activity-stream</url>
   </scm>
   
   <properties>
@@ -109,7 +109,7 @@
         <version>${junit.version}</version>
         <scope>test</scope>
       </dependency>
-		<dependency>
+      <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
         <version>${mockito.version}</version>
