@@ -7,8 +7,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import org.exoplatform.commons.api.persistence.ExoEntity;
 
@@ -41,13 +39,13 @@ public class RelevanceEntity {
 	 */
 	@Column(name = "IS_RELEVANT")
 	protected Boolean relevant;
-	
+
 	/**
 	 * The weight
 	 */
 	@Column(name = "WEIGHT")
 	protected Double weight;
-	
+
 	/**
 	 * The update date
 	 */
@@ -55,8 +53,33 @@ public class RelevanceEntity {
 	protected Date updateDate;
 
 	/**
+	 * The weight date
+	 */
+	@Column(name = "WEIGHT_DATE")
+	protected Date weightDate;
+
+	/**
+	 * Gets the weight date
+	 * 
+	 * @return weight date
+	 */
+	public Date getWeightDate() {
+		return weightDate;
+	}
+
+	/**
+	 * Sets the weight date
+	 * 
+	 * @param weightDate
+	 */
+	public void setWeightDate(Date weightDate) {
+		this.weightDate = weightDate;
+	}
+
+	/**
 	 * Gets the update date
-	 * @return
+	 * 
+	 * @return updateDate
 	 */
 	public Date getUpdateDate() {
 		return updateDate;
@@ -64,6 +87,7 @@ public class RelevanceEntity {
 
 	/**
 	 * Sets the update date
+	 * 
 	 * @param updateDate
 	 */
 	public void setUpdateDate(Date updateDate) {
@@ -141,7 +165,7 @@ public class RelevanceEntity {
 	public void setRelevant(Boolean relevant) {
 		this.relevant = relevant;
 	}
-	
+
 	/**
 	 * Converts the RelevanceEntity to the String
 	 */
@@ -150,7 +174,5 @@ public class RelevanceEntity {
 		return "RelevanceEntity [userId=" + userId + ", activityId=" + activityId + ", relevant=" + relevant
 				+ ", weight=" + weight + ", updateDate=" + updateDate + "]";
 	}
-
-	
 
 }
