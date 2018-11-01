@@ -10,7 +10,7 @@
   <property name="now" value="sysdate" dbms="oracle" />
   <property name="now" value="CURRENT_TIMESTAMP" dbms="mssql" />
   
-	<!-- Definition of DTC_RELEVANCES table -->
+	<!-- Definition of ST_ACTIVITY_RELEVANCY table -->
 	<changeSet author="smart-activity" id="1.0.0-1">
 		<createTable tableName="ST_ACTIVITY_RELEVANCY">
 			<column name="USER_ID" type="NVARCHAR(255)">
