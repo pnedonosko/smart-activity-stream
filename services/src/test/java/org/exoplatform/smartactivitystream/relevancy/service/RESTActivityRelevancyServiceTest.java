@@ -1,4 +1,4 @@
-package org.exoplatform.datacollector.service;
+package org.exoplatform.smartactivitystream.relevancy.service;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -6,19 +6,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.exoplatform.container.PortalContainer;
-import org.exoplatform.datacollector.AbstractTest;
-import org.exoplatform.datacollector.TestUtils;
+import org.exoplatform.smartactivitystream.relevancy.AbstractTest;
 import org.exoplatform.smartactivitystream.relevancy.ActivityRelevancyService;
+import org.exoplatform.smartactivitystream.relevancy.TestUtils;
 import org.exoplatform.smartactivitystream.relevancy.dao.RelevanceDAO;
 import org.exoplatform.smartactivitystream.relevancy.domain.RelevanceEntity;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class DataCollectorServiceTest extends AbstractTest {
+public class RESTActivityRelevancyServiceTest extends AbstractTest {
   PortalContainer      container = null;
 
-  ActivityRelevancyService dataCollectorService;
+  ActivityRelevancyService activityRelevancyService;
 
   RelevanceDAO         relevanceStorage;
 
@@ -35,11 +35,11 @@ public class DataCollectorServiceTest extends AbstractTest {
     IdentityStorage identityStorage = container.getComponentInstanceOfType(IdentityStorage.class);
     ActivityManager activityManager = container.getComponentInstanceOfType(ActivityManager.class);
     
-    dataCollectorService = new DataCollectorService(jcrService, sessionProviders, hierarchyCreator, organization, identityManager, identityStorage, activityManager, relevanceStorage);
+    activityRelevancyService = new ActivityRelevancyService(jcrService, sessionProviders, hierarchyCreator, organization, identityManager, identityStorage, activityManager, relevanceStorage);
     */
     relevanceStorage = mock(RelevanceDAO.class);
 
-    dataCollectorService = new ActivityRelevancyService(relevanceStorage);
+    activityRelevancyService = new ActivityRelevancyService(relevanceStorage);
 
     when(relevanceStorage.find(TestUtils.EXISTING_RELEVANCE_ID)).thenReturn(TestUtils.getExistingRelevance());
     when(relevanceStorage.find(TestUtils.UNEXISTING_RELEVANCE_ID)).thenReturn(null);
@@ -48,7 +48,7 @@ public class DataCollectorServiceTest extends AbstractTest {
   @Test
   public void testSaveRelevanceUpdate() {
     RelevanceEntity relevance = TestUtils.getExistingRelevance();
-    dataCollectorService.saveRelevance(relevance);
+    activityRelevancyService.saveRelevance(relevance);
 
     verify(relevanceStorage, times(1)).update(relevance);
   }
@@ -56,20 +56,20 @@ public class DataCollectorServiceTest extends AbstractTest {
   @Test
   public void testSaveRelevance() {
     RelevanceEntity relevance = TestUtils.getNewRelevance();
-    dataCollectorService.saveRelevance(relevance);
+    activityRelevancyService.saveRelevance(relevance);
 
     verify(relevanceStorage, times(1)).create(relevance);
   }
 
   @Test
   public void testFindById() {
-    dataCollectorService.findById(TestUtils.EXISTING_RELEVANCE_ID);
+    activityRelevancyService.findById(TestUtils.EXISTING_RELEVANCE_ID);
 
     verify(relevanceStorage, times(1)).find(TestUtils.EXISTING_RELEVANCE_ID);
   }
 
   @After
   public void tearDown() {
-    dataCollectorService = null;
+    activityRelevancyService = null;
   }
 }

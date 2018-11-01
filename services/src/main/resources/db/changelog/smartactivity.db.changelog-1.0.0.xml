@@ -11,7 +11,7 @@
   <property name="now" value="CURRENT_TIMESTAMP" dbms="mssql" />
   
 	<!-- Definition of DTC_RELEVANCES table -->
-	<changeSet author="data-collector" id="1.0.0-1">
+	<changeSet author="smart-activity" id="1.0.0-1">
 		<createTable tableName="ST_ACTIVITY_RELEVANCY">
 			<column name="USER_ID" type="NVARCHAR(255)">
 				<constraints nullable="false" />
@@ -31,7 +31,7 @@
 	</changeSet>
 
 	<!-- Definition of ST_ACTIVITY_RELEVANCY constraints -->
-	<changeSet author="data-collector" id="1.0.0-2">
+	<changeSet author="smart-activity" id="1.0.0-2">
 		<addPrimaryKey tableName="ST_ACTIVITY_RELEVANCY"
 			columnNames="USER_ID, ACTIVITY_ID" constraintName="PK_ST_RELPART" />
 	</changeSet>

@@ -15,12 +15,12 @@
 	xsi:schemaLocation="http://www.gatein.org/xml/ns/gatein_resources_1_3 http://www.gatein.org/xml/ns/gatein_resources_1_3"
 	xmlns="http://www.gatein.org/xml/ns/gatein_resources_1_3">
 
-	<!-- Javascript for Data Collector support -->
+	<!-- Javascript for Smart Activity support -->
 	<module>
-		<name>datacollector</name>
-		<load-group>datacollectorGRP</load-group>
+		<name>smartactivitystream</name>
+		<load-group>smartactivitystreamGRP</load-group>
 		<script>
-			<path>/js/datacollector.js</path>
+			<path>/js/smartactivitystream.js</path>
 		</script>
 
 		<depends>
@@ -29,20 +29,20 @@
 		</depends>
 	</module>
 
-	<!-- CSS for Data Collector support -->
+	<!-- CSS for Smart Activity Stream support -->
 	<portlet-skin>
-		<application-name>datacollector</application-name>
-		<portlet-name>DataCollectorPortlet</portlet-name>
+		<application-name>smartactivitystream</application-name>
+		<portlet-name>SmartActivityStreamPortlet</portlet-name>
 		<skin-name>Default</skin-name>
-		<css-path>/skin/datacollector.css</css-path>
+		<css-path>/skin/smartactivitystream.css</css-path>
 		<overwrite>true</overwrite>
 	</portlet-skin>
 
 	<portlet-skin>
-		<application-name>datacollector</application-name>
-		<portlet-name>DataCollectorPortlet</portlet-name>
+		<application-name>smartactivitystream</application-name>
+		<portlet-name>SmartActivityStreamPortlet</portlet-name>
 		<skin-name>Enterprise</skin-name>
-		<css-path>/skin/datacollector.css</css-path>
+		<css-path>/skin/smartactivitystream.css</css-path>
 		<overwrite>true</overwrite>
 	</portlet-skin>
 

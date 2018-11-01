@@ -1,4 +1,4 @@
-package org.exoplatform.datacollector;
+package org.exoplatform.smartactivitystream.relevancy;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -43,7 +43,7 @@ public class TestUtils {
   private static void initDB() throws LiquibaseException {
     Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(conn));
 
-    liquibase = new Liquibase("db/changelog/datacollector.db.changelog-1.0.0.xml", new ClassLoaderResourceAccessor(), database);
+    liquibase = new Liquibase("db/changelog/smartactivity.db.changelog-1.0.0.xml", new ClassLoaderResourceAccessor(), database);
     liquibase.update((String) null);
 
   }

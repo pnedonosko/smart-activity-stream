@@ -35,7 +35,7 @@ import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.picocontainer.Startable;
 
 /**
- * The Class DataCollectorService.
+ * The Class ActivityRelevancyService
  */
 public class ActivityRelevancyService implements Startable {
 
@@ -46,7 +46,7 @@ public class ActivityRelevancyService implements Startable {
 	protected static final Log LOG = ExoLogger.getLogger(ActivityRelevancyService.class);
 
 	/**
-	 * Instantiates a Data collector Service
+	 * Instantiates a ActivityRelevancyService
 	 * 
 	 * @param relevanceStorage is the DAO for RelevanceEntity
 	 */
@@ -55,7 +55,7 @@ public class ActivityRelevancyService implements Startable {
 	}
 
 	/**
-	 * Instantiates a Data collector Service
+	 * Instantiates a ActivityRelevancyService
 	 * 
 	 * @param jcrService
 	 * @param sessionProviders

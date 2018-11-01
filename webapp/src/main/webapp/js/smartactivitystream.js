@@ -155,7 +155,7 @@ var postRelevance = function(relevance) {
 	var prefixUrl = pageBaseUrl(location);
 
 	var request = $.ajax({
-		url: prefixUrl + "/portal/rest/datacollector/collector",
+		url: prefixUrl + "/portal/rest/smartactivity/relevancy",
 		type: 'post',
 		contentType: 'application/json',
 		data: JSON.stringify(relevance)
@@ -167,7 +167,7 @@ var getRelevance = function(userId, activityId) {
 	var prefixUrl = pageBaseUrl(location);
 
 	var request = $.ajax({
-		url: prefixUrl + "/portal/rest/datacollector/collector/" + userId + "/" + activityId,
+		url: prefixUrl + "/portal/rest/smartactivity/relevancy/" + userId + "/" + activityId,
 		type: 'get'
 	});
 	return request;

@@ -1,4 +1,4 @@
-package org.exoplatform.datacollector;
+package org.exoplatform.smartactivitystream.relevancy;
 
 import java.sql.SQLException;
 

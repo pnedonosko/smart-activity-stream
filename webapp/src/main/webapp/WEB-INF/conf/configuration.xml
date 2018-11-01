@@ -16,42 +16,9 @@
 	xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_3.xsd http://www.exoplatform.org/xml/ns/kernel_1_3.xsd"
 	xmlns="http://www.exoplatform.org/xml/ns/kernel_1_3.xsd">
 
-	<component>
-		<type>org.exoplatform.datacollector.DataCollectorService</type>
-	</component>
-
-	<component>
-		<type>org.exoplatform.datacollector.rest.RESTDataCollectorService</type>
-	</component>
-
-	<component>
-		<type>org.exoplatform.commons.persistence.impl.EntityManagerService</type>
-	</component>
-	<component>
-		<type>org.exoplatform.datacollector.dao.RelevanceDAO</type>
-	</component>
-
-
-	<external-component-plugins>
-		<target-component>org.exoplatform.commons.api.persistence.DataInitializer</target-component>
-		<component-plugin>
-			<name>DataCollectorChangeLogsPlugin</name>
-			<set-method>addChangeLogsPlugin</set-method>
-			<type>org.exoplatform.commons.persistence.impl.ChangeLogsPlugin</type>
-			<init-params>
-				<values-param>
-					<name>changelogs</name>
-					<description>Change logs of Data Collector</description>
-					<value>db/changelog/datacollector.db.changelog-1.0.0.xml</value>
-				</values-param>
-			</init-params>
-		</component-plugin>
-	</external-component-plugins>
-
 	<external-component-plugins>
 		<target-component>org.exoplatform.commons.addons.AddOnService</target-component>
 		<component-plugin>
-			<!-- Add WebConferencing portlet to portal pages with a toolbar -->
 			<name>addPlugin</name>
 			<set-method>addPlugin</set-method>
 			<type>org.exoplatform.commons.addons.AddOnPluginImpl</type>
@@ -66,15 +33,15 @@
 					<value>middle-topNavigation-container</value>
 				</value-param>
 				<object-param>
-					<name>DataCollectorPortlet</name>
-					<description>Data Collector portlet</description>
+					<name>SmartActivityStream</name>
+					<description>Smart Activity Stream portlet</description>
 					<object
 						type="org.exoplatform.portal.config.serialize.PortletApplication">
 						<field name="state">
 							<object
 								type="org.exoplatform.portal.config.model.TransientApplicationState">
 								<field name="contentId">
-									<string>datacollector/DataCollectorPortlet</string>
+									<string>smartactivitystream/SmartActivityStreamPortlet</string>
 								</field>
 							</object>
 						</field>
@@ -83,5 +50,4 @@
 			</init-params>
 		</component-plugin>
 	</external-component-plugins>
-
 </configuration>

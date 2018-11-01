@@ -22,7 +22,7 @@ import org.exoplatform.smartactivitystream.relevancy.domain.RelevanceId;
  * The REST service for Data Collectors
  *
  */
-@Path("/datacollector")
+@Path("/smartactivity")
 @Produces(MediaType.APPLICATION_JSON)
 public class RESTActivityRelevancyService implements ResourceContainer {
 
@@ -32,7 +32,7 @@ public class RESTActivityRelevancyService implements ResourceContainer {
 	/** The Data Collector service */
 	protected final ActivityRelevancyService activityRelevancyService;
 
-	/** Instantiates a new REST service for the DataCollector */
+	/** Instantiates a new RESTActivityRelevancyService */
 	public RESTActivityRelevancyService(ActivityRelevancyService activityRelevancyService) {
 		this.activityRelevancyService = activityRelevancyService;
 	}
@@ -45,7 +45,7 @@ public class RESTActivityRelevancyService implements ResourceContainer {
 	@POST
 	@RolesAllowed("users")
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Path("/collector")
+	@Path("/relevancy")
 	public void saveRelevance(RelevanceEntity relevanceEntity) {
 		activityRelevancyService.saveRelevance(relevanceEntity);
 	}
@@ -59,7 +59,7 @@ public class RESTActivityRelevancyService implements ResourceContainer {
 	 */
 	@GET
 	@RolesAllowed("users")
-	@Path("/collector/{userId}/{activityId}")
+	@Path("/relevancy/{userId}/{activityId}")
 	public Response getRelevance(@PathParam("userId") String userId, @PathParam("activityId") String activityId) {
 		RelevanceEntity relevanceEntity = activityRelevancyService.findById(new RelevanceId(userId, activityId));
 		if (relevanceEntity == null) {
