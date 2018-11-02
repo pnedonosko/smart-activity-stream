@@ -20,159 +20,159 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
 @IdClass(RelevanceId.class)
 public class RelevanceEntity {
 
-	/**
-	 * The user id
-	 */
-	@Id
-	@Column(name = "USER_ID")
-	protected String userId;
+  /**
+   * The user id
+   */
+  @Id
+  @Column(name = "USER_ID")
+  protected String  userId;
 
-	/**
-	 * The activity id
-	 */
-	@Id
-	@Column(name = "ACTIVITY_ID")
-	protected String activityId;
+  /**
+   * The activity id
+   */
+  @Id
+  @Column(name = "ACTIVITY_ID")
+  protected String  activityId;
 
-	/**
-	 * Indicates relevance of the Activity
-	 */
-	@Column(name = "IS_RELEVANT")
-	protected Boolean relevant;
+  /**
+   * Indicates relevance of the Activity
+   */
+  @Column(name = "IS_RELEVANT")
+  protected Boolean relevant;
 
-	/**
-	 * The weight
-	 */
-	@Column(name = "WEIGHT")
-	protected Double weight;
+  /**
+   * The weight
+   */
+  @Column(name = "WEIGHT")
+  protected Double  weight;
 
-	/**
-	 * The update date
-	 */
-	@Column(name = "UPDATE_DATE")
-	protected Date updateDate;
+  /**
+   * The update date
+   */
+  @Column(name = "UPDATE_DATE")
+  protected Date    updateDate;
 
-	/**
-	 * The weight date
-	 */
-	@Column(name = "WEIGHT_DATE")
-	protected Date weightDate;
+  /**
+   * The weight date
+   */
+  @Column(name = "WEIGHT_DATE")
+  protected Date    weightDate;
 
-	/**
-	 * Gets the weight date
-	 * 
-	 * @return weight date
-	 */
-	public Date getWeightDate() {
-		return weightDate;
-	}
+  /**
+   * Gets the weight date
+   * 
+   * @return weight date
+   */
+  public Date getWeightDate() {
+    return weightDate;
+  }
 
-	/**
-	 * Sets the weight date
-	 * 
-	 * @param weightDate
-	 */
-	public void setWeightDate(Date weightDate) {
-		this.weightDate = weightDate;
-	}
+  /**
+   * Sets the weight date
+   * 
+   * @param weightDate
+   */
+  public void setWeightDate(Date weightDate) {
+    this.weightDate = weightDate;
+  }
 
-	/**
-	 * Gets the update date
-	 * 
-	 * @return updateDate
-	 */
-	public Date getUpdateDate() {
-		return updateDate;
-	}
+  /**
+   * Gets the update date
+   * 
+   * @return updateDate
+   */
+  public Date getUpdateDate() {
+    return updateDate;
+  }
 
-	/**
-	 * Sets the update date
-	 * 
-	 * @param updateDate
-	 */
-	public void setUpdateDate(Date updateDate) {
-		this.updateDate = updateDate;
-	}
+  /**
+   * Sets the update date
+   * 
+   * @param updateDate
+   */
+  public void setUpdateDate(Date updateDate) {
+    this.updateDate = updateDate;
+  }
 
-	/**
-	 * Gets the user id
-	 * 
-	 * @return user id
-	 */
-	public String getUserId() {
-		return userId;
-	}
+  /**
+   * Gets the user id
+   * 
+   * @return user id
+   */
+  public String getUserId() {
+    return userId;
+  }
 
-	/**
-	 * Gets the weight
-	 * 
-	 * @return weight
-	 */
-	public Double getWeight() {
-		return weight;
-	}
+  /**
+   * Gets the weight
+   * 
+   * @return weight
+   */
+  public Double getWeight() {
+    return weight;
+  }
 
-	/**
-	 * Sets the weight
-	 * 
-	 * @param weight
-	 */
-	public void setWeight(Double weight) {
-		this.weight = weight;
-	}
+  /**
+   * Sets the weight
+   * 
+   * @param weight
+   */
+  public void setWeight(Double weight) {
+    this.weight = weight;
+  }
 
-	/**
-	 * Sets the user id
-	 * 
-	 * @param userId
-	 */
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
+  /**
+   * Sets the user id
+   * 
+   * @param userId
+   */
+  public void setUserId(String userId) {
+    this.userId = userId;
+  }
 
-	/**
-	 * Gets the activity id
-	 * 
-	 * @return
-	 */
-	public String getActivityId() {
-		return activityId;
-	}
+  /**
+   * Gets the activity id
+   * 
+   * @return
+   */
+  public String getActivityId() {
+    return activityId;
+  }
 
-	/**
-	 * Sets the activity id
-	 * 
-	 * @param activityId
-	 */
-	public void setActivityId(String activityId) {
-		this.activityId = activityId;
-	}
+  /**
+   * Sets the activity id
+   * 
+   * @param activityId
+   */
+  public void setActivityId(String activityId) {
+    this.activityId = activityId;
+  }
 
-	/**
-	 * Gets the relevance
-	 * 
-	 * @return
-	 */
-	public Boolean getRelevant() {
-		return relevant;
-	}
+  /**
+   * Gets the relevance
+   * 
+   * @return
+   */
+  public Boolean getRelevant() {
+    return relevant;
+  }
 
-	/**
-	 * Sets the relevance
-	 * 
-	 * @param relevant
-	 */
-	public void setRelevant(Boolean relevant) {
-		this.relevant = relevant;
-	}
+  /**
+   * Sets the relevance
+   * 
+   * @param relevant
+   */
+  public void setRelevant(Boolean relevant) {
+    this.relevant = relevant;
+  }
 
-	/**
-	 * Converts the RelevanceEntity to the String
-	 */
-	@Override
-	public String toString() {
-		return "RelevanceEntity [userId=" + userId + ", activityId=" + activityId + ", relevant=" + relevant
-				+ ", weight=" + weight + ", updateDate=" + updateDate + "]";
-	}
+  /**
+   * Converts the RelevanceEntity to the String
+   */
+  @Override
+  public String toString() {
+    return "RelevanceEntity [userId=" + userId + ", activityId=" + activityId + ", relevant=" + relevant + ", weight=" + weight
+        + ", updateDate=" + updateDate + "]";
+  }
 
 }

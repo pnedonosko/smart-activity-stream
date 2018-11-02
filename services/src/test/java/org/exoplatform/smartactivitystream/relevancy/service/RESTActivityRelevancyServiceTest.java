@@ -16,16 +16,15 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class RESTActivityRelevancyServiceTest extends AbstractTest {
-  PortalContainer      container = null;
+  PortalContainer          container = null;
 
   ActivityRelevancyService activityRelevancyService;
 
-  RelevanceDAO         relevanceStorage;
+  RelevanceDAO             relevanceStorage;
 
   @Before
   public void setUp() {
     container = PortalContainer.getInstance();
-
     /*
     RepositoryService jcrService = container.getComponentInstanceOfType(RepositoryService.class);
     SessionProviderService sessionProviders = container.getComponentInstanceOfType(SessionProviderService.class);

@@ -26,46 +26,46 @@ import org.exoplatform.smartactivitystream.relevancy.domain.RelevanceId;
 @Produces(MediaType.APPLICATION_JSON)
 public class RESTActivityRelevancyService implements ResourceContainer {
 
-	/** The Constant LOG. */
-	protected static final Log LOG = ExoLogger.getLogger(RESTActivityRelevancyService.class);
+  /** The Constant LOG. */
+  protected static final Log               LOG = ExoLogger.getLogger(RESTActivityRelevancyService.class);
 
-	/** The Data Collector service */
-	protected final ActivityRelevancyService activityRelevancyService;
+  /** The Data Collector service */
+  protected final ActivityRelevancyService activityRelevancyService;
 
-	/** Instantiates a new RESTActivityRelevancyService */
-	public RESTActivityRelevancyService(ActivityRelevancyService activityRelevancyService) {
-		this.activityRelevancyService = activityRelevancyService;
-	}
+  /** Instantiates a new RESTActivityRelevancyService */
+  public RESTActivityRelevancyService(ActivityRelevancyService activityRelevancyService) {
+    this.activityRelevancyService = activityRelevancyService;
+  }
 
-	/**
-	 * Posts a relevance
-	 * 
-	 * @param relevanceEntity to be saved or updated
-	 */
-	@POST
-	@RolesAllowed("users")
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Path("/relevancy")
-	public void saveRelevance(RelevanceEntity relevanceEntity) {
-		activityRelevancyService.saveRelevance(relevanceEntity);
-	}
+  /**
+   * Posts a relevance
+   * 
+   * @param relevanceEntity to be saved or updated
+   */
+  @POST
+  @RolesAllowed("users")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Path("/relevancy")
+  public void saveRelevance(RelevanceEntity relevanceEntity) {
+    activityRelevancyService.saveRelevance(relevanceEntity);
+  }
 
-	/**
-	 * Gets a relevance
-	 * 
-	 * @param userId
-	 * @param activityId
-	 * @return response 200 which contains relevanceEntity or 404
-	 */
-	@GET
-	@RolesAllowed("users")
-	@Path("/relevancy/{userId}/{activityId}")
-	public Response getRelevance(@PathParam("userId") String userId, @PathParam("activityId") String activityId) {
-		RelevanceEntity relevanceEntity = activityRelevancyService.findById(new RelevanceId(userId, activityId));
-		if (relevanceEntity == null) {
-			return Response.status(Status.NOT_FOUND).build();
-		}
-		return Response.ok().entity(relevanceEntity).build();
-	}
+  /**
+   * Gets a relevance
+   * 
+   * @param userId
+   * @param activityId
+   * @return response 200 which contains relevanceEntity or 404
+   */
+  @GET
+  @RolesAllowed("users")
+  @Path("/relevancy/{userId}/{activityId}")
+  public Response getRelevance(@PathParam("userId") String userId, @PathParam("activityId") String activityId) {
+    RelevanceEntity relevanceEntity = activityRelevancyService.findById(new RelevanceId(userId, activityId));
+    if (relevanceEntity == null) {
+      return Response.status(Status.NOT_FOUND).build();
+    }
+    return Response.ok().entity(relevanceEntity).build();
+  }
 
 }

@@ -39,92 +39,92 @@ import org.picocontainer.Startable;
  */
 public class ActivityRelevancyService implements Startable {
 
-	/** The DAO for RelevanceEntity */
-	protected final RelevanceDAO relevanceStorage;
+  /** The DAO for RelevanceEntity */
+  protected final RelevanceDAO relevanceStorage;
 
-	/** The Constant LOG. */
-	protected static final Log LOG = ExoLogger.getLogger(ActivityRelevancyService.class);
+  /** The Constant LOG. */
+  protected static final Log   LOG = ExoLogger.getLogger(ActivityRelevancyService.class);
 
-	/**
-	 * Instantiates a ActivityRelevancyService
-	 * 
-	 * @param relevanceStorage is the DAO for RelevanceEntity
-	 */
-	public ActivityRelevancyService(RelevanceDAO relevanceStorage) {
-		this.relevanceStorage = relevanceStorage;
-	}
+  /**
+   * Instantiates a ActivityRelevancyService
+   * 
+   * @param relevanceStorage is the DAO for RelevanceEntity
+   */
+  public ActivityRelevancyService(RelevanceDAO relevanceStorage) {
+    this.relevanceStorage = relevanceStorage;
+  }
 
-	/**
-	 * Instantiates a ActivityRelevancyService
-	 * 
-	 * @param jcrService
-	 * @param sessionProviders
-	 * @param hierarchyCreator
-	 * @param organization
-	 * @param identityManager
-	 * @param identityStorage
-	 * @param activityManager
-	 * @param relevanceStorage
-	 */
-	public ActivityRelevancyService(RepositoryService jcrService,
-            					SessionProviderService sessionProviders,
-            					NodeHierarchyCreator hierarchyCreator,
-            					OrganizationService organization,
-            					IdentityManager identityManager,
-            					IdentityStorage identityStorage,
-            					ActivityManager activityManager,
-            					RelevanceDAO relevanceStorage) {
-		
-		this.relevanceStorage = relevanceStorage;
-	}
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void start() {
-		// Nothing
+  /**
+   * Instantiates a ActivityRelevancyService
+   * 
+   * @param jcrService
+   * @param sessionProviders
+   * @param hierarchyCreator
+   * @param organization
+   * @param identityManager
+   * @param identityStorage
+   * @param activityManager
+   * @param relevanceStorage
+   */
+  public ActivityRelevancyService(RepositoryService jcrService,
+                                  SessionProviderService sessionProviders,
+                                  NodeHierarchyCreator hierarchyCreator,
+                                  OrganizationService organization,
+                                  IdentityManager identityManager,
+                                  IdentityStorage identityStorage,
+                                  ActivityManager activityManager,
+                                  RelevanceDAO relevanceStorage) {
 
-	}
+    this.relevanceStorage = relevanceStorage;
+  }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void stop() {
-		// Nothing
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void start() {
+    // Nothing
 
-	}
+  }
 
-	/**
-	 * Saves a relevance to the storage. 
-	 * Updates the relevance if it already exists.
-	 * 
-	 * @param relevance to be saved/updated
-	 */
-	public void saveRelevance(RelevanceEntity relevance) {
-		RelevanceEntity existingRelevance = relevanceStorage
-				.find(new RelevanceId(relevance.getUserId(), relevance.getActivityId()));
-		
-		relevance.setUpdateDate(new Date());
-		
-		if (existingRelevance == null) {
-			relevanceStorage.create(relevance);
-			LOG.info("Relevance created: " + relevance);
-		} else {
-			relevanceStorage.update(relevance);
-			LOG.info("Relevance updated: " + relevance);
-		}
-	}
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void stop() {
+    // Nothing
 
-	/**
-	 * Gets RelevanceEntity by given RelevanceId which contains the user id and
-	 * activity id.
-	 *
-	 * @param relevanceId is the searching parameter for retrieving RelevanceEntity
-	 * @return found RelevanceEntity or null if there is no such RelevanceEntity.
-	 */
-	public RelevanceEntity findById(RelevanceId relevanceId) {
-		return relevanceStorage.find(relevanceId);
-	}
+  }
+
+  /**
+   * Saves a relevance to the storage. 
+   * Updates the relevance if it already exists.
+   * 
+   * @param relevance to be saved/updated
+   */
+  public void saveRelevance(RelevanceEntity relevance) {
+    RelevanceEntity existingRelevance = relevanceStorage.find(new RelevanceId(relevance.getUserId(), relevance.getActivityId()));
+
+    relevance.setUpdateDate(new Date());
+
+    if (existingRelevance == null) {
+      relevanceStorage.create(relevance);
+      LOG.info("Relevance created: " + relevance);
+    } else {
+      relevanceStorage.update(relevance);
+      LOG.info("Relevance updated: " + relevance);
+    }
+  }
+
+  /**
+   * Gets RelevanceEntity by given RelevanceId which contains the user id and
+   * activity id.
+   *
+   * @param relevanceId is the searching parameter for retrieving RelevanceEntity
+   * @return found RelevanceEntity or null if there is no such RelevanceEntity.
+   */
+  public RelevanceEntity findById(RelevanceId relevanceId) {
+    return relevanceStorage.find(relevanceId);
+  }
 
 }
