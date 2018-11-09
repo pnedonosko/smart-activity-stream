@@ -26,16 +26,24 @@ public class RESTActivityRelevancyServiceTest extends AbstractTest {
   public void setUp() {
     container = PortalContainer.getInstance();
     /*
-    RepositoryService jcrService = container.getComponentInstanceOfType(RepositoryService.class);
-    SessionProviderService sessionProviders = container.getComponentInstanceOfType(SessionProviderService.class);
-    NodeHierarchyCreator hierarchyCreator = container.getComponentInstanceOfType(NodeHierarchyCreator.class);
-    OrganizationService organization = container.getComponentInstanceOfType(OrganizationService.class);
-    IdentityManager identityManager = container.getComponentInstanceOfType(IdentityManager.class);
-    IdentityStorage identityStorage = container.getComponentInstanceOfType(IdentityStorage.class);
-    ActivityManager activityManager = container.getComponentInstanceOfType(ActivityManager.class);
-    
-    activityRelevancyService = new ActivityRelevancyService(jcrService, sessionProviders, hierarchyCreator, organization, identityManager, identityStorage, activityManager, relevanceStorage);
-    */
+     * RepositoryService jcrService =
+     * container.getComponentInstanceOfType(RepositoryService.class);
+     * SessionProviderService sessionProviders =
+     * container.getComponentInstanceOfType(SessionProviderService.class);
+     * NodeHierarchyCreator hierarchyCreator =
+     * container.getComponentInstanceOfType(NodeHierarchyCreator.class);
+     * OrganizationService organization =
+     * container.getComponentInstanceOfType(OrganizationService.class);
+     * IdentityManager identityManager =
+     * container.getComponentInstanceOfType(IdentityManager.class);
+     * IdentityStorage identityStorage =
+     * container.getComponentInstanceOfType(IdentityStorage.class);
+     * ActivityManager activityManager =
+     * container.getComponentInstanceOfType(ActivityManager.class);
+     * activityRelevancyService = new ActivityRelevancyService(jcrService,
+     * sessionProviders, hierarchyCreator, organization, identityManager,
+     * identityStorage, activityManager, relevanceStorage);
+     */
     relevanceStorage = mock(RelevanceDAO.class);
 
     activityRelevancyService = new ActivityRelevancyService(relevanceStorage);

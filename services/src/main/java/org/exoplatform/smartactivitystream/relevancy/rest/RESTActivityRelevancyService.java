@@ -20,7 +20,6 @@ import org.exoplatform.smartactivitystream.relevancy.domain.RelevanceId;
 
 /**
  * The REST service for Data Collectors
- *
  */
 @Path("/smartactivity")
 @Produces(MediaType.APPLICATION_JSON)

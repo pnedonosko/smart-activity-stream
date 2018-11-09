@@ -19,34 +19,35 @@
     02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>addons-parent-pom</artifactId>
     <groupId>org.exoplatform.addons</groupId>
     <version>10-M01</version>
   </parent>
-  
-  <groupId>org.exoplatform.addons.data-collector</groupId>
-  <artifactId>data-collector</artifactId>
+
+  <groupId>org.exoplatform.addons.smart-activity-stream</groupId>
+  <artifactId>smart-activity-stream</artifactId>
   <version>1.0.x-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>eXo Data Collector</name>
-  <description>eXo Data Collector portal extension</description>
-  
+  <name>eXo Smart Activity Stream</name>
+  <description>eXo Smart Activity Stream portal extension</description>
+
   <modules>
     <module>services</module>
     <module>webapp</module>
     <module>packaging</module>
   </modules>
-  
+
   <scm>
     <connection>scm:git:git://github.com/exo-addons/smart-activity-stream.git</connection>
     <developerConnection>scm:git:git@github.com:exo-addons/smart-activity-stream.git</developerConnection>
     <tag>HEAD</tag>
     <url>https://github.com/exo-addons/smart-activity-stream</url>
   </scm>
-  
+
   <properties>
     <!-- Defaut compiler settings -->
     <maven.compiler.optimize>true</maven.compiler.optimize>
@@ -62,7 +63,7 @@
     <junit.version>4.12</junit.version>
     <mockito.version>2.0.13-beta</mockito.version>
   </properties>
-  
+
   <dependencyManagement>
     <dependencies>
       <!-- Import versions of external dependencies to use -->

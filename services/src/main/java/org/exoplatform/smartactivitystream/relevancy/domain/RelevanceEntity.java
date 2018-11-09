@@ -11,8 +11,8 @@ import javax.persistence.Table;
 import org.exoplatform.commons.api.persistence.ExoEntity;
 
 /**
- * The RelevanceEntity class that represents user attitude to the Activity. 
- * The Activity can be marked as relevant or irrelevant
+ * The RelevanceEntity class that represents user attitude to the Activity. The
+ * Activity can be marked as relevant or irrelevant
  */
 @Entity(name = "SmartActivityRelevance")
 @ExoEntity

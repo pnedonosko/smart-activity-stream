@@ -23,7 +23,7 @@ public class RelevanceId implements Serializable {
   /**
    * Instantiates a new RelevanceId
    * 
-   * @param userId     the user id
+   * @param userId the user id
    * @param activityId the activity id
    */
   public RelevanceId(String userId, String activityId) {

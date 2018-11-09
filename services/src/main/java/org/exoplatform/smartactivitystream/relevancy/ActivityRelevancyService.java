@@ -97,8 +97,8 @@ public class ActivityRelevancyService implements Startable {
   }
 
   /**
-   * Saves a relevance to the storage. 
-   * Updates the relevance if it already exists.
+   * Saves a relevance to the storage. Updates the relevance if it already
+   * exists.
    * 
    * @param relevance to be saved/updated
    */
@@ -120,7 +120,8 @@ public class ActivityRelevancyService implements Startable {
    * Gets RelevanceEntity by given RelevanceId which contains the user id and
    * activity id.
    *
-   * @param relevanceId is the searching parameter for retrieving RelevanceEntity
+   * @param relevanceId is the searching parameter for retrieving
+   *          RelevanceEntity
    * @return found RelevanceEntity or null if there is no such RelevanceEntity.
    */
   public RelevanceEntity findById(RelevanceId relevanceId) {
