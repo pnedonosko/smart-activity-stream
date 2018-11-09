@@ -120,6 +120,18 @@ public class ActivityRelevancyService implements Startable {
       }
     }
   }
+  
+  /**
+   * Deletes a relevance
+   * 
+   * @param relevance to be deleted
+   */
+  public void deleteRelevance(RelevanceEntity relevance) {
+    relevanceStorage.delete(relevance);
+    if (LOG.isDebugEnabled()) {
+      LOG.info("Relevance deleted: " + relevance);
+    }
+  }
 
   /**
    * Gets RelevanceEntity by given RelevanceId which contains the user id and

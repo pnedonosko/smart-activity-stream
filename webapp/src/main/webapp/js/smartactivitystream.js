@@ -53,15 +53,15 @@ function addRelevanceOnClickListener(elements) {
 				$(this).removeClass("relevance-relevant");
 				$(this).toggleClass('relevance-irrelevant');
 
-				$(this).closest('a.relevance-tooltip').attr("data-original-title", "Relevant");
+				$(this).closest('a.relevance-tooltip').attr("data-original-title", "Default");
 			}
 			else{
-				console.log("Action: relevant | ID: " + activityId);
-				sendRelevance(activityId, true);
+				console.log("Action: delete relevance | ID: " + activityId);
+				removeRelevance(activityId, true);
 				$(this).removeClass("relevance-irrelevant");
-				$(this).toggleClass('relevance-relevant');
-
-				$(this).closest('a.relevance-tooltip').attr("data-original-title", "Irrelevant");
+				$(this).toggleClass('relevance-default');
+				$(this).removeClass('uiIconBlue');
+				$(this).closest('a.relevance-tooltip').attr("data-original-title", "Relevant");
 			}
 
 		}
@@ -90,6 +90,13 @@ function sendRelevance(activityId, relevant){
 	// The object of relevance to be sent to the server
 	var relevance = {"userId": eXo.env.portal.userName, "activityId": activityId, "relevant":relevant};
 	postRelevance(relevance);
+}
+
+// Deletes relevance of the activity from the server
+function removeRelevance(activityId, relevant){
+	// The object of relevance to be sent to the server
+	var relevance = {"userId": eXo.env.portal.userName, "activityId": activityId, "relevant":relevant};
+	deleteRelevance(relevance);
 }
 
 // Updates state of the icons. Accepts any parent div of an icon element
@@ -157,6 +164,18 @@ var postRelevance = function(relevance) {
 	var request = $.ajax({
 		url: prefixUrl + "/portal/rest/smartactivity/relevancy",
 		type: 'post',
+		contentType: 'application/json',
+		data: JSON.stringify(relevance)
+	});
+	return request;
+};
+
+var deleteRelevance = function(relevance) {
+	var prefixUrl = pageBaseUrl(location);
+
+	var request = $.ajax({
+		url: prefixUrl + "/portal/rest/smartactivity/relevancy",
+		type: 'delete',
 		contentType: 'application/json',
 		data: JSON.stringify(relevance)
 	});

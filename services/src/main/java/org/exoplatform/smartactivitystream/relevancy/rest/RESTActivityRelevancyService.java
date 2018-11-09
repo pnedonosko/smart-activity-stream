@@ -2,6 +2,7 @@ package org.exoplatform.smartactivitystream.relevancy.rest;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -67,4 +68,16 @@ public class RESTActivityRelevancyService implements ResourceContainer {
     return Response.ok().entity(relevanceEntity).build();
   }
 
+  /**
+   * Deletes a relevance
+   * 
+   * @param relevanceEntity to be deleted
+   */
+  @DELETE
+  @RolesAllowed("users")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Path("/relevancy")
+  public void deleteRelevance(RelevanceEntity relevanceEntity) {
+    activityRelevancyService.deleteRelevance(relevanceEntity);
+  }
 }
