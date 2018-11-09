@@ -15,7 +15,7 @@
 }
 
 .relevance-default:before {
-  color: gray;
+  color: #c6c6c6;
   content: "\e9ce";
 }
 
