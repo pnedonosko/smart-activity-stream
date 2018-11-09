@@ -20,6 +20,8 @@ package org.exoplatform.smartactivitystream.relevancy;
 
 import java.util.Date;
 
+import org.picocontainer.Startable;
+
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.ext.app.SessionProviderService;
 import org.exoplatform.services.jcr.ext.hierarchy.NodeHierarchyCreator;
@@ -32,7 +34,6 @@ import org.exoplatform.smartactivitystream.relevancy.domain.RelevanceId;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
-import org.picocontainer.Startable;
 
 /**
  * The Class ActivityRelevancyService
@@ -109,10 +110,14 @@ public class ActivityRelevancyService implements Startable {
 
     if (existingRelevance == null) {
       relevanceStorage.create(relevance);
-      LOG.info("Relevance created: " + relevance);
+      if (LOG.isDebugEnabled()) {
+        LOG.info("Relevance created: " + relevance);
+      }
     } else {
       relevanceStorage.update(relevance);
-      LOG.info("Relevance updated: " + relevance);
+      if (LOG.isDebugEnabled()) {
+        LOG.info("Relevance updated: " + relevance);
+      }
     }
   }
 
