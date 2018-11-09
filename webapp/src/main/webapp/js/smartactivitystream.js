@@ -98,7 +98,7 @@ function updateStateOfIcons(iconsParentDiv){
 	var prefixUrl = pageBaseUrl(location);
 
 	// Iterates through each activity block and inserts the relevance icon
-	$(iconsParentDiv).find('.actionBar > .statusAction').each(function(){
+	$(iconsParentDiv).find('.actionBar > .statusAction.pull-right').each(function(){
 		// The link contains activityId
 		var link = $(this).parents(".boxContainer").find('.heading > .actLink > a')[0];
 		var activityId = $(link).attr("href").substring($(link).attr("href").indexOf('=') + 1);
