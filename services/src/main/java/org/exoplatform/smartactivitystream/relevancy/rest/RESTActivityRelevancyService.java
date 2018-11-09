@@ -67,17 +67,4 @@ public class RESTActivityRelevancyService implements ResourceContainer {
     }
     return Response.ok().entity(relevanceEntity).build();
   }
-
-  /**
-   * Deletes a relevance
-   * 
-   * @param relevanceEntity to be deleted
-   */
-  @DELETE
-  @RolesAllowed("users")
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Path("/relevancy")
-  public void deleteRelevance(RelevanceEntity relevanceEntity) {
-    activityRelevancyService.deleteRelevance(relevanceEntity);
-  }
 }

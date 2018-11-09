@@ -105,9 +105,8 @@ public class ActivityRelevancyService implements Startable {
    */
   public void saveRelevance(RelevanceEntity relevance) {
     RelevanceEntity existingRelevance = relevanceStorage.find(new RelevanceId(relevance.getUserId(), relevance.getActivityId()));
-
     relevance.setUpdateDate(new Date());
-
+    
     if (existingRelevance == null) {
       relevanceStorage.create(relevance);
       if (LOG.isDebugEnabled()) {

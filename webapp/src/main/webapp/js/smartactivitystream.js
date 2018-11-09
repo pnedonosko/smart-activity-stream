@@ -53,11 +53,11 @@ function addRelevanceOnClickListener(elements) {
 				$(this).removeClass("relevance-relevant");
 				$(this).toggleClass('relevance-irrelevant');
 
-				$(this).closest('a.relevance-tooltip').attr("data-original-title", "Default");
+				$(this).closest('a.relevance-tooltip').attr("data-original-title", "Neutral");
 			}
 			else{
-				console.log("Action: delete relevance | ID: " + activityId);
-				removeRelevance(activityId, true);
+				console.log("Action: default relevance | ID: " + activityId);
+				sendRelevance(activityId, null);
 				$(this).removeClass("relevance-irrelevant");
 				$(this).toggleClass('relevance-default');
 				$(this).removeClass('uiIconBlue');
@@ -88,15 +88,11 @@ var pageBaseUrl = function(theLocation) {
 // Sends information about relevance of the activity to the server
 function sendRelevance(activityId, relevant){
 	// The object of relevance to be sent to the server
-	var relevance = {"userId": eXo.env.portal.userName, "activityId": activityId, "relevant":relevant};
+	var relevance = {"userId": eXo.env.portal.userName, "activityId": activityId};
+	if(relevant != null){
+		relevance.relevant = relevant;
+	}
 	postRelevance(relevance);
-}
-
-// Deletes relevance of the activity from the server
-function removeRelevance(activityId, relevant){
-	// The object of relevance to be sent to the server
-	var relevance = {"userId": eXo.env.portal.userName, "activityId": activityId, "relevant":relevant};
-	deleteRelevance(relevance);
 }
 
 // Updates state of the icons. Accepts any parent div of an icon element
@@ -123,12 +119,18 @@ function updateStateOfIcons(iconsParentDiv){
 
 		// If server responded with relevance
 		promisedRelevance.done(function(data){
-			if(data.relevant){
-				$(current).prepend(getRelevantIcon());	
+			if(data.relevant != null){
+				if(data.relevant){
+					$(current).prepend(getRelevantIcon());	
+				}
+				else{
+					$(current).prepend(getIrrelevantIcon());	
+				}
 			}
-			else{
-				$(current).prepend(getIrrelevantIcon());	
+			else {
+				$(current).prepend(getDefaultIcon());	
 			}
+			
             	// Add onClick listener to new icon
             	addRelevanceOnClickListener($(current).find('.relevance'));
             	// Call tooltip handler
@@ -144,7 +146,7 @@ function updateStateOfIcons(iconsParentDiv){
             	// Add onClickListener to new icon
             	addRelevanceOnClickListener($(current).find('.relevance'));
             } else{
-            	console.log('Data Collector: Error status: ' + XMLHttpRequest.status + ', text: ' + XMLHttpRequest.statusText);
+            	console.log('Smart Activity: Error status: ' + XMLHttpRequest.status + ', text: ' + XMLHttpRequest.statusText);
             }
             // Call tooltip handler
             $(current).find('a.relevance-tooltip').tooltip();
@@ -155,27 +157,12 @@ function updateStateOfIcons(iconsParentDiv){
 
 }
 
-
-
-
 var postRelevance = function(relevance) {
 	var prefixUrl = pageBaseUrl(location);
 
 	var request = $.ajax({
 		url: prefixUrl + "/portal/rest/smartactivity/relevancy",
 		type: 'post',
-		contentType: 'application/json',
-		data: JSON.stringify(relevance)
-	});
-	return request;
-};
-
-var deleteRelevance = function(relevance) {
-	var prefixUrl = pageBaseUrl(location);
-
-	var request = $.ajax({
-		url: prefixUrl + "/portal/rest/smartactivity/relevancy",
-		type: 'delete',
 		contentType: 'application/json',
 		data: JSON.stringify(relevance)
 	});
