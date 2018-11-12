@@ -54,7 +54,9 @@ public class RESTActivityRelevancyService implements ResourceContainer {
       return Response.ok().build();
     }
 
-    return Response.status(Status.UNAUTHORIZED).build();
+    return Response.status(Status.FORBIDDEN)
+                   .entity("{ \"error\" : \"Forbidden\", \"message\" : \"Cannot set relevancy for other users\" }")
+                   .build();
   }
 
   /**
@@ -67,6 +69,7 @@ public class RESTActivityRelevancyService implements ResourceContainer {
   @GET
   @RolesAllowed("users")
   @Path("/relevancy/{userId}/{activityId}")
+  @Produces("application/json")
   public Response getRelevance(@PathParam("userId") String userId, @PathParam("activityId") String activityId) {
 
     if (isUserAllowed(userId)) {
@@ -77,7 +80,9 @@ public class RESTActivityRelevancyService implements ResourceContainer {
       return Response.ok().entity(relevanceEntity).build();
     }
 
-    return Response.status(Status.UNAUTHORIZED).build();
+    return Response.status(Status.FORBIDDEN)
+                   .entity("{ \"error\" : \"Forbidden\", \"message\" : \"Cannot get relevancy for other users\" }")
+                   .build();
   }
 
   /**
