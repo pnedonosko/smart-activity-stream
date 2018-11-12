@@ -1,28 +1,34 @@
+/*
+ * 
+ */
 package org.exoplatform.smartactivitystream.relevancy.domain;
 
 import java.io.Serializable;
 
+/**
+ * The Class RelevanceId.
+ */
 public class RelevanceId implements Serializable {
 
-  /** The serial version UID */
+  /**  The serial version UID. */
   private static final long serialVersionUID = 1L;
 
-  /** The user id */
+  /**  The user id. */
   protected String          userId;
 
-  /** The activity id */
+  /**  The activity id. */
   protected String          activityId;
 
   /**
-   * Instantiates a new RelevanceId
+   * Instantiates a new RelevanceId.
    */
   public RelevanceId() {
 
   }
 
   /**
-   * Instantiates a new RelevanceId
-   * 
+   * Instantiates a new RelevanceId.
+   *
    * @param userId the user id
    * @param activityId the activity id
    */
@@ -33,8 +39,8 @@ public class RelevanceId implements Serializable {
   }
 
   /**
-   * Gets the user id
-   * 
+   * Gets the user id.
+   *
    * @return user id
    */
   public String getUserId() {
@@ -42,8 +48,8 @@ public class RelevanceId implements Serializable {
   }
 
   /**
-   * Gets the activity id
-   * 
+   * Gets the activity id.
+   *
    * @return activity id
    */
   public String getActivityId() {

@@ -1,8 +1,10 @@
+/*
+ * 
+ */
 package org.exoplatform.smartactivitystream.relevancy.rest;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -20,7 +22,7 @@ import org.exoplatform.smartactivitystream.relevancy.domain.RelevanceEntity;
 import org.exoplatform.smartactivitystream.relevancy.domain.RelevanceId;
 
 /**
- * The REST service for Data Collectors
+ * The REST service for Data Collectors.
  */
 @Path("/smartactivity")
 @Produces(MediaType.APPLICATION_JSON)
@@ -29,17 +31,21 @@ public class RESTActivityRelevancyService implements ResourceContainer {
   /** The Constant LOG. */
   protected static final Log               LOG = ExoLogger.getLogger(RESTActivityRelevancyService.class);
 
-  /** The Data Collector service */
+  /** The Data Collector service. */
   protected final ActivityRelevancyService activityRelevancyService;
 
-  /** Instantiates a new RESTActivityRelevancyService */
+  /**
+   * Instantiates a new RESTActivityRelevancyService.
+   *
+   * @param activityRelevancyService the activity relevancy service
+   */
   public RESTActivityRelevancyService(ActivityRelevancyService activityRelevancyService) {
     this.activityRelevancyService = activityRelevancyService;
   }
 
   /**
-   * Posts a relevance
-   * 
+   * Posts a relevance.
+   *
    * @param relevanceEntity to be saved or updated
    */
   @POST
@@ -51,10 +57,10 @@ public class RESTActivityRelevancyService implements ResourceContainer {
   }
 
   /**
-   * Gets a relevance
-   * 
-   * @param userId
-   * @param activityId
+   * Gets a relevance.
+   *
+   * @param userId the user id
+   * @param activityId the activity id
    * @return response 200 which contains relevanceEntity or 404
    */
   @GET
