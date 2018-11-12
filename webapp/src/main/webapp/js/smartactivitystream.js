@@ -161,7 +161,7 @@ var postRelevance = function(relevance) {
 	var prefixUrl = pageBaseUrl(location);
 
 	var request = $.ajax({
-		url: prefixUrl + "/portal/rest/smartactivity/relevancy",
+		url: prefixUrl + "/portal/rest/smartactivity/relevancy/" + relevance.userId + "/" + relevance.activityId,
 		type: 'post',
 		contentType: 'application/json',
 		data: JSON.stringify(relevance)
