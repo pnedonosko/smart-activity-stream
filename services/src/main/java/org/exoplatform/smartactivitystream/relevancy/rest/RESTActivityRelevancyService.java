@@ -45,7 +45,7 @@ public class RESTActivityRelevancyService implements ResourceContainer {
   @POST
   @RolesAllowed("users")
   @Consumes(MediaType.APPLICATION_JSON)
-  @Path("/relevancy")
+  @Path("/relevancy/{userId}/{activityId}")
   public void saveRelevance(RelevanceEntity relevanceEntity) {
     activityRelevancyService.saveRelevance(relevanceEntity);
   }
