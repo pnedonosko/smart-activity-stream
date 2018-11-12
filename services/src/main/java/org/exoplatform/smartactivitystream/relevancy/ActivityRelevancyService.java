@@ -36,19 +36,19 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 
 /**
- * The Class ActivityRelevancyService
+ * The Class ActivityRelevancyService.
  */
 public class ActivityRelevancyService implements Startable {
 
-  /** The DAO for RelevanceEntity */
+  /**  The DAO for RelevanceEntity. */
   protected final RelevanceDAO relevanceStorage;
 
   /** The Constant LOG. */
   protected static final Log   LOG = ExoLogger.getLogger(ActivityRelevancyService.class);
 
   /**
-   * Instantiates a ActivityRelevancyService
-   * 
+   * Instantiates a ActivityRelevancyService.
+   *
    * @param relevanceStorage is the DAO for RelevanceEntity
    */
   public ActivityRelevancyService(RelevanceDAO relevanceStorage) {
@@ -56,16 +56,16 @@ public class ActivityRelevancyService implements Startable {
   }
 
   /**
-   * Instantiates a ActivityRelevancyService
-   * 
-   * @param jcrService
-   * @param sessionProviders
-   * @param hierarchyCreator
-   * @param organization
-   * @param identityManager
-   * @param identityStorage
-   * @param activityManager
-   * @param relevanceStorage
+   * Instantiates a ActivityRelevancyService.
+   *
+   * @param jcrService the jcr service
+   * @param sessionProviders the session providers
+   * @param hierarchyCreator the hierarchy creator
+   * @param organization the organization
+   * @param identityManager the identity manager
+   * @param identityStorage the identity storage
+   * @param activityManager the activity manager
+   * @param relevanceStorage the relevance storage
    */
   public ActivityRelevancyService(RepositoryService jcrService,
                                   SessionProviderService sessionProviders,
@@ -121,8 +121,8 @@ public class ActivityRelevancyService implements Startable {
   }
   
   /**
-   * Deletes a relevance
-   * 
+   * Deletes a relevance.
+   *
    * @param relevance to be deleted
    */
   public void deleteRelevance(RelevanceEntity relevance) {

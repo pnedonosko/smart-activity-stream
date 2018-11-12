@@ -1,3 +1,6 @@
+/*
+ * 
+ */
 package org.exoplatform.smartactivitystream.relevancy.domain;
 
 import java.util.Date;
@@ -20,47 +23,35 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
 @IdClass(RelevanceId.class)
 public class RelevanceEntity {
 
-  /**
-   * The user id
-   */
+  /** The user id. */
   @Id
   @Column(name = "USER_ID")
   protected String  userId;
 
-  /**
-   * The activity id
-   */
+  /** The activity id. */
   @Id
   @Column(name = "ACTIVITY_ID")
   protected String  activityId;
 
-  /**
-   * Indicates relevance of the Activity
-   */
+  /** Indicates relevance of the Activity. */
   @Column(name = "IS_RELEVANT")
   protected Boolean relevant;
 
-  /**
-   * The weight
-   */
+  /** The weight. */
   @Column(name = "WEIGHT")
   protected Double  weight;
 
-  /**
-   * The update date
-   */
+  /** The update date. */
   @Column(name = "UPDATE_DATE")
   protected Date    updateDate;
 
-  /**
-   * The weight date
-   */
+  /** The weight date. */
   @Column(name = "WEIGHT_DATE")
   protected Date    weightDate;
 
   /**
-   * Gets the weight date
-   * 
+   * Gets the weight date.
+   *
    * @return weight date
    */
   public Date getWeightDate() {
@@ -68,17 +59,17 @@ public class RelevanceEntity {
   }
 
   /**
-   * Sets the weight date
-   * 
-   * @param weightDate
+   * Sets the weight date.
+   *
+   * @param weightDate the new weight date
    */
   public void setWeightDate(Date weightDate) {
     this.weightDate = weightDate;
   }
 
   /**
-   * Gets the update date
-   * 
+   * Gets the update date.
+   *
    * @return updateDate
    */
   public Date getUpdateDate() {
@@ -86,17 +77,17 @@ public class RelevanceEntity {
   }
 
   /**
-   * Sets the update date
-   * 
-   * @param updateDate
+   * Sets the update date.
+   *
+   * @param updateDate the new update date
    */
   public void setUpdateDate(Date updateDate) {
     this.updateDate = updateDate;
   }
 
   /**
-   * Gets the user id
-   * 
+   * Gets the user id.
+   *
    * @return user id
    */
   public String getUserId() {
@@ -104,8 +95,8 @@ public class RelevanceEntity {
   }
 
   /**
-   * Gets the weight
-   * 
+   * Gets the weight.
+   *
    * @return weight
    */
   public Double getWeight() {
@@ -113,61 +104,63 @@ public class RelevanceEntity {
   }
 
   /**
-   * Sets the weight
-   * 
-   * @param weight
+   * Sets the weight.
+   *
+   * @param weight the new weight
    */
   public void setWeight(Double weight) {
     this.weight = weight;
   }
 
   /**
-   * Sets the user id
-   * 
-   * @param userId
+   * Sets the user id.
+   *
+   * @param userId the new user id
    */
   public void setUserId(String userId) {
     this.userId = userId;
   }
 
   /**
-   * Gets the activity id
-   * 
-   * @return
+   * Gets the activity id.
+   *
+   * @return the activity id
    */
   public String getActivityId() {
     return activityId;
   }
 
   /**
-   * Sets the activity id
-   * 
-   * @param activityId
+   * Sets the activity id.
+   *
+   * @param activityId the new activity id
    */
   public void setActivityId(String activityId) {
     this.activityId = activityId;
   }
 
   /**
-   * Gets the relevance
-   * 
-   * @return
+   * Gets the relevance.
+   *
+   * @return the relevant
    */
   public Boolean getRelevant() {
     return relevant;
   }
 
   /**
-   * Sets the relevance
-   * 
-   * @param relevant
+   * Sets the relevance.
+   *
+   * @param relevant the new relevant
    */
   public void setRelevant(Boolean relevant) {
     this.relevant = relevant;
   }
 
   /**
-   * Converts the RelevanceEntity to the String
+   * Converts the RelevanceEntity to the String.
+   *
+   * @return the string
    */
   @Override
   public String toString() {
