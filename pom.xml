@@ -54,7 +54,6 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <exo.test.coverage.ratio>0.25</exo.test.coverage.ratio>
-    <!-- eXo Modules -->
     <!-- **************************************** -->
     <!-- Dependencies versions                    -->
     <!-- **************************************** -->
