@@ -8,9 +8,11 @@
 
     // Observe changes in the stream to add icons to new activities
     var observer = new MutationObserver(function(mutations) {
+
       mutations.forEach(function(mutation) {
-        if (mutation.addedNodes.length > 3) {
-          updateStateOfIcons($(mutation.target));
+        if ($(mutation.addedNodes).find(".boxContainer").length > 0) {
+          
+          updateStateOfIcons($(mutation.target).find(".boxContainer"));
         }
       });
     });
@@ -49,7 +51,7 @@
           $(this).toggleClass('relevance-relevant');
           $(this).toggleClass('uiIconBlue');
 
-          $(this).closest('a.relevance-tooltip').attr("data-original-title", "Irrelevant");
+          $(this).closest('a.relevance-tooltip').attr("data-original-title", "Click to mark as irrelevant");
         } else if ($(this).hasClass("relevance-relevant")) {
 
           console.log("Action: irrelevant | ID: " + activityId);
@@ -57,14 +59,14 @@
           $(this).removeClass("relevance-relevant");
           $(this).toggleClass('relevance-irrelevant');
 
-          $(this).closest('a.relevance-tooltip').attr("data-original-title", "Neutral");
+          $(this).closest('a.relevance-tooltip').attr("data-original-title", "Click to mark as neutral");
         } else {
           console.log("Action: default relevance | ID: " + activityId);
           sendRelevance(activityId, null);
           $(this).removeClass("relevance-irrelevant");
           $(this).toggleClass('relevance-default');
           $(this).removeClass('uiIconBlue');
-          $(this).closest('a.relevance-tooltip').attr("data-original-title", "Relevant");
+          $(this).closest('a.relevance-tooltip').attr("data-original-title", "Click to mark as relevant");
         }
       }
     });
@@ -192,3 +194,4 @@
     return '<li><a rel="tooltip" href="javascript:void(0);" class="relevance-tooltip" data-placement="bottom" data-original-title="Relevant"><span class="relevance relevance-default"></span>&nbsp;&nbsp;&nbsp;</a></li>';
   }
 })($);
+
