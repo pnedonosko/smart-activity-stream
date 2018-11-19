@@ -89,7 +89,9 @@ public class RESTActivityRelevancyService implements ResourceContainer {
     if (isUserAllowed(userId)) {
       RelevanceEntity relevanceEntity = activityRelevancyService.findById(new RelevanceId(userId, activityId));
       if (relevanceEntity == null) {
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.status(Status.NOT_FOUND)
+                       .entity("{ \"error\" : \"Not found\", \"message\" : \"Relevancy not found\" }")
+                       .build();
       }
 
       try {
@@ -115,8 +117,11 @@ public class RESTActivityRelevancyService implements ResourceContainer {
 
     List<RelevanceStatsEntity> userStats = activityRelevancyService.findUserStats();
     if (userStats == null) {
-      return Response.status(Status.NOT_FOUND).build();
+      return Response.status(Status.NOT_FOUND)
+                     .entity("{ \"error\" : \"Not found\", \"message\" : \"User stats not found\" }")
+                     .build();
     }
+
     long totalCount = activityRelevancyService.getRelevanciesCount();
     RelevanceStatsReport report = new RelevanceStatsReport(totalCount, userStats);
 
