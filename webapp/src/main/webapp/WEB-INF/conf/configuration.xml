@@ -56,5 +56,5 @@
     </component-plugin>
   </external-component-plugins>
 
-  <import profiles="all">war:/conf/smartactivitystream/configuration.xml</import>
+  <import profiles="all">war:/conf/smartactivitystream/configuration.xml</import> <!-- TODO where the file? -->
 </configuration>

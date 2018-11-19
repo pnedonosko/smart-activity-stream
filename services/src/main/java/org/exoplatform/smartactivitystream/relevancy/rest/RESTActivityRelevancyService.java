@@ -3,6 +3,8 @@
  */
 package org.exoplatform.smartactivitystream.relevancy.rest;
 
+import java.util.List;
+
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -14,6 +16,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
@@ -21,6 +26,8 @@ import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.smartactivitystream.relevancy.ActivityRelevancyService;
 import org.exoplatform.smartactivitystream.relevancy.domain.RelevanceEntity;
 import org.exoplatform.smartactivitystream.relevancy.domain.RelevanceId;
+import org.exoplatform.smartactivitystream.relevancy.domain.RelevanceStatsEntity;
+import org.exoplatform.smartactivitystream.relevancy.domain.RelevanceStatsReport;
 
 /**
  * The REST service for Activity Relevancy Service
@@ -91,8 +98,31 @@ public class RESTActivityRelevancyService implements ResourceContainer {
                    .build();
   }
 
+  @GET
+  @RolesAllowed("users")
+  @Path("/stats")
+  @Produces("application/json")
+  public Response getStats() {
+
+    List<RelevanceStatsEntity> userStats = activityRelevancyService.findUserStats();
+    if (userStats == null) {
+      return Response.status(Status.NOT_FOUND).build();
+    }
+    long totalCount = activityRelevancyService.getRelevanciesCount();
+    RelevanceStatsReport report = new RelevanceStatsReport(totalCount, userStats);
+    
+    try {
+      String prettyJson = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(report);
+      return Response.ok().entity(prettyJson).build();
+    } catch (JsonProcessingException e) {
+      LOG.warn("Error serializing stats report to pretty JSON: " + e.getMessage());
+      return Response.ok().entity(report).build();
+    }
+  }
+
   /**
    * Checks if given userId is the current user
+   * 
    * @param userId to be checked
    * @return true if userId is equal to the current userId
    */

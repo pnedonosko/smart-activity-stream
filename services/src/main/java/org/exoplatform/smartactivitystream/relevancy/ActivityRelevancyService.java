@@ -18,7 +18,9 @@
  */
 package org.exoplatform.smartactivitystream.relevancy;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import org.picocontainer.Startable;
 
@@ -29,8 +31,10 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.smartactivitystream.relevancy.dao.RelevanceDAO;
+import org.exoplatform.smartactivitystream.relevancy.dao.RelevanceStatsDAO;
 import org.exoplatform.smartactivitystream.relevancy.domain.RelevanceEntity;
 import org.exoplatform.smartactivitystream.relevancy.domain.RelevanceId;
+import org.exoplatform.smartactivitystream.relevancy.domain.RelevanceStatsEntity;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
@@ -40,19 +44,24 @@ import org.exoplatform.social.core.storage.api.IdentityStorage;
  */
 public class ActivityRelevancyService implements Startable {
 
-  /**  The DAO for RelevanceEntity. */
-  protected final RelevanceDAO relevanceStorage;
+  /** The DAO for RelevanceEntity. */
+  protected final RelevanceDAO      relevanceStorage;
+
+  /** The relevance stats. */
+  protected final RelevanceStatsDAO relevanceStats;
 
   /** The Constant LOG. */
-  protected static final Log   LOG = ExoLogger.getLogger(ActivityRelevancyService.class);
+  protected static final Log        LOG = ExoLogger.getLogger(ActivityRelevancyService.class);
 
   /**
    * Instantiates a ActivityRelevancyService.
    *
    * @param relevanceStorage is the DAO for RelevanceEntity
+   * @param relevanceStats the relevance stats
    */
   public ActivityRelevancyService(RelevanceDAO relevanceStorage) {
     this.relevanceStorage = relevanceStorage;
+    this.relevanceStats = null; // TODO used by tests
   }
 
   /**
@@ -66,6 +75,7 @@ public class ActivityRelevancyService implements Startable {
    * @param identityStorage the identity storage
    * @param activityManager the activity manager
    * @param relevanceStorage the relevance storage
+   * @param relevanceStats the relevance stats
    */
   public ActivityRelevancyService(RepositoryService jcrService,
                                   SessionProviderService sessionProviders,
@@ -74,9 +84,11 @@ public class ActivityRelevancyService implements Startable {
                                   IdentityManager identityManager,
                                   IdentityStorage identityStorage,
                                   ActivityManager activityManager,
-                                  RelevanceDAO relevanceStorage) {
+                                  RelevanceDAO relevanceStorage,
+                                  RelevanceStatsDAO relevanceStats) {
 
     this.relevanceStorage = relevanceStorage;
+    this.relevanceStats = relevanceStats;
   }
 
   /**
@@ -106,7 +118,7 @@ public class ActivityRelevancyService implements Startable {
   public void saveRelevance(RelevanceEntity relevance) {
     RelevanceEntity existingRelevance = relevanceStorage.find(new RelevanceId(relevance.getUserId(), relevance.getActivityId()));
     relevance.setUpdateDate(new Date());
-    
+
     if (existingRelevance == null) {
       relevanceStorage.create(relevance);
       if (LOG.isDebugEnabled()) {
@@ -119,7 +131,7 @@ public class ActivityRelevancyService implements Startable {
       }
     }
   }
-  
+
   /**
    * Deletes a relevance.
    *
@@ -142,6 +154,26 @@ public class ActivityRelevancyService implements Startable {
    */
   public RelevanceEntity findById(RelevanceId relevanceId) {
     return relevanceStorage.find(relevanceId);
+  }
+  
+  /**
+   * Find user stats for last 30 days.
+   *
+   * @return the list
+   */
+  public List<RelevanceStatsEntity> findUserStats() {
+    Calendar after = Calendar.getInstance();
+    after.add(Calendar.DAY_OF_MONTH, -30);
+    return relevanceStats.findUsersStats(after.getTime());
+  }
+  
+  /**
+   * Gets the relevancies count.
+   *
+   * @return the relevancies count
+   */
+  public long getRelevanciesCount() {
+    return relevanceStats.findTotalCount();
   }
 
 }
