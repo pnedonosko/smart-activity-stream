@@ -45,34 +45,35 @@
   // Adds onClick listener to the elements
   function addRelevanceOnClickListener(elements) {
     $(elements).click(function() {
-      if ($(this).attr("onClick") == undefined) {
+      var $elem = $(this);
+      if ($elem.attr("onClick") == undefined) {
         // The link contains activityId
-        var link = $(this).parents(".boxContainer").find('.heading > .actLink > a')[0];
-        var activityId = $(link).attr("href").substring($(link).attr("href").indexOf('=') + 1);
+        var $link = $elem.parents(".boxContainer").find('.heading > .actLink > a');
+        var activityId = $link.attr("href").substring($link.attr("href").indexOf('=') + 1);
 
-        if ($(this).hasClass("relevance-default")) {
+        if ($elem.hasClass("relevance-default")) {
           console.log("Action: relevant | ID: " + activityId);
           sendRelevance(activityId, true);
-          $(this).removeClass("relevance-default");
-          $(this).toggleClass('relevance-relevant');
-          $(this).toggleClass('uiIconBlue');
+          $elem.removeClass("relevance-default");
+          $elem.toggleClass('relevance-relevant');
+          $elem.toggleClass('uiIconBlue');
 
-          $(this).closest('a.relevance-tooltip').attr("data-original-title", relevantText);
-        } else if ($(this).hasClass("relevance-relevant")) {
+          $elem.closest('a.relevance-tooltip').attr("data-original-title", relevantText);
+        } else if ($elem.hasClass("relevance-relevant")) {
 
           console.log("Action: irrelevant | ID: " + activityId);
           sendRelevance(activityId, false);
-          $(this).removeClass("relevance-relevant");
-          $(this).toggleClass('relevance-irrelevant');
+          $elem.removeClass("relevance-relevant");
+          $elem.toggleClass('relevance-irrelevant');
 
-          $(this).closest('a.relevance-tooltip').attr("data-original-title", neutralText);
+          $elem.closest('a.relevance-tooltip').attr("data-original-title", neutralText);
         } else {
           console.log("Action: default relevance | ID: " + activityId);
           sendRelevance(activityId, null);
-          $(this).removeClass("relevance-irrelevant");
-          $(this).toggleClass('relevance-default');
-          $(this).removeClass('uiIconBlue');
-          $(this).closest('a.relevance-tooltip').attr("data-original-title", irrelevantText);
+          $elem.removeClass("relevance-irrelevant");
+          $elem.toggleClass('relevance-default');
+          $elem.removeClass('uiIconBlue');
+          $elem.closest('a.relevance-tooltip').attr("data-original-title", irrelevantText);
         }
       }
     });
@@ -114,16 +115,17 @@
 
     // Iterates through each activity block and inserts the relevance icon
     $(iconsParentDiv).find('.actionBar > .statusAction.pull-right').each(function() {
+
+      var $elem = $(this);
+
       // The link contains activityId
-      var link = $(this).parents(".boxContainer").find('.heading > .actLink > a')[0];
-      var activityId = $(link).attr("href").substring($(link).attr("href").indexOf('=') + 1);
+      var $link = $elem.parents(".boxContainer").find('.heading > .actLink > a');
+      var activityId = $link.attr("href").substring($link.attr("href").indexOf('=') + 1);
+
       var userId = eXo.env.portal.userName
 
-      // To be used in ajax success/error function
-      var current = $(this);
-
       // If there is already icon move to the next block
-      if ($(this).find('.relevance').length !== 0) {
+      if ($elem.find('.relevance').length !== 0) {
         return;
       }
 
@@ -133,18 +135,18 @@
       promisedRelevance.done(function(data) {
         if (data.relevant != null) {
           if (data.relevant) {
-            $(current).prepend(getRelevantIcon());
+            $elem.prepend(getRelevantIcon());
           } else {
-            $(current).prepend(getIrrelevantIcon());
+            $elem.prepend(getIrrelevantIcon());
           }
         } else {
-          $(current).prepend(getDefaultIcon());
+          $elem.prepend(getDefaultIcon());
         }
 
         // Add onClick listener to new icon
-        addRelevanceOnClickListener($(current).find('.relevance'));
+        addRelevanceOnClickListener($elem.find('.relevance'));
         // Call tooltip handler
-        $(current).find('a.relevance-tooltip').tooltip();
+        $elem.find('a.relevance-tooltip').tooltip();
       });
 
       // If server responded with error
@@ -152,14 +154,14 @@
         // If user hasn't checked relevance for the activity
         if (XMLHttpRequest.status == 404) {
           // Add default icon
-          $(current).prepend(getDefaultIcon());
+          $elem.prepend(getDefaultIcon());
           // Add onClickListener to new icon
-          addRelevanceOnClickListener($(current).find('.relevance'));
+          addRelevanceOnClickListener($elem.find('.relevance'));
         } else {
           console.log('Smart Activity: Error status: ' + XMLHttpRequest.status + ', text: ' + XMLHttpRequest.statusText);
         }
         // Call tooltip handler
-        $(current).find('a.relevance-tooltip').tooltip();
+        $elem.find('a.relevance-tooltip').tooltip();
       });
 
     });
