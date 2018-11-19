@@ -57,7 +57,6 @@ public class ActivityRelevancyService implements Startable {
    * Instantiates a ActivityRelevancyService.
    *
    * @param relevanceStorage is the DAO for RelevanceEntity
-   * @param relevanceStats the relevance stats
    */
   public ActivityRelevancyService(RelevanceDAO relevanceStorage) {
     this.relevanceStorage = relevanceStorage;

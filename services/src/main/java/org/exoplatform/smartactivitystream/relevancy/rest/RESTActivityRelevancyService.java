@@ -55,6 +55,7 @@ public class RESTActivityRelevancyService implements ResourceContainer {
    * Posts a relevance.
    *
    * @param relevanceEntity to be saved or updated
+   * @return the response
    */
   @POST
   @RolesAllowed("users")
