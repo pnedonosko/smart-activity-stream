@@ -16,15 +16,15 @@
 
 .relevance-default:before {
   color: #c6c6c6;
-  content: "\e9ce";
+  content: "\ea10";
 }
 
 .relevance-relevant:before {
-  content: "\e9ce";
+  content: "\ea10";
 }
 
 .relevance-irrelevant:before {
-  content: "\e9d1";
+  content: "\ea0f";
 }
 
 a.relevance-tooltip {
