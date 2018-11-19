@@ -183,15 +183,15 @@
   };
 
   var getRelevantIcon = function() {
-    return '<li><a rel="tooltip" href="javascript:void(0);" class="relevance-tooltip" data-placement="bottom" data-original-title="Irrelevant"><span class="relevance relevance-relevant uiIconBlue"></span>&nbsp;&nbsp;&nbsp;</a></li>';
+    return '<li><a rel="tooltip" href="javascript:void(0);" class="relevance-tooltip" data-placement="bottom" data-original-title="Click to mark as irrelevant"><span class="relevance relevance-relevant uiIconBlue"></span>&nbsp;&nbsp;&nbsp;</a></li>';
   }
 
   var getIrrelevantIcon = function() {
-    return '<li><a rel="tooltip" href="javascript:void(0);" class="relevance-tooltip"  data-placement="bottom" data-original-title="Relevant"><span class="relevance relevance-irrelevant uiIconBlue"></span>&nbsp;&nbsp;&nbsp;&nbsp;</a></li>';
+    return '<li><a rel="tooltip" href="javascript:void(0);" class="relevance-tooltip"  data-placement="bottom" data-original-title="Click to mark as neutral"><span class="relevance relevance-irrelevant uiIconBlue"></span>&nbsp;&nbsp;&nbsp;&nbsp;</a></li>';
   }
 
   var getDefaultIcon = function() {
-    return '<li><a rel="tooltip" href="javascript:void(0);" class="relevance-tooltip" data-placement="bottom" data-original-title="Relevant"><span class="relevance relevance-default"></span>&nbsp;&nbsp;&nbsp;</a></li>';
+    return '<li><a rel="tooltip" href="javascript:void(0);" class="relevance-tooltip" data-placement="bottom" data-original-title="Click to mark as relevant"><span class="relevance relevance-default"></span>&nbsp;&nbsp;&nbsp;</a></li>';
   }
 })($);
 
