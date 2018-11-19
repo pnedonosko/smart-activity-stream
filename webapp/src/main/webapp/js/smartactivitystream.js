@@ -1,6 +1,10 @@
 (function($) {
   "use strict";
 
+  const relevantText = "Click to mark as irrelevant";
+  const irrelevantText = "Click to mark as relevant";
+  const neutralText = "Click to mark as neutral";
+
   $(document).ready(function() {
 
     // Set initial state of the icons
@@ -11,7 +15,7 @@
 
       mutations.forEach(function(mutation) {
         if ($(mutation.addedNodes).find(".boxContainer").length > 0) {
-          
+
           updateStateOfIcons($(mutation.target).find(".boxContainer"));
         }
       });
@@ -23,9 +27,11 @@
       subtree : true
     });
 
-    // If there is no activities in the stream, creating a new activity causes recreating the target of observer
+    // If there is no activities in the stream, creating a new
+    // activity causes recreating the target of observer
     $("#ShareButton").click(function() {
-      // Wait for creating new structore of stream and start observing
+      // Wait for creating new structore of stream and
+      // start observing
       setTimeout(function() {
         observer.observe($("#UIUserActivitiesDisplay").get(0), {
           childList : true,
@@ -51,7 +57,7 @@
           $(this).toggleClass('relevance-relevant');
           $(this).toggleClass('uiIconBlue');
 
-          $(this).closest('a.relevance-tooltip').attr("data-original-title", "Click to mark as irrelevant");
+          $(this).closest('a.relevance-tooltip').attr("data-original-title", relevantText);
         } else if ($(this).hasClass("relevance-relevant")) {
 
           console.log("Action: irrelevant | ID: " + activityId);
@@ -59,14 +65,14 @@
           $(this).removeClass("relevance-relevant");
           $(this).toggleClass('relevance-irrelevant');
 
-          $(this).closest('a.relevance-tooltip').attr("data-original-title", "Click to mark as neutral");
+          $(this).closest('a.relevance-tooltip').attr("data-original-title", neutralText);
         } else {
           console.log("Action: default relevance | ID: " + activityId);
           sendRelevance(activityId, null);
           $(this).removeClass("relevance-irrelevant");
           $(this).toggleClass('relevance-default');
           $(this).removeClass('uiIconBlue');
-          $(this).closest('a.relevance-tooltip').attr("data-original-title", "Click to mark as relevant");
+          $(this).closest('a.relevance-tooltip').attr("data-original-title", irrelevantText);
         }
       }
     });
@@ -183,15 +189,18 @@
   };
 
   var getRelevantIcon = function() {
-    return '<li><a rel="tooltip" href="javascript:void(0);" class="relevance-tooltip" data-placement="bottom" data-original-title="Click to mark as irrelevant"><span class="relevance relevance-relevant uiIconBlue"></span>&nbsp;&nbsp;&nbsp;</a></li>';
+    return '<li><a rel="tooltip" href="javascript:void(0);" class="relevance-tooltip" data-placement="bottom" data-original-title="'
+        + irrelevantText + '"><span class="relevance relevance-relevant uiIconBlue"></span>&nbsp;&nbsp;&nbsp;</a></li>';
   }
 
   var getIrrelevantIcon = function() {
-    return '<li><a rel="tooltip" href="javascript:void(0);" class="relevance-tooltip"  data-placement="bottom" data-original-title="Click to mark as neutral"><span class="relevance relevance-irrelevant uiIconBlue"></span>&nbsp;&nbsp;&nbsp;&nbsp;</a></li>';
+    return '<li><a rel="tooltip" href="javascript:void(0);" class="relevance-tooltip"  data-placement="bottom" data-original-title="'
+        + neutralText + '"><span class="relevance relevance-irrelevant uiIconBlue"></span>&nbsp;&nbsp;&nbsp;&nbsp;</a></li>';
   }
 
   var getDefaultIcon = function() {
-    return '<li><a rel="tooltip" href="javascript:void(0);" class="relevance-tooltip" data-placement="bottom" data-original-title="Click to mark as relevant"><span class="relevance relevance-default"></span>&nbsp;&nbsp;&nbsp;</a></li>';
+    return '<li><a rel="tooltip" href="javascript:void(0);" class="relevance-tooltip" data-placement="bottom" data-original-title="'
+        + relevantText + '"><span class="relevance relevance-default"></span>&nbsp;&nbsp;&nbsp;</a></li>';
   }
-})($);
 
+})($);
