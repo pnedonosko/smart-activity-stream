@@ -61,9 +61,24 @@ public class RESTActivityRelevancyService implements ResourceContainer {
   @RolesAllowed("users")
   @Consumes(MediaType.APPLICATION_JSON)
   @Path("/relevancy/{userId}/{activityId}")
-  public Response saveRelevance(RelevanceEntity relevanceEntity) {
+  public Response saveRelevance(@PathParam("userId") String userId,
+                                @PathParam("activityId") String activityId,
+                                RelevanceEntity relevanceEntity) {
 
     if (isUserAllowed(relevanceEntity.getUserId())) {
+
+      if (!relevanceEntity.getUserId().equals(userId)) {
+        return Response.status(Status.BAD_REQUEST)
+                       .entity("{ \"error\" : \"Bad request\", \"message\" : \"User ID doesn't match\" }")
+                       .build();
+      }
+
+      if (!relevanceEntity.getActivityId().equals(activityId)) {
+        return Response.status(Status.BAD_REQUEST)
+                       .entity("{ \"error\" : \"Bad request\", \"message\" : \"Activity ID doesn't match\" }")
+                       .build();
+      }
+
       activityRelevancyService.saveRelevance(relevanceEntity);
       return Response.ok().build();
     }
