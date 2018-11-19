@@ -91,7 +91,15 @@ public class RESTActivityRelevancyService implements ResourceContainer {
       if (relevanceEntity == null) {
         return Response.status(Status.NOT_FOUND).build();
       }
-      return Response.ok().entity(relevanceEntity).build();
+
+      try {
+        String prettyJson = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(relevanceEntity);
+        return Response.ok().entity(prettyJson).build();
+      } catch (JsonProcessingException e) {
+        LOG.warn("Error serializing relevancy to pretty JSON: " + e.getMessage());
+        return Response.ok().entity(relevanceEntity).build();
+      }
+
     }
 
     return Response.status(Status.FORBIDDEN)
@@ -111,7 +119,7 @@ public class RESTActivityRelevancyService implements ResourceContainer {
     }
     long totalCount = activityRelevancyService.getRelevanciesCount();
     RelevanceStatsReport report = new RelevanceStatsReport(totalCount, userStats);
-    
+
     try {
       String prettyJson = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(report);
       return Response.ok().entity(prettyJson).build();

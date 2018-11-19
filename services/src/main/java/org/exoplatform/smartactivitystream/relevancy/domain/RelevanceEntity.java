@@ -3,6 +3,7 @@
  */
 package org.exoplatform.smartactivitystream.relevancy.domain;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -10,6 +11,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.exoplatform.commons.api.persistence.ExoEntity;
 
@@ -23,6 +25,10 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
 @IdClass(RelevanceId.class)
 public class RelevanceEntity {
 
+  /** The date format. */
+  @Transient
+  protected final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+  
   /** The user id. */
   @Id
   @Column(name = "USER_ID")
