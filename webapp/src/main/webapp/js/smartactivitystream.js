@@ -14,9 +14,9 @@
     var observer = new MutationObserver(function(mutations) {
 
       mutations.forEach(function(mutation) {
-        if ($(mutation.addedNodes).find(".boxContainer").length > 0) {
+        if ($(mutation.addedNodes).find(".actionBar").length > 0) {
 
-          updateStateOfIcons($(mutation.target).find(".boxContainer"));
+          updateStateOfIcons($(mutation.target).find(".actionBar").closest('.boxContainer'));
         }
       });
     });
@@ -38,7 +38,7 @@
           subtree : true
         });
         updateStateOfIcons($(".boxContainer"));
-      }, 1000);
+      }, 500);
     });
   });
 
