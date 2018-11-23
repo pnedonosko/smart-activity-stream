@@ -4,8 +4,16 @@
   const relevantText = "Click to mark as irrelevant";
   const irrelevantText = "Click to mark as relevant";
   const neutralText = "Click to mark as neutral";
+  var observerTarget;
 
   $(document).ready(function() {
+
+  	if($("#UIUserActivitiesDisplay").get(0) != undefined){
+      observerTarget = $("#UIUserActivitiesDisplay").get(0);
+  	}
+  	else if($("#UISpaceActivitiesDisplay").get(0) != undefined){
+      observerTarget = $("#UISpaceActivitiesDisplay").get(0);
+  	}
 
     // Set initial state of the icons
     updateStateOfIcons($(".boxContainer"));
@@ -22,7 +30,7 @@
     });
 
     // Start observing
-    observer.observe($("#UIUserActivitiesDisplay").get(0), {
+    observer.observe(observerTarget, {
       childList : true,
       subtree : true
     });
@@ -33,7 +41,7 @@
       // Wait for creating new structore of stream and
       // start observing
       setTimeout(function() {
-        observer.observe($("#UIUserActivitiesDisplay").get(0), {
+        observer.observe(observerTarget, {
           childList : true,
           subtree : true
         });
