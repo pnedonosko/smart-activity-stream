@@ -8,12 +8,12 @@
 
   $(document).ready(function() {
 
-  	if($("#UIUserActivitiesDisplay").get(0) != undefined){
-      observerTarget = $("#UIUserActivitiesDisplay").get(0);
-  	}
-  	else if($("#UISpaceActivitiesDisplay").get(0) != undefined){
-      observerTarget = $("#UISpaceActivitiesDisplay").get(0);
-  	}
+    // Searching for observation target
+    if ($(".uiUserActivityStreamPortlet").get(0) != undefined) {
+      observerTarget = $(".uiUserActivityStreamPortlet").closest(".PORTLET-FRAGMENT").get(0);
+    } else if ($(".uiSpaceActivityStreamPortlet").get(0) != undefined) {
+      observerTarget = $(".uiSpaceActivityStreamPortlet").closest(".PORTLET-FRAGMENT").get(0);
+    }
 
     // Set initial state of the icons
     updateStateOfIcons($(".boxContainer"));
@@ -35,19 +35,6 @@
       subtree : true
     });
 
-    // If there is no activities in the stream, creating a new
-    // activity causes recreating the target of observer
-    $("#ShareButton").click(function() {
-      // Wait for creating new structore of stream and
-      // start observing
-      setTimeout(function() {
-        observer.observe(observerTarget, {
-          childList : true,
-          subtree : true
-        });
-        updateStateOfIcons($(".boxContainer"));
-      }, 500);
-    });
   });
 
   // Adds onClick listener to the elements
