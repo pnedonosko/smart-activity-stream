@@ -1,9 +1,9 @@
 (function($) {
   "use strict";
 
-  const relevantText = "Click to mark as irrelevant";
-  const irrelevantText = "Click to mark as relevant";
-  const neutralText = "Click to mark as neutral";
+  var relevantText = "Click to mark as irrelevant";
+  var irrelevantText = "Click to mark as relevant";
+  var neutralText = "Click to mark as neutral";
   var observerTarget;
 
   $(document).ready(function() {
@@ -187,7 +187,7 @@
 
   var getRelevantIcon = function() {
     return '<li><a rel="tooltip" href="javascript:void(0);" class="relevance-tooltip" data-placement="bottom" data-original-title="'
-        + irrelevantText + '"><span class="relevance relevance-relevant uiIconBlue"></span>&nbsp;&nbsp;&nbsp;</a></li>';
+        + relevantText + '"><span class="relevance relevance-relevant uiIconBlue"></span>&nbsp;&nbsp;&nbsp;</a></li>';
   }
 
   var getIrrelevantIcon = function() {
@@ -197,7 +197,7 @@
 
   var getDefaultIcon = function() {
     return '<li><a rel="tooltip" href="javascript:void(0);" class="relevance-tooltip" data-placement="bottom" data-original-title="'
-        + relevantText + '"><span class="relevance relevance-default"></span>&nbsp;&nbsp;&nbsp;</a></li>';
+        + irrelevantText + '"><span class="relevance relevance-default"></span>&nbsp;&nbsp;&nbsp;</a></li>';
   }
 
 })($);
