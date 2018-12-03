@@ -19,8 +19,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.hibernate.HibernateException;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -177,10 +175,10 @@ public class RESTActivityRelevancyService implements ResourceContainer {
         LOG.warn("Error serializing stats report to pretty JSON: " + e.getMessage());
         return Response.ok().entity(report).build();
       }
-    } catch (HibernateException e) {
+    } catch (Exception e) {
       LOG.error("Error getting activity relevancy statistics: ", e);
       return Response.status(Status.INTERNAL_SERVER_ERROR)
-                     .entity("{ \"error\" : \"Storage error\", \"message\" : \"" + e.getMessage() + "\" }")
+                     .entity("{ \"error\" : \"Internal error\", \"message\" : \"" + e.getMessage() + "\" }")
                      .build();
     }
   }
