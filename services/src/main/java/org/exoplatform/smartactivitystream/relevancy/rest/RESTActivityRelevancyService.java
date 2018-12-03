@@ -175,7 +175,7 @@ public class RESTActivityRelevancyService implements ResourceContainer {
         LOG.warn("Error serializing stats report to pretty JSON: " + e.getMessage());
         return Response.ok().entity(report).build();
       }
-    } catch (Exception e) {
+    } catch (Throwable e) {
       LOG.error("Error getting activity relevancy statistics: ", e);
       return Response.status(Status.INTERNAL_SERVER_ERROR)
                      .entity("{ \"error\" : \"Internal error\", \"message\" : \"" + e.getMessage() + "\" }")
