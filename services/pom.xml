@@ -84,21 +84,6 @@
       <artifactId>social-component-core</artifactId>
       <scope>provided</scope>
     </dependency>
-		<!-- dependency>
-			<groupId>org.liquibase</groupId>
-			<artifactId>liquibase-core</artifactId>
-      <scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-entitymanager</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.inject</groupId>
-			<artifactId>javax.inject</artifactId>
-			<scope>provided</scope>
-		</dependency -->
 		
 		<!-- TEST -->
     <dependency>
