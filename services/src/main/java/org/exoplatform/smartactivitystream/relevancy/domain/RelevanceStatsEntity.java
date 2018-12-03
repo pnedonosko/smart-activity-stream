@@ -11,9 +11,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.NamedNativeQueries;
 import javax.persistence.NamedNativeQuery;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.exoplatform.commons.api.persistence.ExoEntity;
@@ -24,9 +21,6 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
  */
 @Entity(name = "SmartActivityRelevanceStats")
 @ExoEntity
-@Table(name = "ST_ACTIVITY_RELEVANCY")
-@NamedQueries({
-    @NamedQuery(name = "SmartActivityRelevanceStats.findCount", query = "SELECT COUNT(*) FROM SmartActivityRelevanceStats") })
 @NamedNativeQueries({ @NamedNativeQuery(name = "SmartActivityRelevanceStats.findStats", query = "SELECT user_id," //
     + " (SELECT count(*) FROM st_activity_relevancy WHERE user_id = r.user_id AND IS_RELEVANT = 1) as relevant_count,"
     + " (SELECT count(*) FROM st_activity_relevancy WHERE user_id = r.user_id AND IS_RELEVANT = 0) as irrelevant_count,"
@@ -40,27 +34,27 @@ public class RelevanceStatsEntity {
   /** The date format. */
   @Transient
   protected final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-  
+
   /** The user id. */
   @Id
   @Column(name = "user_id")
-  protected String userId;
+  protected String                 userId;
 
   /** The relevant count. */
   @Column(name = "relevant_count")
-  protected Long   relevantCount;
+  protected Long                   relevantCount;
 
   /** The irrelevant count. */
   @Column(name = "irrelevant_count")
-  protected Long   irrelevantCount;
+  protected Long                   irrelevantCount;
 
   /** The neutral count. */
   @Column(name = "neutral_count")
-  protected Long   neutralCount;
+  protected Long                   neutralCount;
 
   /** The update date. */
   @Column(name = "last_date")
-  protected Date   lastDate;
+  protected Date                   lastDate;
 
   /**
    * Gets the user id.

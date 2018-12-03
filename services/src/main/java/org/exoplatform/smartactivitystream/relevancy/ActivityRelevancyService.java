@@ -156,14 +156,13 @@ public class ActivityRelevancyService implements Startable {
   }
   
   /**
-   * Find user stats for last 30 days.
+   * Find user stats since given data to current time.
    *
+   * @param sinceDate the given date since which collect the statistics
    * @return the list
    */
-  public List<RelevanceStatsEntity> findUserStats() {
-    Calendar after = Calendar.getInstance();
-    after.add(Calendar.DAY_OF_MONTH, -30);
-    return relevanceStats.findUsersStats(after.getTime());
+  public List<RelevanceStatsEntity> findUserStats(Date sinceDate) {
+    return relevanceStats.findUsersStats(sinceDate);
   }
   
   /**
@@ -172,7 +171,7 @@ public class ActivityRelevancyService implements Startable {
    * @return the relevancies count
    */
   public long getRelevanciesCount() {
-    return relevanceStats.findTotalCount();
+    return relevanceStorage.findTotalCount();
   }
 
 }

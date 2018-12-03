@@ -19,15 +19,6 @@ import org.exoplatform.smartactivitystream.relevancy.domain.RelevanceStatsEntity
  */
 public class RelevanceStatsDAO extends GenericDAOJPAImpl<RelevanceStatsEntity, RelevanceId> {
 
-  public long findTotalCount() {
-    try {
-      TypedQuery<Long> query = getEntityManager().createNamedQuery("SmartActivityRelevanceStats.findCount", Long.class);
-      return query.getSingleResult().longValue();
-    } catch (NoResultException e) {
-      return -1;
-    }
-  }
-
   public List<RelevanceStatsEntity> findUsersStats(Date afterDate) {
     try {
       TypedQuery<RelevanceStatsEntity> query = getEntityManager()

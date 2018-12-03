@@ -10,6 +10,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -23,6 +25,8 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
 @ExoEntity
 @Table(name = "ST_ACTIVITY_RELEVANCY")
 @IdClass(RelevanceId.class)
+@NamedQueries({
+  @NamedQuery(name = "SmartActivityRelevance.findCount", query = "SELECT COUNT(s.activityId) FROM SmartActivityRelevance s") })
 public class RelevanceEntity {
 
   /** The date format. */

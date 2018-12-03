@@ -3,6 +3,8 @@
  */
 package org.exoplatform.smartactivitystream.relevancy.rest;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.annotation.security.RolesAllowed;
@@ -12,9 +14,12 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import org.hibernate.HibernateException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -128,24 +133,55 @@ public class RESTActivityRelevancyService implements ResourceContainer {
   @RolesAllowed("users")
   @Path("/stats")
   @Produces("application/json")
-  public Response getStats() {
-
-    List<RelevanceStatsEntity> userStats = activityRelevancyService.findUserStats();
-    if (userStats == null) {
-      return Response.status(Status.NOT_FOUND)
-                     .entity("{ \"error\" : \"Not found\", \"message\" : \"User stats not found\" }")
-                     .build();
-    }
-
-    long totalCount = activityRelevancyService.getRelevanciesCount();
-    RelevanceStatsReport report = new RelevanceStatsReport(totalCount, userStats);
-
+  public Response getStats(@QueryParam("since_days") String sinceDaysStr) {
     try {
-      String prettyJson = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(report);
-      return Response.ok().entity(prettyJson).build();
-    } catch (JsonProcessingException e) {
-      LOG.warn("Error serializing stats report to pretty JSON: " + e.getMessage());
-      return Response.ok().entity(report).build();
+      SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+      int sinceDays;
+      if (sinceDaysStr != null && sinceDaysStr.length() > 0) {
+        try {
+          sinceDays = Integer.parseInt(sinceDaysStr);
+          if (sinceDays <= 0) {
+            LOG.warn("Wrong paramater since_days '" + sinceDaysStr + "': should be greater of zero");
+            return Response.status(Status.BAD_REQUEST)
+                           .entity("{ \"error\" : \"Client error\", \"message\" : \"Parameter 'since_days' should be greater of zero\" }")
+                           .build();
+          }
+        } catch (NumberFormatException e) {
+          LOG.warn("Wrong parameter format since_days '" + sinceDaysStr + "': " + e.getMessage());
+          return Response.status(Status.BAD_REQUEST)
+                         .entity("{ \"error\" : \"Client error\", \"message\" : \"Parameter 'since_days' has wrong format\" }")
+                         .build();
+        }
+      } else {
+        sinceDays = 90;
+      }
+      Calendar since = Calendar.getInstance();
+      since.add(Calendar.DAY_OF_MONTH, -sinceDays);
+      since.set(Calendar.HOUR_OF_DAY, 0);
+      since.set(Calendar.MINUTE, 0);
+      since.set(Calendar.SECOND, 0);
+      since.set(Calendar.MILLISECOND, 1);
+      List<RelevanceStatsEntity> userStats = activityRelevancyService.findUserStats(since.getTime());
+      if (userStats == null) {
+        return Response.status(Status.NOT_FOUND)
+                       .entity("{ \"error\" : \"Not found\", \"message\" : \"User stats not found\" }")
+                       .build();
+      }
+      long totalCount = activityRelevancyService.getRelevanciesCount();
+      RelevanceStatsReport report = new RelevanceStatsReport(totalCount, userStats);
+      report.setDescription("Statistics since " + dateFormat.format(since.getTime()));
+      try {
+        String prettyJson = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(report);
+        return Response.ok().entity(prettyJson).build();
+      } catch (JsonProcessingException e) {
+        LOG.warn("Error serializing stats report to pretty JSON: " + e.getMessage());
+        return Response.ok().entity(report).build();
+      }
+    } catch (HibernateException e) {
+      LOG.error("Error getting activity relevancy statistics: ", e);
+      return Response.status(Status.INTERNAL_SERVER_ERROR)
+                     .entity("{ \"error\" : \"Storage error\", \"message\" : \"" + e.getMessage() + "\" }")
+                     .build();
     }
   }
 

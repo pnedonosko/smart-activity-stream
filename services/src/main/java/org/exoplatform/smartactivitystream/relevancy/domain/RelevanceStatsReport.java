@@ -31,6 +31,9 @@ public class RelevanceStatsReport {
   /** The relevancies count. */
   protected Long                       relevanciesCount;
 
+  /** The description. */
+  protected String                     description;
+
   /** The user stats. */
   protected List<RelevanceStatsEntity> userStats;
 
@@ -53,6 +56,24 @@ public class RelevanceStatsReport {
    */
   public long getAllRelevanciesCount() {
     return relevanciesCount;
+  }
+
+  /**
+   * Gets the description.
+   *
+   * @return the description
+   */
+  public String getDescription() {
+    return description;
+  }
+
+  /**
+   * Sets the description.
+   *
+   * @param description the new description
+   */
+  public void setDescription(String description) {
+    this.description = description;
   }
 
   /**
