@@ -21,43 +21,43 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
  * The RelevanceEntity class that represents user attitude to the Activity. The
  * Activity can be marked as relevant or irrelevant
  */
-@Entity(name = "SmartActivityRelevance")
+@Entity(name = "SmartActivityRelevancy")
 @ExoEntity
 @Table(name = "ST_ACTIVITY_RELEVANCY")
 @IdClass(RelevanceId.class)
 @NamedQueries({
-  @NamedQuery(name = "SmartActivityRelevance.findCount", query = "SELECT COUNT(s.activityId) FROM SmartActivityRelevance s") })
+    @NamedQuery(name = "SmartActivityRelevancy.findCount", query = "SELECT COUNT(s.activityId) FROM SmartActivityRelevancy s") })
 public class RelevanceEntity {
 
   /** The date format. */
   @Transient
   protected final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-  
+
   /** The user id. */
   @Id
   @Column(name = "USER_ID")
-  protected String  userId;
+  protected String                 userId;
 
   /** The activity id. */
   @Id
   @Column(name = "ACTIVITY_ID")
-  protected String  activityId;
+  protected String                 activityId;
 
   /** Indicates relevance of the Activity. */
   @Column(name = "IS_RELEVANT")
-  protected Boolean relevant;
+  protected Boolean                relevant;
 
   /** The weight. */
   @Column(name = "WEIGHT")
-  protected Double  weight;
+  protected Double                 weight;
 
   /** The update date. */
   @Column(name = "UPDATE_DATE")
-  protected Date    updateDate;
+  protected Date                   updateDate;
 
   /** The weight date. */
   @Column(name = "WEIGHT_DATE")
-  protected Date    weightDate;
+  protected Date                   weightDate;
 
   /**
    * Gets the weight date.

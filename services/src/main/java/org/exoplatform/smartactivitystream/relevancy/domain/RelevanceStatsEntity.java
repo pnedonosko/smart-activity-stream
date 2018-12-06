@@ -11,6 +11,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.NamedNativeQueries;
 import javax.persistence.NamedNativeQuery;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Transient;
 
 import org.exoplatform.commons.api.persistence.ExoEntity;
@@ -19,16 +21,26 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
  * The RelevanceStatsEntity class that represents statistics for relevance
  * records.
  */
-@Entity(name = "SmartActivityRelevanceStats")
+@Entity(name = "SmartActivityRelevancyStats")
 @ExoEntity
-@NamedNativeQueries({ @NamedNativeQuery(name = "SmartActivityRelevanceStats.findStats", query = "SELECT user_id," //
-    + " (SELECT count(*) FROM st_activity_relevancy WHERE user_id = r.user_id AND IS_RELEVANT = 1) as relevant_count,"
-    + " (SELECT count(*) FROM st_activity_relevancy WHERE user_id = r.user_id AND IS_RELEVANT = 0) as irrelevant_count,"
-    + " (SELECT count(*) FROM st_activity_relevancy WHERE user_id = r.user_id AND IS_RELEVANT IS NULL) as neutral_count,"
-    + " MAX(r.update_date) as last_date" //
-    + " FROM st_activity_relevancy r" //
+@NamedNativeQueries({ @NamedNativeQuery(name = "SmartActivityRelevancyStats.findStats", query = "SELECT user_id," //
+    + " (SELECT count(*) FROM ST_ACTIVITY_RELEVANCY WHERE user_id = r.user_id AND IS_RELEVANT = 1) AS relevant_count,"
+    + " (SELECT count(*) FROM ST_ACTIVITY_RELEVANCY WHERE user_id = r.user_id AND IS_RELEVANT = 0) AS irrelevant_count,"
+    + " (SELECT count(*) FROM ST_ACTIVITY_RELEVANCY WHERE user_id = r.user_id AND IS_RELEVANT IS NULL) AS neutral_count,"
+    + " MAX(r.update_date) AS last_date" //
+    + " FROM ST_ACTIVITY_RELEVANCY r" //
     + " WHERE r.update_date > :afterDate" //
     + " GROUP BY r.user_id", resultClass = RelevanceStatsEntity.class) })
+// TODO not used named queries
+@NamedQueries({
+    @NamedQuery(name = "SmartActivityRelevancyStats.findAfter", query = "SELECT r.userId, MAX(r.updateDate) AS last_date"
+        + " FROM SmartActivityRelevancy r WHERE r.updateDate > :afterDate GROUP BY r.userId"),
+    @NamedQuery(name = "SmartActivityRelevancyStats.findUserRelevant", query = "SELECT COUNT(r.relevant)"
+        + " FROM SmartActivityRelevancy r WHERE r.userId = :userId AND r.relevant = TRUE"),
+    @NamedQuery(name = "SmartActivityRelevancyStats.findUserIrrelevant", query = "SELECT COUNT(r.relevant)"
+        + " FROM SmartActivityRelevancy r WHERE r.userId = :userId AND r.relevant = FALSE"),
+    @NamedQuery(name = "SmartActivityRelevancyStats.findUserNeutral", query = "SELECT COUNT(r.relevant)"
+        + " FROM SmartActivityRelevancy r WHERE r.userId = :userId AND r.relevant IS NULL")})
 public class RelevanceStatsEntity {
 
   /** The date format. */

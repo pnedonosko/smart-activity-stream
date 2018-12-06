@@ -17,7 +17,7 @@ public class RelevanceDAO extends GenericDAOJPAImpl<RelevanceEntity, RelevanceId
   
   public long findTotalCount() {
     try {
-      TypedQuery<Long> query = getEntityManager().createNamedQuery("SmartActivityRelevance.findCount", Long.class);
+      TypedQuery<Long> query = getEntityManager().createNamedQuery("SmartActivityRelevancy.findCount", Long.class);
       return query.getSingleResult().longValue();
     } catch (NoResultException e) {
       return -1;

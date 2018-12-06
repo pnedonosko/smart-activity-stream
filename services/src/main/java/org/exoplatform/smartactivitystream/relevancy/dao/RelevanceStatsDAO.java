@@ -22,7 +22,7 @@ public class RelevanceStatsDAO extends GenericDAOJPAImpl<RelevanceStatsEntity, R
   public List<RelevanceStatsEntity> findUsersStats(Date afterDate) {
     try {
       TypedQuery<RelevanceStatsEntity> query = getEntityManager()
-                                                                 .createNamedQuery("SmartActivityRelevanceStats.findStats",
+                                                                 .createNamedQuery("SmartActivityRelevancyStats.findStats",
                                                                                    RelevanceStatsEntity.class)
                                                                  .setParameter("afterDate", afterDate);
       return query.getResultList();
