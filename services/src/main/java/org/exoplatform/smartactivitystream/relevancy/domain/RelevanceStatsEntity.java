@@ -11,8 +11,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.NamedNativeQueries;
 import javax.persistence.NamedNativeQuery;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 import javax.persistence.Transient;
 
 import org.exoplatform.commons.api.persistence.ExoEntity;
@@ -31,16 +29,6 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
     + " FROM ST_ACTIVITY_RELEVANCY r" //
     + " WHERE r.update_date > :afterDate" //
     + " GROUP BY r.user_id", resultClass = RelevanceStatsEntity.class) })
-// TODO not used named queries
-@NamedQueries({
-    @NamedQuery(name = "SmartActivityRelevancyStats.findAfter", query = "SELECT r.userId, MAX(r.updateDate) AS last_date"
-        + " FROM SmartActivityRelevancy r WHERE r.updateDate > :afterDate GROUP BY r.userId"),
-    @NamedQuery(name = "SmartActivityRelevancyStats.findUserRelevant", query = "SELECT COUNT(r.relevant)"
-        + " FROM SmartActivityRelevancy r WHERE r.userId = :userId AND r.relevant = TRUE"),
-    @NamedQuery(name = "SmartActivityRelevancyStats.findUserIrrelevant", query = "SELECT COUNT(r.relevant)"
-        + " FROM SmartActivityRelevancy r WHERE r.userId = :userId AND r.relevant = FALSE"),
-    @NamedQuery(name = "SmartActivityRelevancyStats.findUserNeutral", query = "SELECT COUNT(r.relevant)"
-        + " FROM SmartActivityRelevancy r WHERE r.userId = :userId AND r.relevant IS NULL")})
 public class RelevanceStatsEntity {
 
   /** The date format. */
