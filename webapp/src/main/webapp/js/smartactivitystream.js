@@ -4,39 +4,7 @@
   var relevantText = "Click to mark as irrelevant";
   var irrelevantText = "Click to mark as relevant";
   var neutralText = "Click to mark as neutral";
-  var observerTarget;
-
-  $(document).ready(function() {
-
-    // Searching for observation target
-    if ($(".uiUserActivityStreamPortlet").get(0) != undefined) {
-      observerTarget = $(".uiUserActivityStreamPortlet").closest(".PORTLET-FRAGMENT").get(0);
-    } else if ($(".uiSpaceActivityStreamPortlet").get(0) != undefined) {
-      observerTarget = $(".uiSpaceActivityStreamPortlet").closest(".PORTLET-FRAGMENT").get(0);
-    }
-
-    // Set initial state of the icons
-    updateStateOfIcons($(".boxContainer"));
-
-    // Observe changes in the stream to add icons to new activities
-    var observer = new MutationObserver(function(mutations) {
-
-      mutations.forEach(function(mutation) {
-        if ($(mutation.addedNodes).find(".actionBar").length > 0) {
-
-          updateStateOfIcons($(mutation.target).find(".actionBar").closest('.boxContainer'));
-        }
-      });
-    });
-
-    // Start observing
-    observer.observe(observerTarget, {
-      childList : true,
-      subtree : true
-    });
-
-  });
-
+  
   // Adds onClick listener to the elements
   function addRelevanceOnClickListener(elements) {
     $(elements).click(function() {
@@ -200,4 +168,35 @@
         + irrelevantText + '"><span class="relevance relevance-default"></span>&nbsp;&nbsp;&nbsp;</a></li>';
   }
 
+  $(document).ready(function() {
+    var $observerTarget;
+
+    // Searching for observation target
+    if ($(".uiUserActivityStreamPortlet").length > 0) {
+      $observerTarget = $(".uiUserActivityStreamPortlet").closest(".PORTLET-FRAGMENT");
+    } else if ($(".uiSpaceActivityStreamPortlet").length > 0) {
+      $observerTarget = $(".uiSpaceActivityStreamPortlet").closest(".PORTLET-FRAGMENT");
+    }
+
+    if ($observerTarget && $observerTarget.length > 0) {
+      // Set initial state of the icons
+      updateStateOfIcons($(".boxContainer"));
+
+      // Observe changes in the stream to add icons to new activities
+      var observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if ($(mutation.addedNodes).find(".actionBar").length > 0) {
+            updateStateOfIcons($(mutation.target).find(".actionBar").closest('.boxContainer'));
+          }
+        });
+      });
+
+      // Start observing
+      observer.observe($observerTarget.get(0), {
+        childList : true,
+        subtree : true
+      });
+    }
+  });
+  
 })($);
