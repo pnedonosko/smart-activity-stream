@@ -22,9 +22,9 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
 @Entity(name = "SmartActivityRelevancyStats")
 @ExoEntity
 @NamedNativeQueries({ @NamedNativeQuery(name = "SmartActivityRelevancyStats.findStats", query = "SELECT user_id," //
-    + " (SELECT count(*) FROM ST_ACTIVITY_RELEVANCY WHERE user_id = r.user_id AND IS_RELEVANT = 1) AS relevant_count,"
-    + " (SELECT count(*) FROM ST_ACTIVITY_RELEVANCY WHERE user_id = r.user_id AND IS_RELEVANT = 0) AS irrelevant_count,"
-    + " (SELECT count(*) FROM ST_ACTIVITY_RELEVANCY WHERE user_id = r.user_id AND IS_RELEVANT IS NULL) AS neutral_count,"
+    + " (SELECT COUNT(*) FROM ST_ACTIVITY_RELEVANCY WHERE user_id = r.user_id AND IS_RELEVANT = 1 AND update_date > :afterDate) AS relevant_count,"
+    + " (SELECT COUNT(*) FROM ST_ACTIVITY_RELEVANCY WHERE user_id = r.user_id AND IS_RELEVANT = 0 AND update_date > :afterDate) AS irrelevant_count,"
+    + " (SELECT COUNT(*) FROM ST_ACTIVITY_RELEVANCY WHERE user_id = r.user_id AND IS_RELEVANT IS NULL AND update_date > :afterDate) AS neutral_count,"
     + " MAX(r.update_date) AS last_date" //
     + " FROM ST_ACTIVITY_RELEVANCY r" //
     + " WHERE r.update_date > :afterDate" //
