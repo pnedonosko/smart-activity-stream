@@ -11,8 +11,10 @@
       var $elem = $(this);
       if ($elem.attr("onClick") == undefined) {
         // The link contains activityId
-        var $link = $elem.parents(".boxContainer").find('.heading > .actLink > a');
-        var activityId = $link.attr("href").substring($link.attr("href").indexOf('=') + 1);
+        //var $link = $elem.parents(".boxContainer").find('.heading > .actLink > a');
+        //var activityId = $link.attr("href").substring($link.attr("href").indexOf('=') + 1);
+        var activityId = $elem.parents(".activityStream").attr("id");
+        activityId = activityId ? activityId.replace("activityContainer", "") : "";
 
         if ($elem.hasClass("relevance-default")) {
           console.log("Action: relevant | ID: " + activityId);
@@ -82,8 +84,10 @@
       var $elem = $(this);
 
       // The link contains activityId
-      var $link = $elem.parents(".boxContainer").find('.heading > .actLink > a');
-      var activityId = $link.attr("href").substring($link.attr("href").indexOf('=') + 1);
+      //var $link = $elem.parents(".boxContainer").find('.heading > .actLink > a');
+      //var activityId = $link.attr("href").substring($link.attr("href").indexOf('=') + 1);
+      var activityId = $elem.parents(".activityStream").attr("id");
+      activityId = activityId ? activityId.replace("activityContainer", "") : "";
 
       var userId = eXo.env.portal.userName
 
