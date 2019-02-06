@@ -23,38 +23,5 @@
   xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_3.xsd http://www.exoplatform.org/xml/ns/kernel_1_3.xsd"
   xmlns="http://www.exoplatform.org/xml/ns/kernel_1_3.xsd">
 
-  <external-component-plugins>
-    <target-component>org.exoplatform.commons.addons.AddOnService</target-component>
-    <component-plugin>
-      <name>addPlugin</name>
-      <set-method>addPlugin</set-method>
-      <type>org.exoplatform.commons.addons.AddOnPluginImpl</type>
-      <description>add application Config</description>
-      <init-params>
-        <value-param>
-          <name>priority</name>
-          <value>10</value>
-        </value-param>
-        <value-param>
-          <name>containerName</name>
-          <value>middle-topNavigation-container</value>
-        </value-param>
-        <object-param>
-          <name>SmartActivityStream</name>
-          <description>Smart Activity Stream portlet</description>
-          <object type="org.exoplatform.portal.config.serialize.PortletApplication">
-            <field name="state">
-              <object type="org.exoplatform.portal.config.model.TransientApplicationState">
-                <field name="contentId">
-                  <string>smartactivitystream/SmartActivityStreamPortlet</string>
-                </field>
-              </object>
-            </field>
-          </object>
-        </object-param>
-      </init-params>
-    </component-plugin>
-  </external-component-plugins>
-
-  <import profiles="all">war:/conf/smartactivitystream/configuration.xml</import> <!-- TODO where the file? -->
+  <import profiles="all">war:/conf/smartactivity/configuration.xml</import>
 </configuration>

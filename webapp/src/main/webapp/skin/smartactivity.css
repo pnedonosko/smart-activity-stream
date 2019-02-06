@@ -1,0 +1,32 @@
+@font-face {
+  font-family: 'icomoon';
+  src: url('/smartactivity/skin/fonts/icomoon.eot?jutru7');
+  src: url('/smartactivity/skin/fonts/icomoon.eot?jutru7#iefix') format('embedded-opentype'),
+    url('/smartactivity/skin/fonts/icomoon.ttf?jutru7') format('truetype'),
+    url('/smartactivity/skin/fonts/icomoon.woff?jutru7') format('woff'),
+    url('/smartactivity/skin/fonts/icomoon.svg?jutru7#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.relevance {
+  font-size: 16px;
+  font-family: "icomoon" !important;
+}
+
+.relevance-default:before {
+  color: #c6c6c6;
+  content: "\ea10";
+}
+
+.relevance-relevant:before {
+  content: "\ea10";
+}
+
+.relevance-irrelevant:before {
+  content: "\ea0f";
+}
+
+a.relevance-tooltip {
+	margin-right: -8px;
+}

@@ -31,9 +31,9 @@
       <mime-type>text/html</mime-type>
     </supports>
     <portlet-info>
-      <title>Smart Activity Stream portlet for eXo Platform</title>
-      <short-title>Smart Activity Stream</short-title>
-      <keywords>smart activity stream</keywords>
+      <title>Smart Activity stream portlet for eXo Platform</title>
+      <short-title>Smart Activity stream</short-title>
+      <keywords>smart activity</keywords>
     </portlet-info>
   </portlet>
 </portlet-app>

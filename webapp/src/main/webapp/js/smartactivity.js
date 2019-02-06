@@ -11,8 +11,6 @@
       var $elem = $(this);
       if ($elem.attr("onClick") == undefined) {
         // The link contains activityId
-        //var $link = $elem.parents(".boxContainer").find('.heading > .actLink > a');
-        //var activityId = $link.attr("href").substring($link.attr("href").indexOf('=') + 1);
         var activityId = $elem.parents(".activityStream").attr("id");
         activityId = activityId ? activityId.replace("activityContainer", "") : "";
 
@@ -80,12 +78,9 @@
 
     // Iterates through each activity block and inserts the relevance icon
     $(iconsParentDiv).find('.actionBar > .statusAction.pull-right').each(function() {
-
       var $elem = $(this);
 
       // The link contains activityId
-      //var $link = $elem.parents(".boxContainer").find('.heading > .actLink > a');
-      //var activityId = $link.attr("href").substring($link.attr("href").indexOf('=') + 1);
       var activityId = $elem.parents(".activityStream").attr("id");
       activityId = activityId ? activityId.replace("activityContainer", "") : "";
 
@@ -130,9 +125,7 @@
         // Call tooltip handler
         $elem.find('a.relevance-tooltip').tooltip();
       });
-
     });
-
   }
 
   var postRelevance = function(relevance) {
@@ -194,7 +187,6 @@
           }
         });
       });
-
       // Start observing
       observer.observe($observerTarget.get(0), {
         childList : true,

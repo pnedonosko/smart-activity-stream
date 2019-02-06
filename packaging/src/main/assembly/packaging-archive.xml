@@ -33,7 +33,7 @@
       <includes>
         <include>org.exoplatform.addons.smart-activity-stream:smart-activity-stream-webapp:war</include>
       </includes>
-      <outputFileNameMapping>smart-activity-stream.war</outputFileNameMapping>
+      <outputFileNameMapping>smartactivity.war</outputFileNameMapping>
       <scope>provided</scope>
       <fileMode>0644</fileMode>
     </dependencySet>

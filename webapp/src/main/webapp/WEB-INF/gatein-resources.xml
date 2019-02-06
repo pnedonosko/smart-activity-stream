@@ -25,10 +25,10 @@
 
   <!-- Javascript for Smart Activity support -->
   <module>
-    <name>smartactivitystream</name>
-    <load-group>smartactivitystreamGRP</load-group>
+    <name>smartactivity</name>
+    <load-group>smartactivityGRP</load-group>
     <script>
-      <path>/js/smartactivitystream.js</path>
+      <path>/js/smartactivity.js</path>
     </script>
 
     <depends>
@@ -39,18 +39,18 @@
 
   <!-- CSS for Smart Activity Stream support -->
   <portlet-skin>
-    <application-name>smartactivitystream</application-name>
+    <application-name>smartactivity</application-name>
     <portlet-name>SmartActivityStreamPortlet</portlet-name>
     <skin-name>Default</skin-name>
-    <css-path>/skin/smartactivitystream.css</css-path>
+    <css-path>/skin/smartactivity.css</css-path>
     <overwrite>true</overwrite>
   </portlet-skin>
 
   <portlet-skin>
-    <application-name>smartactivitystream</application-name>
+    <application-name>smartactivity</application-name>
     <portlet-name>SmartActivityStreamPortlet</portlet-name>
     <skin-name>Enterprise</skin-name>
-    <css-path>/skin/smartactivitystream.css</css-path>
+    <css-path>/skin/smartactivity.css</css-path>
     <overwrite>true</overwrite>
   </portlet-skin>
 

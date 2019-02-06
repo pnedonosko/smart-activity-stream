@@ -104,6 +104,6 @@
         </includes>
       </resource>
     </resources>
-    <finalName>smart-activity-stream</finalName>
+    <finalName>smartactivity</finalName>
   </build>
 </project>

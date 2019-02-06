@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bundle>
+  <!-- smartactivity>
+    <streamTitle>Smart Activities</streamTitle>
+  </smartactivity -->
+  <DisplayModesDropDown>
+    <item>
+      <SmartActivities>Smart Activities</SmartActivities>
+    </item>
+  </DisplayModesDropDown>
+</bundle>

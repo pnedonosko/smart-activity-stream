@@ -15,7 +15,6 @@ public class ActivityRelevancyPortlet extends GenericPortlet {
   @Override
   protected void doView(final RenderRequest request, final RenderResponse response) {
     JavascriptManager js = ((WebuiRequestContext) WebuiRequestContext.getCurrentInstance()).getJavascriptManager();
-    js.require("SHARED/smartactivitystream", "smartactivitystream");
+    js.require("SHARED/smartactivity", "smartactivity");
   }
-
 }
