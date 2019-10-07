@@ -30,10 +30,11 @@
     <script>
       <path>/js/smartactivity.js</path>
     </script>
-
     <depends>
       <module>jquery</module>
-      <as>$</as>
+    </depends>
+    <depends>
+      <module>commons-cometd3</module>
     </depends>
   </module>
 

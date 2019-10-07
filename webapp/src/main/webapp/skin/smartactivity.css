@@ -30,3 +30,20 @@
 a.relevance-tooltip {
 	margin-right: -8px;
 }
+
+#focusport-dev {
+  width: 100%;
+  /* border-top: 3px solid red; */
+  position: fixed;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.05;
+  background-color: red;
+}
+
+.activityid-dev {
+  position: relative;
+  font-size: 24px !important;
+  color: red;
+  font-weight: bold;
+}

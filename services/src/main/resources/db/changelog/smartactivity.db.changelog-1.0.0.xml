@@ -53,5 +53,48 @@
     <addPrimaryKey tableName="ST_ACTIVITY_RELEVANCY" columnNames="USER_ID, ACTIVITY_ID"
       constraintName="PK_ST_RELPART" />
   </changeSet>
+  
+  <!-- Definition of ST_ACTIVITY_FOCUS table -->
+  <changeSet author="smart-activity" id="1.0.0-3">
+    <createTable tableName="ST_ACTIVITY_FOCUS">
+      <column name="USER_ID" type="NVARCHAR(255)">
+        <constraints nullable="false" />
+      </column>
+      <column name="ACTIVITY_ID" type="NVARCHAR(255)">
+        <constraints nullable="false" />
+      </column>
+      <column name="START_TIME" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="STOP_TIME" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TOTAL_SHOWN" type="INTEGER">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CONTENT_SHOWN" type="INTEGER" />
+      <column name="CONVO_SHOWN" type="INTEGER" />
+      <column name="CONTENT_HITS" type="INTEGER" />
+      <column name="CONVO_HITS" type="INTEGER" />
+      <column name="APP_HITS" type="INTEGER" />
+      <column name="PROFILE_HITS" type="INTEGER" />
+      <column name="LINK_HITS" type="INTEGER" />
+      <column name="TRACKER_VERSION" type="NVARCHAR(10)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <modifySql dbms="mysql">
+      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci" />
+    </modifySql>
+  </changeSet>
+  
+  <!-- Definition of ST_ACTIVITY_FOCUS constraints -->
+  <changeSet author="smart-activity" id="1.0.0-4">
+    <addPrimaryKey tableName="ST_ACTIVITY_FOCUS" columnNames="USER_ID, ACTIVITY_ID, START_TIME"
+      constraintName="PK_ST_FOCUSPART" />
+    <createIndex tableName="ST_ACTIVITY_FOCUS" indexName="IDX_ST_ACTIVITY_FOCUS_TVERSION">
+      <column name="TRACKER_VERSION"/>
+    </createIndex>
+  </changeSet>
 
 </databaseChangeLog>
