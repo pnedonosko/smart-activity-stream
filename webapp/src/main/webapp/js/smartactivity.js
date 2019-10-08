@@ -82,6 +82,12 @@
       }
     }
   }
+  
+  function debug(msg, err) {
+    if (eXo.smartactivity.debug) {
+      log(msg, err);
+    }
+  }
 
   function tryParseJson(message) {
     const src = message.data ? message.data : (message.error ? message.error : message.failure);
@@ -110,7 +116,7 @@
       // Subscription status callback
       if (subscribeReply.successful) {
         // The server successfully subscribed this client to the channel.
-        log("User focus channel subscribed successfully: " + JSON.stringify(subscribeReply));
+        debug("User focus channel subscribed successfully: " + JSON.stringify(subscribeReply));
         // TODO init something?
       } else {
         var err = subscribeReply.error ? subscribeReply.error : (subscribeReply.failure ? subscribeReply.failure.reason
@@ -127,7 +133,7 @@
       if (publishReply.successful) {
         deferred.resolve(publishReply);
         // The server successfully subscribed this client to the channel.
-        log("<< " + data.activityId + " User focus published successfully: " + JSON.stringify(publishReply));
+        debug("<< " + data.activityId + " User focus published successfully: " + JSON.stringify(publishReply));
       } else {
         const err = publishReply.error ? publishReply.error : (publishReply.failure ? publishReply.failure.reason : "Undefined");
         deferred.reject(err);
@@ -184,20 +190,20 @@
         let activityId = $elem.parents(".activityStream").attr("id");
         activityId = activityId ? activityId.replace("activityContainer", "") : "";
         if ($elem.hasClass("relevance-default")) {
-          log("Action: relevant | ID: " + activityId);
+          debug("Action: relevant | ID: " + activityId);
           saveRelevance(activityId, true);
           $elem.removeClass("relevance-default");
           $elem.toggleClass("relevance-relevant");
           $elem.toggleClass("uiIconBlue");
           $elem.closest("a.relevance-tooltip").attr("data-original-title", relevantText);
         } else if ($elem.hasClass("relevance-relevant")) {
-          log("Action: irrelevant | ID: " + activityId);
+          debug("Action: irrelevant | ID: " + activityId);
           saveRelevance(activityId, false);
           $elem.removeClass("relevance-relevant");
           $elem.toggleClass("relevance-irrelevant");
           $elem.closest("a.relevance-tooltip").attr("data-original-title", neutralText);
         } else {
-          log("Action: default relevance | ID: " + activityId);
+          debug("Action: default relevance | ID: " + activityId);
           saveRelevance(activityId, null);
           $elem.removeClass("relevance-irrelevant");
           $elem.toggleClass("relevance-default");
@@ -245,7 +251,7 @@
             // Add onClickListener to new icon
             addRelevanceOnClickListener($elem.find(".relevance"));
           } else {
-            console.log("Smart Activity: Error status: " + jqXHR.status + ", text: " + jqXHR.statusText);
+            log("Smart Activity: Error status: " + jqXHR.status + ", text: " + jqXHR.statusText);
           }
           // Call tooltip handler
           $elem.find("a.relevance-tooltip").tooltip();
@@ -309,7 +315,7 @@
         const timeShown = timeNow - contentTime;
         if (timeShown >= QUICK_ATTENTION_TIME * contentSize) {
           contentShownMs += Math.round(timeShown / contentSize);
-          console.log("<<< " + activityId + " fixateContentTime: " + self.contentShown + " (+" + timeShown + ") size: " + contentSize);
+          debug("<<< " + activityId + " fixateContentTime: " + self.contentShown + " (+" + timeShown + ") size: " + contentSize);
         }
         contentTime = 0;
       }
@@ -320,7 +326,7 @@
         const timeShown = timeNow - convoTime;
         if (timeShown >= QUICK_ATTENTION_TIME * convoSize) {
           convoShownMs += Math.round(timeShown / convoSize);
-          console.log("<<< " + activityId + " fixateConvoTime: " + self.convoShown + " (+" + timeShown + ") size: " + convoSize);
+          debug("<<< " + activityId + " fixateConvoTime: " + self.convoShown + " (+" + timeShown + ") size: " + convoSize);
         }
         convoTime = 0;
       }
@@ -448,7 +454,7 @@
           this.totalShown = Math.round(totalShownMs/1000);
           // Save the focus to server (or use local pool to send to server in batches)
           saveFocus(this);
-          console.log("<< " + activityId + " fixate: " + JSON.stringify(this));
+          log("<< " + activityId + " fixate: " + JSON.stringify(this));
         }        
       }
       // Finally cleanup
@@ -465,7 +471,7 @@
     const initTime = new Date().getTime();
     var focus = new Focus(activityId, initTime);
     focused.set(activityId, focus);
-    console.log(">> " + activityId + " init: " + initTime);
+    debug(">> " + activityId + " init: " + initTime);
     return focus;
   }
   
@@ -564,7 +570,7 @@
       
       // Clicks in avatar and heading's author produce profile hits:
       $().add($activityAvatar.find("a")).add($heading.find(".ownerName a")).on(hitEvents, profileHitHandler)
-            .hover(profileHoverInHandler, profileHoverOutHandler);
+            .hover(profileHoverInHandler, profileHoverOutContentHandler);
       // Click on space produces app hit:
       $heading.find(".spaceName, .space-avatar").on(hitEvents, appHitHandler);
       // TODO should we treat opening of an activity (or its comment) on a dedicated page as user attention?
@@ -788,12 +794,6 @@
   }
   
   let enableTrackers = false;
-//  function startTrackFocus() {
-//    trackFocus($(".activityStream"));
-//  }
-//  function startTrackHits() {
-//    trackHits($(".activityStream"))
-//  }
   function startTrackersFor($activities) {
     if (!$activities || $activities.length == 0) {
       $activities = $(".activityStream");  
