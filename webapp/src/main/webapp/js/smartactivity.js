@@ -9,7 +9,7 @@
   const QUICK_ATTENTION_TIME = 5000;
   const BRIEF_ATTENTION_TIME = 10000;
   const FULL_ATTENTION_TIME = 20000;
-  const PAGE_LOAD_ATTENTION_TIME = BRIEF_ATTENTION_TIME; // was 5000
+  const PAGE_LOAD_ATTENTION_TIME = QUICK_ATTENTION_TIME; // was BRIEF_ATTENTION_TIME
   
   const SCROLL_FORWARD = "forward";
   const SCROLL_BACK = "back";
@@ -219,6 +219,10 @@
     return activityId ? activityId.replace("activityContainer", "") : "";
   }
   
+  function getActivityPreviewId($previews) {
+    return getActivityId($previews.parents(".activityStream"));
+  }
+  
   // Updates state of the icons. Accepts any parent div of an icon element
   function updateStateOfIcons($activities) {
     // Iterates through each activity block and inserts the relevance icon
@@ -288,11 +292,11 @@
     this.appHits = null;
     this.linkHits = null;
     
-    const fullAttentionTime = function() {
+    function fullAttentionTime() {
       return FULL_ATTENTION_TIME * (contentSize + convoSize) / 2;
-    };
+    }
     
-    const track = function(timeout) {
+    function track(timeout) {
       if (!tracker) {
         if (!timeout) {
           timeout = fullAttentionTime();
@@ -308,9 +312,9 @@
           }
         }, timeout);
       }
-    };
+    }
     
-    const fixateContentTime = function(timeNow) {
+    function fixateContentTime(timeNow) {
       if (contentTime > 0) {
         const timeShown = timeNow - contentTime;
         if (timeShown >= QUICK_ATTENTION_TIME * contentSize) {
@@ -321,7 +325,7 @@
       }
     }
     
-    const fixateConvoTime = function(timeNow) {
+    function fixateConvoTime(timeNow) {
       if (convoTime > 0) {
         const timeShown = timeNow - convoTime;
         if (timeShown >= QUICK_ATTENTION_TIME * convoSize) {
@@ -330,7 +334,7 @@
         }
         convoTime = 0;
       }
-    };
+    }
     
     this.contentShow = function(focusSize) {
       track();
@@ -392,6 +396,7 @@
       } else {
         this.contentHits++;
       }
+      debug("<< " + activityId + " contentHit: " + this.contentHits + " << " + updateTime);
     };
     
     this.convoHit = function() {
@@ -402,6 +407,7 @@
       } else {
         this.convoHits++;
       }
+      debug("<< " + activityId + " convoHit: " + this.convoHits + " << " + updateTime);
     };
     
     this.profileHit = function() {
@@ -412,6 +418,7 @@
       } else {
         this.profileHits++;
       }
+      debug("<< " + activityId + " profileHit: " + this.profileHits + " << " + updateTime);
     };
     
     this.appHit = function() {
@@ -422,6 +429,7 @@
       } else {
         this.appHits++;
       }
+      debug("<< " + activityId + " appHit: " + this.appHits + " << " + updateTime);
     };
     
     this.linkHit = function() {
@@ -432,6 +440,7 @@
       } else {
         this.linkHits++;
       }
+      debug("<< " + activityId + " linkHit: " + this.linkHits + " << " + updateTime);
     };
     
     this.fixate = function() {
@@ -499,8 +508,8 @@
 
   function initHitHandlers($elem) {
     const $contentBox = $elem.find(".contentBox");
-    if (!$contentBox.data("smartactivityTracked")) {
-      $contentBox.data("smartactivityTracked", true);
+    if (!$contentBox.data("smartactivityHitTracked")) {
+      $contentBox.data("smartactivityHitTracked", true);
       // Working parts of an activity:
       const $activityAvatar = $elem.find(".activityAvatar");
       const $heading = $elem.find(".heading");
@@ -523,7 +532,7 @@
       function profileHitHandler() {
         trackActivity(activityId).profileHit();
       }
-      function linkHitHandler() {
+      function linkHitHandler(isAnyApp = true) {
         const $link = $(this);
         const href = $link.attr("href");
         if (href) {
@@ -533,13 +542,13 @@
             } else {
               appHitHandler();
             }
-          } else if (href.startsWith("javascript:") ) {
+          } else if (href.startsWith("javascript:") && isAnyApp) {
             appHitHandler();
           } else {
             trackActivity(activityId).linkHit();
           }              
-        } else {
-          // Case of elem with onclick, hard figure something better
+        } else if (isAnyApp) {
+          // Case of elem with on click action (hard figure something better and general)
           appHitHandler();
         }
       }
@@ -585,8 +594,15 @@
       $previews.find(".fileVersion").on("click", appHitHandler).on("click", contentHitHandler); // Doc version
       // Conversation (likes/comments) hits:
       // Clicks in actionBar are app hits and ones at the left are content hits, right ones are convo hits.
-      // TODO distinguish links to app pages (forum, docs, calendar etc) and direct content access (download, edit etc) 
-      $actionBar.find(".pull-left.statusAction a").on(hitEvents, appHitHandler).on(hitEvents, contentHitHandler); // <<<<< TODO
+      //$actionBar.find(".pull-left.statusAction a").on(hitEvents, appHitHandler).on(hitEvents, contentHitHandler); // <<<<< TODO cleanup
+      $actionBar.find(".pull-left.statusAction a").each(function(i, action) {
+        const $action = $(action);
+        if ($action.find(".uiIconForumCreateTopic, .uiIconReply, .uiIconSocLastestReply, .uiIconViewChange").length > 0) {
+          // Distinguish links to app pages (forum, docs, wiki etc) and direct content access (download, edit etc)
+          $action.on(hitEvents, appHitHandler);
+        }
+        $action.on(hitEvents, contentHitHandler);
+      });
       const $rightActions = $actionBar.find(".pull-right.statusAction");
       $rightActions.find("a[id^='CommentLink'], a[id^='LikeLink']").on("click", convoHitHandler);
       $rightActions.find(".SendKudosButtonTemplate a, .SendKudosButtonTemplate button").on("click", convoHitHandler); // kudos on activity
@@ -595,7 +611,7 @@
       $comments.find(".commentListInfo a").on(hitEvents, convoHitHandler).on("click", reinitTrackers);
       const $commentList = $comments.find(".commentList");
       // it's 'Show all replies' link, when clicked all activity element will be relaoded and need reinit hit trackers
-      $commentList.find(".subCommentShowAllLink a").on(hitEvents, convoHitHandler).on("click", reinitTrackers); 
+      $commentList.find("a.subCommentShowAllLink").on(hitEvents, convoHitHandler).on("click", reinitTrackers); 
       $commentList.find(".commmentLeft a").on(hitEvents, profileHitHandler).hover(profileHoverInHandler, profileHoverOutConvoHandler); // author avatar
       $commentList.find(".commentRight .author a").on(hitEvents, profileHitHandler).hover(profileHoverInHandler, profileHoverOutConvoHandler); // author title
       $commentList.find(".commentRight .contentComment a").on(hitEvents, linkHitHandler).on(hitEvents, convoHitHandler); // Comment content links
@@ -604,7 +620,68 @@
       $actionCommentBar.find(".likeCommentLink, .likeCommentCount, .subComment").on("click", convoHitHandler); // comment Like/Comment
       $actionCommentBar.find(".SendKudosButtonTemplate a, .SendKudosButtonTemplate button").on("click", convoHitHandler); // kudos on comments
       
-      // TODO collect hits in activity preview open
+      // Collect hits in open activity preview
+      function initPreviewComments($commentList) {
+        // This logic differs from one for activity stream
+        $commentList.find("a.avatarXSmall").on(hitEvents, profileHitHandler).on(hitEvents, convoHitHandler);
+        $commentList.find("a.subCommentShowAllLink").on(hitEvents, convoHitHandler); // it's 'Show all replies' link, when clicked we DON'T need reinit hit trackers
+        $commentList.find(".rightBlock").each(function(i, block) {
+          const $comment = $(block);
+          $comment.find(".tit a").on(hitEvents, profileHitHandler).on(hitEvents, convoHitHandler); // Commented name)
+          $comment.find("p a").on(hitEvents, linkHitHandler).on(hitEvents, convoHitHandler); // Comment content links
+          $comment.find(".statusAction a").on("click", convoHitHandler); // Clicks on Likes, Reply etc of the comment
+        });
+      }
+      function eachContentLink(i, link) {
+        // Based on simplified linkHitHandler (w/o app hits on no-href links)
+        const $link = $(link);
+        const href = $link.attr("href");
+        if (href) {
+          if (href.startsWith("/") || href.startsWith(prefixUrl)) {
+            if (href.indexOf("/profile/") > 0) {
+              $link.on(hitEvents, profileHitHandler).on(hitEvents, contentHitHandler);
+            } else {
+              $link.on(hitEvents, appHitHandler).on(hitEvents, contentHitHandler);
+            }
+          } else {
+            $link.on(hitEvents, function() {
+              trackActivity(activityId).linkHit();              
+            }).on(hitEvents, contentHitHandler);
+          }              
+        }
+      }
+      function eachPreviewActionHandler(i, link) {
+        const $action = $(link);
+        if ($action.parent().is(".openBtn")) {
+          $action.on(hitEvents, appHitHandler); // it's 'Open in Documents'
+        } // else, it's anything including direct content access via 'Edit in *' and 'Download'
+        $action.on(hitEvents, contentHitHandler);
+      }
+      $previews.find(".isPreviewable").on("click", function() {
+        // Start track after a while to let user close the activity if not interested
+        setTimeout(function() {
+          const $documentPreview = $("#uiDocumentPreview .uiDocumentPreviewMainWindow");
+          // .commentArea - right sidebar with text content and likes / comments
+          const $commentArea = $documentPreview.find(".commentArea");
+          //   .profile - content
+          $commentArea.find(".profile a").on(hitEvents, linkHitHandler).on(hitEvents, contentHitHandler);
+          //   .actionBar - likes etc
+          $commentArea.find(".actionBar a").on("click", convoHitHandler);
+          //   .commentList - comments
+          initPreviewComments($commentArea.find(".commentList"));
+          // 
+          // #documentPreviewContent - preview content
+          const $previewContent = $documentPreview.find("#documentPreviewContent");
+          //   .content - actual preview content (may contain viewer menu bar etc)
+          //$previewContent.find(".content a").on(hitEvents, function() { linkHitHandler(false); }).on(hitEvents, contentHitHandler);
+          $previewContent.find(".content a").each(eachContentLink);
+          //   #NavCommands - links to open in ECMS app (it's at the botton of the preview)
+          $previewContent.find("#NavCommands a").on(hitEvents, appHitHandler).on(hitEvents, contentHitHandler);
+          //
+          // .previewBtn - direct content actions (bottom buttons)  
+          $documentPreview.find(".previewBtn a").each(eachPreviewActionHandler); 
+        }, QUICK_ATTENTION_TIME);
+      }); 
     }
   }
   
@@ -648,6 +725,7 @@
     const focusportBottom = topOfView + viewSectorHeight * sectorsToBottom;
     const focusportSize = sectorsToBottom - sectorsToTop;
     const minimalAttentionHeight = viewSectorHeight * 1;
+    const minimalAttentionScroll = viewSectorHeight * 3;
     
     function shownHeight(top, bottom) {
       if (bottom < focusportTop || top > focusportBottom) {
@@ -701,25 +779,7 @@
       const elementTop = offset.top;
       const elementBottom = offset.top + $elem.innerHeight();
       
-      // Sequence of events for each activity block: E1 -> C -> A or B -> D -> E2
-      if (focusportBottom <= elementTop) {
-        // E1) the element is not visible: it's hidden at bottom
-        const focus = getActivity(activityId);
-        if (focus) {
-          focus.fixate();
-        }
-      } else if (focusportTop >= elementBottom) {  
-        // E2) the element is not visible: it's hidden at top
-        const focus = getActivity(activityId);
-        if (focus) {
-          focus.fixate();            
-        }
-      } else {
-        // A) The element is fully visible in focusport (small activity)
-        // B) the element is partially visible, top and bottom is hidden (element block bigger of the focusport)
-        // C) the element is partially visible, bottom is hidden
-        // D) the element is partially visible, top is hidden
-        
+      function initFocusTracker() {
         // Find location for content and comments blocks
         const $heading = $elem.find(".heading");
         const $actionBar = $elem.find(".actionBar");
@@ -764,6 +824,27 @@
         } else {
           focus.convoHide();
         }
+      }
+      
+      // Sequence of events for each activity block: E1 -> C -> A or B -> D -> E2
+      if (focusportBottom <= elementTop) {
+        // E1) the element is not visible: it's hidden at bottom
+        const focus = getActivity(activityId);
+        if (focus) {
+          focus.fixate();
+        }
+      } else if (focusportTop >= elementBottom) {  
+        // E2) the element is not visible: it's hidden at top
+        const focus = getActivity(activityId);
+        if (focus) {
+          focus.fixate();            
+        }
+      } else {
+        // A) The element is fully visible in focusport (small activity)
+        // B) the element is partially visible, top and bottom is hidden (element block bigger of the focusport)
+        // C) the element is partially visible, bottom is hidden
+        // D) the element is partially visible, top is hidden
+        initFocusTracker();
           
         // TODO cleanup
 //        if (focusportBottom >= elementBottom && focusportTop <= elementTop) {
@@ -788,7 +869,76 @@
 //          }
       }
       
-      // TODO collect focus/hits in activity preview open
+      // Collect focus in activity preview open
+      const $previews = $elem.find(".previews");
+      if (!$previews.data("smartactivityFocusTracked")) {
+        $previews.data("smartactivityFocusTracked", true);
+        function reinitFocusTracker() {
+          setTimeout(function() {
+            // Enable stream trackers back
+            //debug("<<< " + activityId + " close preview");
+            initFocusTracker();
+          }, 1000);
+        }
+        // 1) on show preview - continue tracker (show) for this activity, but stop/pause trackers for others (visible)
+        $previews.find(".isPreviewable").on("click", function() {
+          const focus = trackActivity(activityId);
+          //debug(">> " + activityId + " preview clicked");
+          // Stop track all others active
+          focused.forEach(function(f) {
+            if (focus !== f) {
+              f.fixate();
+            }
+          });
+          // Start track after a while to let user close the activity if not interested
+          setTimeout(function() {
+            // We assume all content/convo readable by the user at the same time
+            focus.contentShow(1);
+            focus.convoShow(1);
+            const $documentPreview = $("#documentPreviewContainer");
+            const $previewWindow = $documentPreview.find(".uiDocumentPreviewMainWindow");
+            // Scrolling over the viewer we treat as content focus
+            const $viewerContainer = $previewWindow.find("#viewerContainer");
+            const $viewer = $viewerContainer.find("#viewer");
+            const offset = $viewer.offset();
+            if (offset) {
+              let viewX = offset.top;
+              let viewY = offset.left;
+              let lastTime = new Date().getTime();
+              $viewerContainer.on("scroll", function() {
+                const $viewer = $viewerContainer.find("#viewer");
+                const offset = $viewer.offset();
+                //debug(">>> " + activityId + " preview scrolled: " + offset.top + ", " + offset.left);
+                const timeNow = new Date().getTime();
+                const timeShown = timeNow - lastTime;
+                if (timeShown >= QUICK_ATTENTION_TIME 
+                    && (Math.abs(viewX - offset.top) >= minimalAttentionScroll || Math.abs(viewY - offset.left) >= minimalAttentionScroll)) {
+                  //debug("<<< " + activityId + " preview scrolled: " + (viewX - offset.top) + ", " + (viewY - offset.left));
+                  viewX = offset.top;
+                  viewY = offset.left;
+                  lastTime = timeNow;
+                  focus.contentShow(1);
+                  focus.convoHide();
+                }
+              });
+              // Clicks in left panel we treat as focus swicth to conversation 
+              $previewWindow.find(".commentArea a").on("click contextmenu", function() {
+                const timeNow = new Date().getTime();
+                const timeShown = timeNow - lastTime;
+                if (timeShown >= QUICK_ATTENTION_TIME) {
+                  //debug("<<< " + activityId + " preview comments clicked");
+                  lastTime = timeNow;
+                  focus.convoShow(1);
+                  focus.contentHide();
+                }
+              });
+              // Close of the preview (by button and ESC)
+              // 2) on hide preview - continue tracker (show)
+              $("#uiDocumentPreview .exitWindow a").on("click", reinitFocusTracker);              
+            }
+          }, QUICK_ATTENTION_TIME);
+        });
+      }
     });      
     //} // otherwise, is it a resize?
   }
