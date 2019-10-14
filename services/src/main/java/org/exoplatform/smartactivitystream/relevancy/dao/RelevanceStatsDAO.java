@@ -19,6 +19,12 @@ import org.exoplatform.smartactivitystream.relevancy.domain.RelevanceStatsEntity
  */
 public class RelevanceStatsDAO extends GenericDAOJPAImpl<RelevanceStatsEntity, RelevanceId> {
 
+  /**
+   * Find users stats.
+   *
+   * @param afterDate the after date
+   * @return the list
+   */
   public List<RelevanceStatsEntity> findUsersStats(Date afterDate) {
     try {
       TypedQuery<RelevanceStatsEntity> query = getEntityManager()

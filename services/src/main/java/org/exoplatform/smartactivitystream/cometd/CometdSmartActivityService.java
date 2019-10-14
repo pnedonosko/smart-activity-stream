@@ -96,6 +96,7 @@ public class CometdSmartActivityService implements Startable {
    */
   public static final String            THREAD_PREFIX          = "smartactivity-comet-thread-";
 
+  /** The smart activity service. */
   protected final SmartActivityService  smartActivityService;
 
   /** The exo bayeux. */
@@ -111,6 +112,7 @@ public class CometdSmartActivityService implements Startable {
    * Instantiates the CometdSmartActivityService.
    *
    * @param exoBayeux the exoBayeux
+   * @param smartActivityService the smart activity service
    */
   public CometdSmartActivityService(EXoContinuationBayeux exoBayeux, SmartActivityService smartActivityService) {
     this.exoBayeux = exoBayeux;
@@ -254,9 +256,8 @@ public class CometdSmartActivityService implements Startable {
 
     /**
      * Save userfocus.
-     * 
+     *
      * @param data the data
-     * @param docId the docId
      */
     protected void saveUserfocus(Map<String, Object> data) {
       eventsHandlers.submit(new ContainerCommand(PortalContainer.getCurrentPortalContainerName()) {

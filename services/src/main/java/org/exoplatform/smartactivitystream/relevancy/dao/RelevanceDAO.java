@@ -15,6 +15,11 @@ import org.exoplatform.smartactivitystream.relevancy.domain.RelevanceId;
  */
 public class RelevanceDAO extends GenericDAOJPAImpl<RelevanceEntity, RelevanceId> {
   
+  /**
+   * Find total count.
+   *
+   * @return the long
+   */
   public long findTotalCount() {
     try {
       TypedQuery<Long> query = getEntityManager().createNamedQuery("SmartActivityRelevancy.findCount", Long.class);

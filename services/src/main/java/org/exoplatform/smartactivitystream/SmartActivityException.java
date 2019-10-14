@@ -19,28 +19,27 @@
 package org.exoplatform.smartactivitystream;
 
 /**
- * Created by The eXo Platform SAS
- * 
+ * Created by The eXo Platform SAS.
+ *
  * @author <a href="mailto:pnedonosko@exoplatform.com">Peter Nedonosko</a>
  * @version $Id: SmartActivityException.java 00000 Oct 2, 2019 pnedonosko $
- * 
  */
 public class SmartActivityException extends Exception {
 
-  /**
-   * 
-   */
+  /** The Constant serialVersionUID. */
   private static final long serialVersionUID = -4858796558817116020L;
 
   /**
-   * 
+   * Instantiates a new smart activity exception.
    */
   public SmartActivityException() {
     // TODO Auto-generated constructor stub
   }
 
   /**
-   * @param message
+   * Instantiates a new smart activity exception.
+   *
+   * @param message the message
    */
   public SmartActivityException(String message) {
     super(message);
@@ -48,7 +47,9 @@ public class SmartActivityException extends Exception {
   }
 
   /**
-   * @param cause
+   * Instantiates a new smart activity exception.
+   *
+   * @param cause the cause
    */
   public SmartActivityException(Throwable cause) {
     super(cause);
@@ -56,8 +57,10 @@ public class SmartActivityException extends Exception {
   }
 
   /**
-   * @param message
-   * @param cause
+   * Instantiates a new smart activity exception.
+   *
+   * @param message the message
+   * @param cause the cause
    */
   public SmartActivityException(String message, Throwable cause) {
     super(message, cause);
@@ -65,10 +68,12 @@ public class SmartActivityException extends Exception {
   }
 
   /**
-   * @param message
-   * @param cause
-   * @param enableSuppression
-   * @param writableStackTrace
+   * Instantiates a new smart activity exception.
+   *
+   * @param message the message
+   * @param cause the cause
+   * @param enableSuppression the enable suppression
+   * @param writableStackTrace the writable stack trace
    */
   public SmartActivityException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
     super(message, cause, enableSuppression, writableStackTrace);

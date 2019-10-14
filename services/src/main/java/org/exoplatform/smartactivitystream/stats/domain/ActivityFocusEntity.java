@@ -32,8 +32,6 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import org.mozilla.universalchardet.prober.SBCSGroupProber;
-
 import org.exoplatform.commons.api.persistence.ExoEntity;
 
 /**

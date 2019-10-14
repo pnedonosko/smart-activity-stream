@@ -18,19 +18,15 @@
  */
 package org.exoplatform.smartactivitystream.command;
 
-import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Created by The eXo Platform SAS
- * 
+ * Created by The eXo Platform SAS.
+ *
  * @author <a href="mailto:pnedonosko@exoplatform.com">Peter Nedonosko</a>
  * @version $Id: CommandThreadFactory.java 00000 Oct 3, 2019 pnedonosko $
  * 
- */
-/**
- * Command thread factory adapted from {@link Executors#DefaultThreadFactory}.
  */
 public class CommandThreadFactory implements ThreadFactory {
 

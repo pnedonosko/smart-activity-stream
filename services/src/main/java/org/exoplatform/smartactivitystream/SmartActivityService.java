@@ -40,26 +40,32 @@ import org.exoplatform.smartactivitystream.stats.dao.ActivityFocusDAO;
 import org.exoplatform.smartactivitystream.stats.domain.ActivityFocusEntity;
 
 /**
- * Created by The eXo Platform SAS
- * 
+ * Created by The eXo Platform SAS.
+ *
  * @author <a href="mailto:pnedonosko@exoplatform.com">Peter Nedonosko</a>
  * @version $Id: SmartActivityService.java 00000 Oct 2, 2019 pnedonosko $
  */
 public class SmartActivityService implements Startable {
 
+  /** The Constant LOG. */
   private static final Log                              LOG                  = ExoLogger.getLogger(SmartActivityService.class);
 
+  /** The Constant TRACKER_CACHE_NAME. */
   public static final String                            TRACKER_CACHE_NAME   = "smartactivity.TrackerCache".intern();
 
+  /** The Constant TRACKER_CACHE_PERIOD. */
   public static final int                               TRACKER_CACHE_PERIOD = 120000;
 
   /** Cache of tracking activities. */
   protected final ExoCache<String, ActivityFocusEntity> trackerCache;
 
+  /** The focus storage. */
   protected final ActivityFocusDAO                      focusStorage;
 
+  /** The focus saver. */
   protected final Timer                                 focusSaver           = new Timer();
   
+  /** The enable trackers. */
   protected boolean enableTrackers = false;
 
   /**
@@ -81,6 +87,12 @@ public class SmartActivityService implements Startable {
     }
   }
 
+  /**
+   * Submit activity focus.
+   *
+   * @param focus the focus
+   * @throws SmartActivityException the smart activity exception
+   */
   public void submitActivityFocus(ActivityFocusEntity focus) throws SmartActivityException {
     String fkey = focusKey(focus);
     ActivityFocusEntity tracked = trackerCache.get(fkey);
@@ -124,10 +136,22 @@ public class SmartActivityService implements Startable {
     saveReadyCacheInContainerContext(ExoContainerContext.getCurrentContainer().getContext().getName(), false);
   }
 
+  /**
+   * Focus key.
+   *
+   * @param focus the focus
+   * @return the string
+   */
   protected String focusKey(ActivityFocusEntity focus) {
     return new StringBuilder(focus.getUserId()).append(focus.getActivityId()).toString();
   }
 
+  /**
+   * Agregate focus.
+   *
+   * @param existing the existing
+   * @param add the add
+   */
   protected void agregateFocus(ActivityFocusEntity existing, ActivityFocusEntity add) {
     // Not null fields
     if (add.getStopTime() > existing.getStopTime()) {
@@ -145,6 +169,13 @@ public class SmartActivityService implements Startable {
     existing.setLinkHits(sum(existing.getLinkHits(), add.getLinkHits()));
   }
 
+  /**
+   * Sum.
+   *
+   * @param existing the existing
+   * @param add the add
+   * @return the long
+   */
   protected Long sum(Long existing, Long add) {
     if (existing == null) {
       return add;
@@ -155,6 +186,12 @@ public class SmartActivityService implements Startable {
     return existing + add;
   }
 
+  /**
+   * Save activity focus.
+   *
+   * @param focus the focus
+   * @throws SmartActivityException the smart activity exception
+   */
   protected void saveActivityFocus(ActivityFocusEntity focus) throws SmartActivityException {
     //
     try {
@@ -179,6 +216,12 @@ public class SmartActivityService implements Startable {
     }
   }
 
+  /**
+   * Save tracker cache.
+   *
+   * @param readyOnly the ready only
+   * @throws Exception the exception
+   */
   protected void saveTrackerCache(boolean readyOnly) throws Exception {
     trackerCache.select(new CachedObjectSelector<String, ActivityFocusEntity>() {
 
@@ -210,6 +253,12 @@ public class SmartActivityService implements Startable {
     });
   }
 
+  /**
+   * Save ready cache in container context.
+   *
+   * @param containerName the container name
+   * @param readyOnly the ready only
+   */
   protected void saveReadyCacheInContainerContext(String containerName, boolean readyOnly) {
     // Do the work under eXo container context (for proper work of eXo apps and JPA storage)
     ExoContainer exoContainer = ExoContainerContext.getContainerByName(containerName);

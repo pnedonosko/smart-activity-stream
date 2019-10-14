@@ -33,7 +33,7 @@ import org.exoplatform.smartactivitystream.relevancy.domain.RelevanceStatsEntity
 import org.exoplatform.smartactivitystream.relevancy.domain.RelevanceStatsReport;
 
 /**
- * The REST service for Activity Relevancy Service
+ * The REST service for Activity Relevancy Service.
  */
 @Path("/smartactivity")
 @Produces(MediaType.APPLICATION_JSON)
@@ -42,7 +42,7 @@ public class RESTActivityRelevancyService implements ResourceContainer {
   /** The Constant LOG. */
   protected static final Log               LOG = ExoLogger.getLogger(RESTActivityRelevancyService.class);
 
-  /** The Activity Relevancy Service service */
+  /**  The Activity Relevancy Service service. */
   protected final ActivityRelevancyService activityRelevancyService;
 
   /**
@@ -57,6 +57,8 @@ public class RESTActivityRelevancyService implements ResourceContainer {
   /**
    * Posts a relevance.
    *
+   * @param userId the user id
+   * @param activityId the activity id
    * @param relevanceEntity to be saved or updated
    * @return the response
    */
@@ -127,6 +129,12 @@ public class RESTActivityRelevancyService implements ResourceContainer {
                    .build();
   }
 
+  /**
+   * Gets the stats.
+   *
+   * @param sinceDaysStr the since days str
+   * @return the stats
+   */
   @GET
   @RolesAllowed("users")
   @Path("/stats")
@@ -184,8 +192,8 @@ public class RESTActivityRelevancyService implements ResourceContainer {
   }
 
   /**
-   * Checks if given userId is the current user
-   * 
+   * Checks if given userId is the current user.
+   *
    * @param userId to be checked
    * @return true if userId is equal to the current userId
    */

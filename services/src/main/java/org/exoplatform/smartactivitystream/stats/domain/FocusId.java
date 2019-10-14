@@ -25,9 +25,7 @@ import java.io.Serializable;
  */
 public class FocusId implements Serializable {
 
-  /**
-   * 
-   */
+  /** The Constant serialVersionUID. */
   private static final long serialVersionUID = -3464440639182127013L;
 
   /** The user id. */

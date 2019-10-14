@@ -23,11 +23,10 @@ import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.component.RequestLifeCycle;
 
 /**
- * Created by The eXo Platform SAS
- * 
+ * Created by The eXo Platform SAS.
+ *
  * @author <a href="mailto:pnedonosko@exoplatform.com">Peter Nedonosko</a>
  * @version $Id: ContainerCommand.java 00000 Oct 3, 2019 pnedonosko $
- * 
  */
 /**
  * The Class ContainerCommand.
