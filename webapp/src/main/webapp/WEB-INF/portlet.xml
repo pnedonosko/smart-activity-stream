@@ -36,4 +36,17 @@
       <keywords>smart activity</keywords>
     </portlet-info>
   </portlet>
+  <portlet>
+    <portlet-name>SmartActivityStreamAdminPortlet</portlet-name>
+    <display-name xml:lang="EN">Smart Activity Stream Admin portlet</display-name>
+    <portlet-class>org.exoplatform.smartactivitystream.admin.portlet.SmartActivityStreamAdminPortlet</portlet-class>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <portlet-info>
+      <title>Smart Activity stream admin portlet for eXo Platform</title>
+      <short-title>Smart Activity stream administration</short-title>
+      <keywords>smart activity administration</keywords>
+    </portlet-info>
+  </portlet>
 </portlet-app>

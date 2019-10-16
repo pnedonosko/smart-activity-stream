@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bundle>
+  <smartactivity>
+    <admin>
+      <page>Activity Statistics</page>
+      <title>Smart Activity Administration</title>
+      <info>Smart Activity test</info>
+      <provider>Provider</provider>
+      <description>Description</description>
+      <active>Active</active>
+      <actions>Actions</actions>
+    </admin>
+  </smartactivity>
+</bundle>

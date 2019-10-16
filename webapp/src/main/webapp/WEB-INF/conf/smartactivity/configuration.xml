@@ -150,6 +150,7 @@
           <name>init.resources</name>
           <description>Store the following resources into the db for the first launch</description>
           <value>locale.smartactivity.SmartActivityStream</value>
+          <value>locale.smartactivity.SmartActivityStreamAdmin</value>
         </values-param>
         <values-param>
           <name>portal.resource.names</name>
@@ -157,8 +158,26 @@
             properties
           </description>
           <value>locale.smartactivity.SmartActivityStream</value>
+          <value>locale.smartactivity.SmartActivityStreamAdmin</value>
         </values-param>
       </init-params>
     </component-plugin>
   </external-component-plugins>
+
+  <!-- This configuration adds Admin portlet to Administration drop-down menu -->
+  <external-component-plugins>
+    <target-component>org.exoplatform.platform.common.service.MenuConfiguratorService</target-component>
+    <component-plugin>
+      <name>Smart Activity MenuConfigurationService Plugin</name>
+      <set-method>addNavigation</set-method>
+      <type>org.exoplatform.platform.common.service.plugin.MenuConfiguratorAddNodePlugin</type>
+      <init-params>
+        <value-param>
+          <name>extended.setup.navigation.file</name>
+          <value>war:/conf/smartactivity/portal/setup-navigation.xml</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
 </configuration>
