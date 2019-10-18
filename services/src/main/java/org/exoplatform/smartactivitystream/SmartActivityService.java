@@ -25,11 +25,14 @@ import javax.persistence.PersistenceException;
 
 import org.picocontainer.Startable;
 
+import org.exoplatform.container.BaseContainerLifecyclePlugin;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
+import org.exoplatform.services.cache.CacheListener;
+import org.exoplatform.services.cache.CacheListenerContext;
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.cache.CachedObjectSelector;
 import org.exoplatform.services.cache.ExoCache;
@@ -48,25 +51,25 @@ import org.exoplatform.smartactivitystream.stats.domain.ActivityFocusEntity;
 public class SmartActivityService implements Startable {
 
   /** The Constant LOG. */
-  private static final Log                              LOG                  = ExoLogger.getLogger(SmartActivityService.class);
+  private static final Log                               LOG                  = ExoLogger.getLogger(SmartActivityService.class);
 
   /** The Constant TRACKER_CACHE_NAME. */
-  public static final String                            TRACKER_CACHE_NAME   = "smartactivity.TrackerCache".intern();
+  public static final String                             TRACKER_CACHE_NAME   = "smartactivity.TrackerCache".intern();
 
   /** The Constant TRACKER_CACHE_PERIOD. */
-  public static final int                               TRACKER_CACHE_PERIOD = 120000;
+  public static final int                                TRACKER_CACHE_PERIOD = 120000;
 
   /** Cache of tracking activities. */
-  protected final ExoCache<String, ActivityFocusEntity> trackerCache;
+  protected final ExoCache<String, ActivityFocusTracker> trackerCache;
 
   /** The focus storage. */
-  protected final ActivityFocusDAO                      focusStorage;
+  protected final ActivityFocusDAO                       focusStorage;
 
   /** The focus saver. */
-  protected final Timer                                 focusSaver           = new Timer();
-  
+  protected final Timer                                  focusSaver           = new Timer();
+
   /** The enable trackers. */
-  protected boolean enableTrackers = false;
+  protected boolean                                      enableTrackers       = false;
 
   /**
    * Instantiates a new smart activity service.
@@ -78,7 +81,7 @@ public class SmartActivityService implements Startable {
   public SmartActivityService(ActivityFocusDAO focusStorage, CacheService cacheService, InitParams params) {
     this.focusStorage = focusStorage;
     this.trackerCache = cacheService.getCacheInstance(TRACKER_CACHE_NAME);
-    
+
     // configuration
     PropertiesParam param = params.getPropertiesParam("smartactivity-configuration");
     if (param != null) {
@@ -95,15 +98,15 @@ public class SmartActivityService implements Startable {
    */
   public void submitActivityFocus(ActivityFocusEntity focus) throws SmartActivityException {
     String fkey = focusKey(focus);
-    ActivityFocusEntity tracked = trackerCache.get(fkey);
-    if (tracked != null) {
-      agregateFocus(tracked, focus);
-      trackerCache.put(fkey, tracked); // this should sycn the cache in cluster
+    ActivityFocusTracker tracker = trackerCache.get(fkey);
+    if (tracker != null) {
+      agregateFocus(tracker, focus);
+      trackerCache.put(fkey, tracker); // this should sycn the cache in cluster
     } else {
-      trackerCache.put(fkey, focus);
+      trackerCache.put(fkey, new ActivityFocusTracker(focus));
     }
   }
-  
+
   /**
    * Checks if is trackers enabled.
    *
@@ -118,13 +121,78 @@ public class SmartActivityService implements Startable {
    */
   @Override
   public void start() {
-    final String containerName = ExoContainerContext.getCurrentContainer().getContext().getName();
+    final ExoContainer container = ExoContainerContext.getCurrentContainer();
+    final String containerName = container.getContext().getName();
     TimerTask saveTask = new TimerTask() {
       public void run() {
         saveReadyCacheInContainerContext(containerName, true);
       }
     };
     focusSaver.schedule(saveTask, TRACKER_CACHE_PERIOD * 2, TRACKER_CACHE_PERIOD);
+
+    // We want to try save all trackers on container stop, but before actual stop flow will start to get JPA layer not stopped
+    container.addContainerLifecylePlugin(new BaseContainerLifecyclePlugin() {
+      /**
+       * {@inheritDoc}
+       */
+      @Override
+      public void stopContainer(ExoContainer container) {
+        focusSaver.cancel();
+        saveReadyCacheInContainerContext(ExoContainerContext.getCurrentContainer().getContext().getName(), false);
+      }
+    });
+    
+    // When cache will evict a tracker, if not yet saved, we save it immediately
+    trackerCache.addCacheListener(new CacheListener<String, ActivityFocusTracker>() {
+
+      /**
+       * {@inheritDoc}
+       */
+      @Override
+      public void onExpire(CacheListenerContext context, String key, ActivityFocusTracker tracker) throws Exception {
+        // We will save on cache expiration
+        if (!tracker.isLocked()) {
+          try {
+            tracker.lock();
+            saveActivityFocus(tracker.getEntity());
+          } finally {
+            tracker.unlock();
+          }
+        }
+      }
+
+      /**
+       * {@inheritDoc}
+       */
+      @Override
+      public void onRemove(CacheListenerContext context, String key, ActivityFocusTracker obj) throws Exception {
+        // Nothings
+      }
+
+      /**
+       * {@inheritDoc}
+       */
+      @Override
+      public void onPut(CacheListenerContext context, String key, ActivityFocusTracker obj) throws Exception {
+        // Nothings
+      }
+
+      /**
+       * {@inheritDoc}
+       */
+      @Override
+      public void onGet(CacheListenerContext context, String key, ActivityFocusTracker obj) throws Exception {
+        // Nothings
+      }
+
+      /**
+       * {@inheritDoc}
+       */
+      @Override
+      public void onClearCache(CacheListenerContext context) throws Exception {
+        // Nothings
+      }
+    });
   }
 
   /**
@@ -132,8 +200,10 @@ public class SmartActivityService implements Startable {
    */
   @Override
   public void stop() {
+    // TODO cleanup
+    // focusSaver.cancel();
     // We want to try save all cache on container stop
-    saveReadyCacheInContainerContext(ExoContainerContext.getCurrentContainer().getContext().getName(), false);
+    // saveReadyCacheInContainerContext(ExoContainerContext.getCurrentContainer().getContext().getName(), false);
   }
 
   /**
@@ -147,26 +217,27 @@ public class SmartActivityService implements Startable {
   }
 
   /**
-   * Agregate focus.
+   * Aggregate focus adding focus into the tracker.
    *
-   * @param existing the existing
-   * @param add the add
+   * @param tracker the tracker
+   * @param add the adding focus
    */
-  protected void agregateFocus(ActivityFocusEntity existing, ActivityFocusEntity add) {
+  protected void agregateFocus(ActivityFocusTracker tracker, ActivityFocusEntity add) {
+    ActivityFocusEntity tracked = tracker.getEntity();
     // Not null fields
-    if (add.getStopTime() > existing.getStopTime()) {
-      existing.setStopTime(add.getStopTime());
+    if (add.getStopTime() > tracked.getStopTime()) {
+      tracked.setStopTime(add.getStopTime());
     }
-    existing.setTotalShown(sum(existing.getTotalShown(), add.getTotalShown()));
+    tracked.setTotalShown(sum(tracked.getTotalShown(), add.getTotalShown()));
 
     // Nullable fields
-    existing.setContentShown(sum(existing.getContentShown(), add.getContentShown()));
-    existing.setConvoShown(sum(existing.getConvoShown(), add.getConvoShown()));
-    existing.setContentHits(sum(existing.getContentHits(), add.getContentHits()));
-    existing.setConvoHits(sum(existing.getConvoHits(), add.getConvoHits()));
-    existing.setAppHits(sum(existing.getAppHits(), add.getAppHits()));
-    existing.setProfileHits(sum(existing.getProfileHits(), add.getProfileHits()));
-    existing.setLinkHits(sum(existing.getLinkHits(), add.getLinkHits()));
+    tracked.setContentShown(sum(tracked.getContentShown(), add.getContentShown()));
+    tracked.setConvoShown(sum(tracked.getConvoShown(), add.getConvoShown()));
+    tracked.setContentHits(sum(tracked.getContentHits(), add.getContentHits()));
+    tracked.setConvoHits(sum(tracked.getConvoHits(), add.getConvoHits()));
+    tracked.setAppHits(sum(tracked.getAppHits(), add.getAppHits()));
+    tracked.setProfileHits(sum(tracked.getProfileHits(), add.getProfileHits()));
+    tracked.setLinkHits(sum(tracked.getLinkHits(), add.getLinkHits()));
   }
 
   /**
@@ -194,14 +265,19 @@ public class SmartActivityService implements Startable {
    */
   protected void saveActivityFocus(ActivityFocusEntity focus) throws SmartActivityException {
     //
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(">> saveActivityFocus: " + focus);
+    }
     try {
       ActivityFocusEntity tracked = focusStorage.find(focus.getId());
       if (tracked == null) {
         focusStorage.create(focus);
+        LOG.debug("<< saveActivityFocus => created: " + focus);
       } else {
         // We replace if of same version
         if (tracked.getTrackerVersion().equals(focus.getTrackerVersion())) {
           focusStorage.update(focus);
+          LOG.debug("<< saveActivityFocus => updated: " + focus);
         } else {
           LOG.warn("Cannot update activity focus of different tracker versions: " + tracked.getTrackerVersion() + " vs "
               + focus.getTrackerVersion());
@@ -223,16 +299,16 @@ public class SmartActivityService implements Startable {
    * @throws Exception the exception
    */
   protected void saveTrackerCache(boolean readyOnly) throws Exception {
-    trackerCache.select(new CachedObjectSelector<String, ActivityFocusEntity>() {
+    trackerCache.select(new CachedObjectSelector<String, ActivityFocusTracker>() {
 
       /**
        * {@inheritDoc}
        */
       @Override
-      public boolean select(String key, ObjectCacheInfo<? extends ActivityFocusEntity> ocinfo) {
+      public boolean select(String key, ObjectCacheInfo<? extends ActivityFocusTracker> ocinfo) {
         if (readyOnly) {
-          ActivityFocusEntity f = ocinfo.get();
-          return f != null ? f.isReady() : false;
+          ActivityFocusTracker ft = ocinfo.get();
+          return ft != null ? ft.isReady() && !ft.isLocked() : false;
         }
         return true;
       }
@@ -240,14 +316,28 @@ public class SmartActivityService implements Startable {
       /**
        * {@inheritDoc}
        */
+      @SuppressWarnings("unchecked")
       @Override
-      public void onSelect(ExoCache<? extends String, ? extends ActivityFocusEntity> cache,
+      public void onSelect(ExoCache<? extends String, ? extends ActivityFocusTracker> cache,
                            String key,
-                           ObjectCacheInfo<? extends ActivityFocusEntity> ocinfo) throws Exception {
-        ActivityFocusEntity f = ocinfo.get();
-        if (f != null) {
-          saveActivityFocus(f);
-          cache.remove(key);
+                           ObjectCacheInfo<? extends ActivityFocusTracker> ocinfo) throws Exception {
+        ActivityFocusTracker ft = ocinfo.get();
+        if (ft != null) {
+          boolean cacheUnlocked = true;
+          try {
+            ft.lock();
+            ((ExoCache<String, ActivityFocusTracker>) cache).put(key, ft); // let others know it's locked
+            saveActivityFocus(ft.getEntity());
+            cache.remove(key);
+            cacheUnlocked = false;
+          } finally {
+            // If an error will happen during the save, we will keep the focus for a next attempt,
+            // otherwise unlock has no actual sense.
+            ft.unlock();
+            if (cacheUnlocked) {
+              ((ExoCache<String, ActivityFocusTracker>) cache).put(key, ft);
+            }
+          }
         }
       }
     });
