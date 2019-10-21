@@ -70,23 +70,42 @@ public class ActivityFocusDAO extends GenericDAOJPAImpl<ActivityFocusEntity, Foc
   }
 
   /**
-   * Find all focus records for given user and activity.
-   *
-   * @param userId the user id
-   * @param activityId the activity id
-   * @return the list
-   */
-  public List<ActivityFocusEntity> findAllFocus(String userId, String activityId) {
-    TypedQuery<ActivityFocusEntity> query = getEntityManager()
-                                                              .createNamedQuery("SmartActivityFocus.findAllFocus",
-                                                                                ActivityFocusEntity.class)
-                                                              .setParameter("userId", userId)
-                                                              .setParameter("activityId", activityId);
-    try {
-      return query.getResultList();
-    } catch (NoResultException e) {
-      return Collections.emptyList();
+     * Find all focus records for given user and activity.
+     *
+     * @param userId the user id
+     * @param activityId the activity id
+     * @return the list
+     */
+    public List<ActivityFocusEntity> findAllFocus(String userId, String activityId) {
+        TypedQuery<ActivityFocusEntity> query = getEntityManager()
+                .createNamedQuery("SmartActivityFocus.findAllFocus",
+                        ActivityFocusEntity.class)
+                .setParameter("userId", userId)
+                .setParameter("activityId", activityId);
+        try {
+            return query.getResultList();
+        } catch (NoResultException e) {
+            return Collections.emptyList();
+        }
     }
-  }
+
+    /**
+     * Find all focus records for given user.
+     *
+     * @param userId the user id
+     * @return the list
+     */
+    public List<ActivityFocusEntity> findAllFocusOfUser(String userId) {
+        TypedQuery<ActivityFocusEntity> query = getEntityManager()
+                .createNamedQuery("SmartActivityFocus.findAllFocusOfUser",
+                        ActivityFocusEntity.class)
+                .setParameter("userId", userId);
+        try {
+            return query.getResultList();
+        } catch (NoResultException e) {
+            return Collections.emptyList();
+        }
+    }
+
 
 }

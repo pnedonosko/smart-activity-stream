@@ -3,12 +3,13 @@
   <smartactivity>
     <admin>
       <page>Activity Statistics</page>
-      <title>Smart Activity Administration</title>
-      <info>Smart Activity test</info>
-      <provider>Provider</provider>
-      <description>Description</description>
+      <title>Activity Statistics Administration Page</title>
+      <setting-title>Settings controls</setting-title>
+      <time-scale-setting-title>Time scale</time-scale-setting-title>
+      <stream-selector-title>Stream selector</stream-selector-title>
       <active>Active</active>
       <actions>Actions</actions>
+      <loading>Loading... Please wait</loading>
     </admin>
   </smartactivity>
 </bundle>

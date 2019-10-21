@@ -21,6 +21,8 @@ package org.exoplatform.smartactivitystream.admin.portlet;
 //import static org.exoplatform.webconferencing.Utils.getResourceMessages;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import javax.portlet.*;
 
@@ -28,8 +30,16 @@ import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.smartactivitystream.ContextInfo;
+import org.exoplatform.smartactivitystream.SmartActivityService;
+import org.exoplatform.smartactivitystream.Utils;
+import org.exoplatform.smartactivitystream.stats.dao.ActivityFocusDAO;
+import org.exoplatform.smartactivitystream.stats.domain.ActivityFocusEntity;
 import org.exoplatform.web.application.JavascriptManager;
 import org.exoplatform.webui.application.WebuiRequestContext;
+import org.exoplatform.ws.frameworks.json.impl.JsonException;
+
+import static org.exoplatform.smartactivitystream.Utils.getResourceMessages;
 
 //import org.exoplatform.webconferencing.UserInfo;
 //import org.exoplatform.webconferencing.WebConferencingService;
@@ -38,8 +48,8 @@ import org.exoplatform.webui.application.WebuiRequestContext;
  * Created by The eXo Platform SAS
  * 
  * @author <a href="mailto:nik.riabovol@gmail.com">Nikita Riabovol</a>
- * @version $Id: SmartActivityStreamAdminPortlet.java 00000 Oct 15, 2019 NickEngineer
- *          $
+ * @version $Id: SmartActivityStreamAdminPortlet.java 00000 Oct 15, 2019
+ *          NickEngineer $
  */
 public class SmartActivityStreamAdminPortlet extends GenericPortlet {
 
@@ -72,16 +82,43 @@ public class SmartActivityStreamAdminPortlet extends GenericPortlet {
   @Override
   public void doView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
     final String remoteUser = request.getRemoteUser();
+
+    ActivityFocusDAO activityFocusDAO = ExoContainerContext.getCurrentContainer()
+                                                           .getComponentInstanceOfType(ActivityFocusDAO.class);
+    List<ActivityFocusEntity> activityFocusRecords = null;
+    if (activityFocusDAO != null) {
+      activityFocusRecords = activityFocusDAO.findAllFocusOfUser(remoteUser);
+    }
+
+    String contextJson;
     try {
+      contextJson = ContextInfo.getCurrentContext(request.getRemoteUser()).asJSON();
+    } catch (JsonException e) {
+      LOG.error("Error converting context to JSON", e);
+      contextJson = null;
+    }
 
+    Map<String, String> messages = getResourceMessages("locale.smartactivity.SmartActivityStreamAdmin", request.getLocale());
+
+    // Markup
+    request.setAttribute("messages", messages);
+    request.setAttribute("contextJson", contextJson);
+    request.setAttribute("remoteUser", remoteUser);
+
+    StringBuilder b = new StringBuilder();
+    activityFocusRecords.forEach(b::append);
+
+    try {
+      request.setAttribute("activityFocusRecords", Utils.asJSON(activityFocusRecords.toArray()));
+    } catch (JsonException e) {
+      e.printStackTrace();
+    }
+    request.setAttribute("activityFocusRecordsObj", activityFocusRecords.toArray());
+
+    try {
       PortletRequestDispatcher prDispatcher = getPortletContext().getRequestDispatcher("/WEB-INF/pages/admin.jsp");
-      prDispatcher.include(request, response);
 
-      // Javascript
-      /*JavascriptManager js = ((WebuiRequestContext) WebuiRequestContext.getCurrentInstance()).getJavascriptManager();
-      js.require("SHARED/webConferencingAdminPortlet", "webConferencingAdminPortlet")
-        .addScripts("webConferencingAdminPortlet.init();"); */// messages: " + asJSON(messages) + " - i18n not yet required by the
-                                                            // script
+      prDispatcher.include(request, response);
 
     } catch (Exception e) {
       LOG.error("Error processing Smart Activity Stream Admin portlet for user " + remoteUser, e);

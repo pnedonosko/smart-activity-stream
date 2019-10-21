@@ -1,0 +1,42 @@
+#stream-selector-app {
+    padding: 10px;
+}
+
+
+#subtable .v-application--wrap {
+    min-height: 0px;
+}
+
+#subtable {
+    width: 100%;
+    position: absolute;
+    z-index: 77;
+    overflow-x: hidden;
+}
+
+#app-smartactivity-table-vue-and-vuetify .open-row-arrow {
+    font-weight: 800;
+    font-size: large;
+}
+
+#app-smartactivity-table-vue-and-vuetify .v-data-table-header:hover {
+    background-color: #ffffff;
+    text-shadow: none;
+}
+
+#subtable tr:hover {
+    background-color: #c7d2e1;
+}
+
+#subtable .v-data-table-header {
+    visibility: hidden;
+}
+
+#subtable .v-data-footer {
+    display: none;
+}
+
+#subtable .v-data-table__wrapper {
+    overflow-x: hidden;
+}
+

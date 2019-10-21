@@ -49,15 +49,15 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
     @NamedQuery(name = "SmartActivityFocus.findFocus", query = "SELECT f FROM SmartActivityFocus f "
         + "WHERE f.userId = :userId AND f.activityId = :activityId AND f.startTime = :startTime"),
     @NamedQuery(name = "SmartActivityFocus.findAllFocus", query = "SELECT f FROM SmartActivityFocus f "
-        + "WHERE f.userId = :userId AND f.activityId = :activityId ORDER BY f.startTime") })
+        + "WHERE f.userId = :userId AND f.activityId = :activityId ORDER BY f.startTime"),
+    @NamedQuery(name = "SmartActivityFocus.findAllFocusOfUser", query = "SELECT f FROM SmartActivityFocus f "
+        + "WHERE f.userId = :userId ORDER BY f.startTime") })
 public class ActivityFocusEntity implements Externalizable {
 
-  public static final int    CONTINOUS_SESSION_TIME = 20000;
-
-  private static final Long  NULL_LONG              = new Long(-1);
+  private static final Long  NULL_LONG       = new Long(-1);
 
   /** The Constant TRACKER_VERSION. */
-  public static final String TRACKER_VERSION        = "1.0";
+  public static final String TRACKER_VERSION = "1.0";
 
   /** The user id. */
   @Id
@@ -114,14 +114,13 @@ public class ActivityFocusEntity implements Externalizable {
   @Column(name = "TRACKER_VERSION", nullable = false)
   protected String           trackerVersion;
 
-  /** The initialization time. */
-  protected transient Long   initTime;
+  /** The hash code. */
+  private transient int      hashCode;
 
   /**
    * Instantiates a new activity focus.
    */
   public ActivityFocusEntity() {
-    this.initTime = System.currentTimeMillis();
   }
 
   /**
@@ -140,6 +139,7 @@ public class ActivityFocusEntity implements Externalizable {
    */
   public void setUserId(String userId) {
     this.userId = userId;
+    this.hashCode = 0;
   }
 
   /**
@@ -158,6 +158,7 @@ public class ActivityFocusEntity implements Externalizable {
    */
   public void setActivityId(String activityId) {
     this.activityId = activityId;
+    this.hashCode = 0;
   }
 
   /**
@@ -176,6 +177,7 @@ public class ActivityFocusEntity implements Externalizable {
    */
   public void setStartTime(Long startTime) {
     this.startTime = startTime;
+    this.hashCode = 0;
   }
 
   /**
@@ -194,6 +196,7 @@ public class ActivityFocusEntity implements Externalizable {
    */
   public void setStopTime(Long stopTime) {
     this.stopTime = stopTime;
+    this.hashCode = 0;
   }
 
   /**
@@ -212,6 +215,7 @@ public class ActivityFocusEntity implements Externalizable {
    */
   public void setTotalShown(Long totalShow) {
     this.totalShown = totalShow;
+    this.hashCode = 0;
   }
 
   /**
@@ -230,6 +234,7 @@ public class ActivityFocusEntity implements Externalizable {
    */
   public void setContentShown(Long contentShow) {
     this.contentShown = contentShow;
+    this.hashCode = 0;
   }
 
   /**
@@ -248,6 +253,7 @@ public class ActivityFocusEntity implements Externalizable {
    */
   public void setConvoShown(Long convoShow) {
     this.convoShown = convoShow;
+    this.hashCode = 0;
   }
 
   /**
@@ -266,6 +272,7 @@ public class ActivityFocusEntity implements Externalizable {
    */
   public void setContentHits(Long contentHits) {
     this.contentHits = contentHits;
+    this.hashCode = 0;
   }
 
   /**
@@ -284,6 +291,7 @@ public class ActivityFocusEntity implements Externalizable {
    */
   public void setConvoHits(Long convoHits) {
     this.convoHits = convoHits;
+    this.hashCode = 0;
   }
 
   /**
@@ -302,6 +310,7 @@ public class ActivityFocusEntity implements Externalizable {
    */
   public void setAppHits(Long appHits) {
     this.appHits = appHits;
+    this.hashCode = 0;
   }
 
   /**
@@ -320,6 +329,7 @@ public class ActivityFocusEntity implements Externalizable {
    */
   public void setProfileHits(Long profileHits) {
     this.profileHits = profileHits;
+    this.hashCode = 0;
   }
 
   /**
@@ -338,6 +348,7 @@ public class ActivityFocusEntity implements Externalizable {
    */
   public void setLinkHits(Long linkHits) {
     this.linkHits = linkHits;
+    this.hashCode = 0;
   }
 
   /**
@@ -356,26 +367,7 @@ public class ActivityFocusEntity implements Externalizable {
    */
   public void setTrackerVersion(String trackerVersion) {
     this.trackerVersion = trackerVersion;
-  }
-
-  /**
-   * Gets the inits the time.
-   *
-   * @return the initTime
-   */
-  @Transient
-  public Long getInitTime() {
-    return initTime;
-  }
-
-  /**
-   * Checks if is save time.
-   *
-   * @return true, if is save time
-   */
-  @Transient
-  public boolean isReady() {
-    return System.currentTimeMillis() - initTime > CONTINOUS_SESSION_TIME;
+    this.hashCode = 0;
   }
 
   /**
@@ -394,7 +386,6 @@ public class ActivityFocusEntity implements Externalizable {
   @Override
   public void writeExternal(ObjectOutput out) throws IOException {
     // Always have value
-    out.writeLong(initTime);
     out.writeUTF(userId);
     out.writeUTF(activityId);
     out.writeUTF(trackerVersion);
@@ -416,8 +407,8 @@ public class ActivityFocusEntity implements Externalizable {
    */
   @Override
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+    hashCode = 0;
     // Always have value
-    initTime = in.readLong();
     userId = in.readUTF();
     activityId = in.readUTF();
     trackerVersion = in.readUTF();
@@ -439,8 +430,115 @@ public class ActivityFocusEntity implements Externalizable {
    * {@inheritDoc}
    */
   @Override
+  public int hashCode() {
+    if (hashCode == 0) {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + ((activityId == null) ? 0 : activityId.hashCode());
+      result = prime * result + ((appHits == null) ? 0 : appHits.hashCode());
+      result = prime * result + ((contentHits == null) ? 0 : contentHits.hashCode());
+      result = prime * result + ((contentShown == null) ? 0 : contentShown.hashCode());
+      result = prime * result + ((convoHits == null) ? 0 : convoHits.hashCode());
+      result = prime * result + ((convoShown == null) ? 0 : convoShown.hashCode());
+      result = prime * result + ((linkHits == null) ? 0 : linkHits.hashCode());
+      result = prime * result + ((profileHits == null) ? 0 : profileHits.hashCode());
+      result = prime * result + ((startTime == null) ? 0 : startTime.hashCode());
+      result = prime * result + ((stopTime == null) ? 0 : stopTime.hashCode());
+      result = prime * result + ((totalShown == null) ? 0 : totalShown.hashCode());
+      result = prime * result + ((trackerVersion == null) ? 0 : trackerVersion.hashCode());
+      hashCode = prime * result + ((userId == null) ? 0 : userId.hashCode());
+    }
+    return hashCode;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj != null && ActivityFocusEntity.class.isAssignableFrom(obj.getClass())) {
+      ActivityFocusEntity other = ActivityFocusEntity.class.cast(obj);
+      if (activityId == null) {
+        if (other.activityId != null)
+          return false;
+      } else if (!activityId.equals(other.activityId))
+        return false;
+      if (appHits == null) {
+        if (other.appHits != null)
+          return false;
+      } else if (!appHits.equals(other.appHits))
+        return false;
+      if (contentHits == null) {
+        if (other.contentHits != null)
+          return false;
+      } else if (!contentHits.equals(other.contentHits))
+        return false;
+      if (contentShown == null) {
+        if (other.contentShown != null)
+          return false;
+      } else if (!contentShown.equals(other.contentShown))
+        return false;
+      if (convoHits == null) {
+        if (other.convoHits != null)
+          return false;
+      } else if (!convoHits.equals(other.convoHits))
+        return false;
+      if (convoShown == null) {
+        if (other.convoShown != null)
+          return false;
+      } else if (!convoShown.equals(other.convoShown))
+        return false;
+      if (linkHits == null) {
+        if (other.linkHits != null)
+          return false;
+      } else if (!linkHits.equals(other.linkHits))
+        return false;
+      if (profileHits == null) {
+        if (other.profileHits != null)
+          return false;
+      } else if (!profileHits.equals(other.profileHits))
+        return false;
+      if (startTime == null) {
+        if (other.startTime != null)
+          return false;
+      } else if (!startTime.equals(other.startTime))
+        return false;
+      if (stopTime == null) {
+        if (other.stopTime != null)
+          return false;
+      } else if (!stopTime.equals(other.stopTime))
+        return false;
+      if (totalShown == null) {
+        if (other.totalShown != null)
+          return false;
+      } else if (!totalShown.equals(other.totalShown))
+        return false;
+      if (trackerVersion == null) {
+        if (other.trackerVersion != null)
+          return false;
+      } else if (!trackerVersion.equals(other.trackerVersion))
+        return false;
+      if (userId == null) {
+        if (other.userId != null)
+          return false;
+      } else if (!userId.equals(other.userId))
+        return false;
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public String toString() {
     StringBuilder s = new StringBuilder();
+    s.append(this.getClass().getSimpleName());
+    s.append('-');
     s.append(userId);
     s.append('@');
     s.append(activityId);
