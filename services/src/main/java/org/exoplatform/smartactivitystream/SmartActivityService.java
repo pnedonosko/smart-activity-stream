@@ -18,13 +18,17 @@
  */
 package org.exoplatform.smartactivitystream;
 
+import java.security.PrivilegedAction;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.persistence.PersistenceException;
 
 import org.picocontainer.Startable;
 
+import org.exoplatform.commons.api.persistence.ExoTransactional;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.container.BaseContainerLifecyclePlugin;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
@@ -60,16 +64,19 @@ public class SmartActivityService implements Startable {
   public static final int                                TRACKER_CACHE_PERIOD = 120000;
 
   /** Cache of tracking activities. */
-  protected final ExoCache<String, ActivityFocusTracker> trackerCache;
+  private final ExoCache<String, ActivityFocusTracker> trackerCache;
 
   /** The focus storage. */
-  protected final ActivityFocusDAO                       focusStorage;
+  private final ActivityFocusDAO                       focusStorage;
 
   /** The focus saver. */
-  protected final Timer                                  focusSaver           = new Timer();
+  private final Timer                                    focusSaver           = new Timer();
+
+  /** The focus saver started. */
+  private final AtomicBoolean                            focusSaverStarted    = new AtomicBoolean(false);
 
   /** The enable trackers. */
-  protected boolean                                      enableTrackers       = false;
+  private final boolean                                enableTrackers;
 
   /**
    * Instantiates a new smart activity service.
@@ -87,6 +94,8 @@ public class SmartActivityService implements Startable {
     if (param != null) {
       String enableTrackers = param.getProperties().get("enable-trackers");
       this.enableTrackers = enableTrackers != null ? Boolean.parseBoolean(enableTrackers.trim()) : true;
+    } else {
+      this.enableTrackers = false;
     }
   }
 
@@ -122,26 +131,45 @@ public class SmartActivityService implements Startable {
   @Override
   public void start() {
     final ExoContainer container = ExoContainerContext.getCurrentContainer();
-    final String containerName = container.getContext().getName();
     TimerTask saveTask = new TimerTask() {
       public void run() {
-        saveReadyCacheInContainerContext(containerName, true);
+        saveReadyCacheInContainerContext(container, true);
       }
     };
     focusSaver.schedule(saveTask, TRACKER_CACHE_PERIOD * 2, TRACKER_CACHE_PERIOD);
+    focusSaverStarted.set(true);
 
-    // We want to try save all trackers on container stop, but before actual stop flow will start to get JPA layer not stopped
+    // We want to try save all trackers on machine stop, but before actual stop flow will start to get JPA layer not stopped
+    // First we react on System.exit(), then on eXo container stop - a first will do the job
+    SecurityHelper.doPrivilegedAction(new PrivilegedAction<Void>() {
+      public Void run() {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+          /**
+           * {@inheritDoc}
+           */
+          @Override
+          public void run() {
+            SecurityHelper.doPrivilegedAction(new PrivilegedAction<Void>() {
+              public Void run() {
+                stopTracker(container);
+                return null;
+              }
+            });
+          }
+        });
+        return null;
+      }
+    });
     container.addContainerLifecylePlugin(new BaseContainerLifecyclePlugin() {
       /**
        * {@inheritDoc}
        */
       @Override
       public void stopContainer(ExoContainer container) {
-        focusSaver.cancel();
-        saveReadyCacheInContainerContext(ExoContainerContext.getCurrentContainer().getContext().getName(), false);
+        stopTracker(container);
       }
     });
-    
+
     // When cache will evict a tracker, if not yet saved, we save it immediately
     trackerCache.addCacheListener(new CacheListener<String, ActivityFocusTracker>() {
 
@@ -263,6 +291,7 @@ public class SmartActivityService implements Startable {
    * @param focus the focus
    * @throws SmartActivityException the smart activity exception
    */
+  @ExoTransactional
   protected void saveActivityFocus(ActivityFocusEntity focus) throws SmartActivityException {
     //
     if (LOG.isDebugEnabled()) {
@@ -298,6 +327,7 @@ public class SmartActivityService implements Startable {
    * @param readyOnly the ready only
    * @throws Exception the exception
    */
+  @ExoTransactional
   protected void saveTrackerCache(boolean readyOnly) throws Exception {
     trackerCache.select(new CachedObjectSelector<String, ActivityFocusTracker>() {
 
@@ -349,14 +379,14 @@ public class SmartActivityService implements Startable {
    * @param containerName the container name
    * @param readyOnly the ready only
    */
-  protected void saveReadyCacheInContainerContext(String containerName, boolean readyOnly) {
+  protected void saveReadyCacheInContainerContext(ExoContainer exoContainer, boolean readyOnly) {
     // Do the work under eXo container context (for proper work of eXo apps and JPA storage)
-    ExoContainer exoContainer = ExoContainerContext.getContainerByName(containerName);
+    //ExoContainer exoContainer = ExoContainerContext.getContainerByName(containerName);
     if (exoContainer != null) {
-      ExoContainer contextContainer = ExoContainerContext.getCurrentContainerIfPresent();
+      //ExoContainer contextContainer = ExoContainerContext.getCurrentContainerIfPresent();
       try {
         // Container context
-        ExoContainerContext.setCurrentContainer(exoContainer);
+        //ExoContainerContext.setCurrentContainer(exoContainer);
         RequestLifeCycle.begin(exoContainer);
         // do the work here
         saveTrackerCache(readyOnly);
@@ -365,10 +395,17 @@ public class SmartActivityService implements Startable {
       } finally {
         // Restore context
         RequestLifeCycle.end();
-        ExoContainerContext.setCurrentContainer(contextContainer);
+        //ExoContainerContext.setCurrentContainer(contextContainer);
       }
     } else {
-      LOG.warn("Container not found " + containerName + " for saving trackers");
+      LOG.warn("Container not found " + exoContainer + " for saving trackers");
+    }
+  }
+
+  private void stopTracker(ExoContainer container) {
+    if (focusSaverStarted.getAndSet(false)) {
+      focusSaver.cancel();
+      saveReadyCacheInContainerContext(container, false);
     }
   }
 
