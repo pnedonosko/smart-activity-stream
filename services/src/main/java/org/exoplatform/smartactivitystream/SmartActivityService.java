@@ -376,7 +376,7 @@ public class SmartActivityService implements Startable {
   /**
    * Save ready cache in container context.
    *
-   * @param containerName the container name
+   * @param exoContainer the exo container
    * @param readyOnly the ready only
    */
   protected void saveReadyCacheInContainerContext(ExoContainer exoContainer, boolean readyOnly) {
@@ -402,6 +402,11 @@ public class SmartActivityService implements Startable {
     }
   }
 
+  /**
+   * Stop tracker.
+   *
+   * @param container the container
+   */
   private void stopTracker(ExoContainer container) {
     if (focusSaverStarted.getAndSet(false)) {
       focusSaver.cancel();
