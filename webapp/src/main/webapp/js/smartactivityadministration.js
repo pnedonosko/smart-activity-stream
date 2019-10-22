@@ -118,9 +118,13 @@
                 return {
                     headers: [
                         {
-                            text: 'Activity Data (Title)',
+                            text: '',
                             align: 'left',
                             sortable: false,
+                            value: 'arrow',
+                        },
+                        {
+                            text: 'Activity Data (Title)',
                             value: 'activityTitle',
                         },
                         {text: 'Created', value: 'activityCreated'},
@@ -143,33 +147,36 @@
                 selectTableRow: function (event) {
                     console.log(event);
 
-                    var selectedRowElem = $(`.text-left:contains(${event.activityTitle})`).parent();
+                    var selectedRowElem = $(`#app-smartactivity-table-vue-and-vuetify td:contains(${event.activityTitle})`).parent();
 
-                    console.log("selectedRowElem: "+selectedRowElem);
+                    console.log("selectedRowElem: " + selectedRowElem);
 
                     //mobile row element
-                    if(selectedRowElem.length==0){
-                        selectedRowElem = $(`.v-data-table__mobile-row__wrapper:contains(${event.activityTitle})`).parent().parent();
+                    if (selectedRowElem.length == 0) {
+                        selectedRowElem = $(`#app-smartactivity-table-vue-and-vuetify .v-data-table__mobile-row__wrapper:contains(${event.activityTitle})`)
+                            .parent().parent();
                         console.log(selectedRowElem);
                     }
 
                     //is it selected
-                    if(selectedRowElem.css("background-color")=="rgb(211, 211, 211)"){
+                    if (selectedRowElem.css("background-color") == "rgb(211, 211, 211)") {
                         //cancel select
                         this.cleanTable();
                     } else {
                         //delete selected before and select the new row
                         this.cleanTable();
 
-                        selectedRowElem.css("background-color","rgb(211, 211, 211)");
+                        selectedRowElem.css("background-color", "rgb(211, 211, 211)");
 
-                        var arrow = '<i role="button" class="open-row-arrow v-icon notranslate v-treeview-node__toggle v-icon--link mdi mdi-menu-down theme--light v-treeview-node__toggle--open"></i>';
+                        var arrow = '<i role="button" class="open-row-arrow v-icon notranslate ' +
+                            'v-treeview-node__toggle v-icon--link mdi mdi-menu-down theme--light v-treeview-node__toggle--open"></i>';
 
                         // add an arrow to the open row
-                        $( `.text-left:contains(${event.activityTitle})` ).append( arrow );
+                        $(`#app-smartactivity-table-vue-and-vuetify td:contains(${event.activityTitle})`)
+                            .parent().find("td").first().html(arrow);
 
                         // add an arrow to the open row (mobile)
-                        $( `.v-data-table__mobile-row__cell:contains(${event.activityTitle})` ).append( arrow );
+                        // $( `.v-data-table__mobile-row__cell:contains(${event.activityTitle})` ).append( arrow );
 
                         //add subtable
                         selectedRowElem.after(
@@ -188,6 +195,7 @@
                             `);
 
                         setupOpendTable();
+                        horizontalTableScrollSynchronizationAdd();
                     }
                 },
                 cleanTable: function (event) {
@@ -199,11 +207,12 @@
                     //delete opened subtable
                     $("#subtable").remove();
 
-                    //delete the arrow of the opened row
-                    $(".open-row-arrow").remove();
+                    addArrows();
                 },
             }
         });
+
+        addArrows();
 
 
         new Vue({
@@ -267,7 +276,7 @@
 
     console.log("smartactivityadministration.js");
 
-    function setupOpendTable(){
+    function setupOpendTable() {
         new Vue({
             el: '#subtable',
             vuetify: new Vuetify(),
@@ -275,8 +284,13 @@
                 return {
                     headers: [
                         {
-                            text: 'Activity Data (Title)',
+                            text: '',
                             align: 'left',
+                            sortable: false,
+                            value: 'arrow',
+                        },
+                        {
+                            text: 'Activity Data (Title)',
                             sortable: false,
                             value: 'activityTitle',
                         },
@@ -296,7 +310,30 @@
                     values: subtableValues,
                 }
             },
-        })
+        });
+
+        // add shift empty div to subtable
+        $("#subtable .text-left").html("<div class='shift-div'></div>");
+    }
+
+    function horizontalTableScrollSynchronizationAdd() {
+        $('#subtable .v-data-table__wrapper').first().scroll(function () {
+            $('#app-smartactivity-table-vue-and-vuetify .v-data-table__wrapper').first().scrollLeft($(this).scrollLeft());
+        });
+    }
+
+    function addArrows() {
+        var arrow = '<i role="button" class="v-icon notranslate v-treeview-node__toggle ' +
+            'v-icon--link mdi mdi-menu-down theme--light"></i>';
+
+        //pc
+        $("#app-smartactivity-table-vue-and-vuetify tr .text-left").html(arrow);
+
+        // mobile
+        $(".open-row-arrow").parent().html(arrow);
+
+        //clean title
+        $("#app-smartactivity-table-vue-and-vuetify tr .text-left").first().html(' ');
     }
 
 })(jqModule, vuetifyModule, vueModule, eXoVueI18nModule);
