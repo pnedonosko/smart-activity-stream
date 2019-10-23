@@ -46,14 +46,45 @@
         <div class="VuetifyApp">
             <div id="app-smartactivity-table-vue-and-vuetify">
                 <v-app id="inspire-test">
+
                     <v-data-table
                             :headers="headers"
                             :items="tableVal"
                             :items-per-page="10"
+
+                            v-on:item-expanded="selectTableRow"
+                            :single-expand="true"
+                            :expanded.sync="expanded"
                             class="elevation-1"
-                            v-on:click:row="selectTableRow"
-                            v-on:update:sort-by="cleanTable"
-                    ></v-data-table>
+                            show-expand
+                            item-key="activityTitle"
+
+                    >
+
+                        <template v-slot:top>
+                            <v-toolbar flat color="white">
+                                <v-toolbar-title>Smartactivity Table</v-toolbar-title>
+                                <v-spacer></v-spacer>
+                            </v-toolbar>
+                        </template>
+                        <template v-slot:expanded-item="{ headers, item}">
+
+                            <td id="subtable-column" :colspan="14">
+                                <div id="subtable">
+                                    <v-app id="subtable-app" >
+                                        <v-data-table
+                                                :headers="headers"
+                                                :items="appSmartactivityTableVueAndVuetifySubtableValues"
+                                                :items-per-page="100"
+                                                sort-by="startTimeStatistics"
+                                                class="elevation-2 grey lighten-4"
+                                        ></v-data-table>
+                                    </v-app>
+                                </div>
+                            </td>
+                        </template>
+
+                    </v-data-table>
                 </v-app>
             </div>
         </div>
