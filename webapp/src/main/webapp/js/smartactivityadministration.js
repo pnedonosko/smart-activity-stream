@@ -1,4 +1,24 @@
 (function ($, vuetify, vue, eXoVueI18n) {
+
+    // ******** REST services ********
+
+    var pageBaseUrl = function (theLocation) {
+        if (!theLocation) {
+            theLocation = window.location;
+        }
+
+        var theHostName = theLocation.hostname;
+        var theQueryString = theLocation.search;
+
+        if (theLocation.port) {
+            theHostName += ":" + theLocation.port;
+        }
+
+        return theLocation.protocol + "//" + theHostName;
+    };
+
+    var prefixUrl = pageBaseUrl(location);
+
     var streamSelected = 'All streams';
 
     var streamSettingsVars = [
@@ -112,6 +132,27 @@
 
     $(document).ready(function () {
 
+        console.log("prefixUrl: " + prefixUrl);
+
+        $.ajax({
+            type: "POST",
+            url: prefixUrl + "/portal/rest/smartactivity-stat/activities-joined-data",
+            data: {user: "nick"},
+            success: successF,
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log("error jqXHR:  " + jqXHR);
+                console.log("error textStatus:  " + textStatus);
+                console.log("error errorThrown:  " + errorThrown);
+            },
+            contentType: "application/json"
+        });
+
+        function successF(data, textStatus, jqXHR) {
+            console.log("ajax data:  " + data);
+            console.log("textStatus:  " + textStatus);
+            console.log("jqXHR:  " + jqXHR);
+        }
+
         new Vue({
             el: '#app-smartactivity-table-vue-and-vuetify',
             vuetify: new Vuetify(),
@@ -223,6 +264,7 @@
     });
 
     console.log("smartactivityadministration.js");
+
 
 })(jqModule, vuetifyModule, vueModule, eXoVueI18nModule);
 
