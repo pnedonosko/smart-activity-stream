@@ -16,7 +16,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.exoplatform.smartactivitystream.cometd;
+package org.exoplatform.smartactivitystream.stats.cometd;
 
 import java.util.Map;
 import java.util.Set;
@@ -51,19 +51,19 @@ import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.smartactivitystream.SmartActivityException;
-import org.exoplatform.smartactivitystream.SmartActivityService;
 import org.exoplatform.smartactivitystream.command.CommandThreadFactory;
 import org.exoplatform.smartactivitystream.command.ContainerCommand;
+import org.exoplatform.smartactivitystream.stats.ActivityStatsException;
+import org.exoplatform.smartactivitystream.stats.ActivityStatsService;
 import org.exoplatform.smartactivitystream.stats.domain.ActivityFocusEntity;
 
 /**
- * The CometdSmartActivityService.
+ * The CometdActivityStatsService.
  */
-public class CometdSmartActivityService implements Startable {
+public class CometdActivityStatsService implements Startable {
 
   /** The Constant LOG. */
-  private static final Log              LOG                    = ExoLogger.getLogger(CometdSmartActivityService.class);
+  private static final Log              LOG                    = ExoLogger.getLogger(CometdActivityStatsService.class);
 
   /** The channel name. */
   public static final String            USERFOCUS_CHANNEL_NAME = "/eXo/Application/SmartActivity/userfocus/{userId}";
@@ -97,7 +97,7 @@ public class CometdSmartActivityService implements Startable {
   public static final String            THREAD_PREFIX          = "smartactivity-comet-thread-";
 
   /** The smart activity service. */
-  protected final SmartActivityService  smartActivityService;
+  protected final ActivityStatsService  smartActivityService;
 
   /** The exo bayeux. */
   protected final EXoContinuationBayeux exoBayeux;
@@ -109,12 +109,12 @@ public class CometdSmartActivityService implements Startable {
   protected final ExecutorService       eventsHandlers;
 
   /**
-   * Instantiates the CometdSmartActivityService.
+   * Instantiates the CometdActivityStatsService.
    *
    * @param exoBayeux the exoBayeux
    * @param smartActivityService the smart activity service
    */
-  public CometdSmartActivityService(EXoContinuationBayeux exoBayeux, SmartActivityService smartActivityService) {
+  public CometdActivityStatsService(EXoContinuationBayeux exoBayeux, ActivityStatsService smartActivityService) {
     this.exoBayeux = exoBayeux;
     this.smartActivityService = smartActivityService;
     this.service = new CometdService();
@@ -284,7 +284,7 @@ public class CometdSmartActivityService implements Startable {
           focus.setTrackerVersion(ActivityFocusEntity.TRACKER_VERSION);
           try {
             smartActivityService.submitActivityFocus(focus);
-          } catch (SmartActivityException e) {
+          } catch (ActivityStatsException e) {
             // It's already logged in the service method
           }
         }

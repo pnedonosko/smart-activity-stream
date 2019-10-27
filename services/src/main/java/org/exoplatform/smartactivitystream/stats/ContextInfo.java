@@ -16,11 +16,11 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.exoplatform.smartactivitystream;
+package org.exoplatform.smartactivitystream.stats;
 
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
-import org.exoplatform.smartactivitystream.cometd.CometdSmartActivityService;
+import org.exoplatform.smartactivitystream.stats.cometd.CometdActivityStatsService;
 import org.exoplatform.ws.frameworks.json.impl.JsonException;
 import org.exoplatform.ws.frameworks.json.impl.JsonGeneratorImpl;
 
@@ -40,7 +40,7 @@ public class ContextInfo {
    */
   public static final ContextInfo getCurrentContext(String userId) {
     ExoContainer exo = ExoContainerContext.getCurrentContainer();
-    CometdSmartActivityService cometdService = exo.getComponentInstanceOfType(CometdSmartActivityService.class);
+    CometdActivityStatsService cometdService = exo.getComponentInstanceOfType(CometdActivityStatsService.class);
     ContextInfo context;
     if (cometdService != null) {
       context = new ContextInfo(exo.getContext().getName(),

@@ -26,7 +26,7 @@
   <portlet>
     <portlet-name>SmartActivityStreamPortlet</portlet-name>
     <display-name xml:lang="EN">Smart Activity Stream portlet</display-name>
-    <portlet-class>org.exoplatform.smartactivitystream.relevancy.portlet.ActivityRelevancyPortlet</portlet-class>
+    <portlet-class>org.exoplatform.smartactivitystream.portlet.SmartActivityStreamPortlet</portlet-class>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>

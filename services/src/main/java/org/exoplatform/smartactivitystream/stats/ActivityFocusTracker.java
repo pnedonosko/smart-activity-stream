@@ -16,7 +16,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.exoplatform.smartactivitystream;
+package org.exoplatform.smartactivitystream.stats;
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -34,7 +34,7 @@ import org.exoplatform.smartactivitystream.stats.domain.ActivityFocusEntity;
 public class ActivityFocusTracker implements Externalizable {
 
   /** The Constant BATCH_LIFETIME. */
-  public static final int     BATCH_LIFETIME = 600000;
+  public static final int     BATCH_LIFETIME = 1200000;
 
   /** The entity. */
   private ActivityFocusEntity entity;

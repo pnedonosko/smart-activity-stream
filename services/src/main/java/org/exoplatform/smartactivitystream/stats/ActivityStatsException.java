@@ -16,15 +16,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.exoplatform.smartactivitystream;
+package org.exoplatform.smartactivitystream.stats;
 
 /**
  * Created by The eXo Platform SAS.
  *
  * @author <a href="mailto:pnedonosko@exoplatform.com">Peter Nedonosko</a>
- * @version $Id: SmartActivityException.java 00000 Oct 2, 2019 pnedonosko $
+ * @version $Id: ActivityStatsException.java 00000 Oct 2, 2019 pnedonosko $
  */
-public class SmartActivityException extends Exception {
+public class ActivityStatsException extends Exception {
 
   /** The Constant serialVersionUID. */
   private static final long serialVersionUID = -4858796558817116020L;
@@ -32,8 +32,7 @@ public class SmartActivityException extends Exception {
   /**
    * Instantiates a new smart activity exception.
    */
-  public SmartActivityException() {
-    // TODO Auto-generated constructor stub
+  public ActivityStatsException() {
   }
 
   /**
@@ -41,9 +40,8 @@ public class SmartActivityException extends Exception {
    *
    * @param message the message
    */
-  public SmartActivityException(String message) {
+  public ActivityStatsException(String message) {
     super(message);
-    // TODO Auto-generated constructor stub
   }
 
   /**
@@ -51,9 +49,8 @@ public class SmartActivityException extends Exception {
    *
    * @param cause the cause
    */
-  public SmartActivityException(Throwable cause) {
+  public ActivityStatsException(Throwable cause) {
     super(cause);
-    // TODO Auto-generated constructor stub
   }
 
   /**
@@ -62,22 +59,8 @@ public class SmartActivityException extends Exception {
    * @param message the message
    * @param cause the cause
    */
-  public SmartActivityException(String message, Throwable cause) {
+  public ActivityStatsException(String message, Throwable cause) {
     super(message, cause);
-    // TODO Auto-generated constructor stub
-  }
-
-  /**
-   * Instantiates a new smart activity exception.
-   *
-   * @param message the message
-   * @param cause the cause
-   * @param enableSuppression the enable suppression
-   * @param writableStackTrace the writable stack trace
-   */
-  public SmartActivityException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-    super(message, cause, enableSuppression, writableStackTrace);
-    // TODO Auto-generated constructor stub
   }
 
 }

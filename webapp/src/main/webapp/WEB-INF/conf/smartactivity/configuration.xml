@@ -5,7 +5,7 @@
   xmlns="http://www.exoplatform.org/xml/ns/kernel_1_3.xsd">
 
   <component>
-    <type>org.exoplatform.smartactivitystream.SmartActivityService</type>
+    <type>org.exoplatform.smartactivitystream.stats.ActivityStatsService</type>
     <init-params>
       <properties-param>
         <name>smartactivity-configuration</name>
@@ -15,7 +15,11 @@
   </component>
 
   <component>
-    <type>org.exoplatform.smartactivitystream.cometd.CometdSmartActivityService</type>
+    <type>org.exoplatform.smartactivitystream.stats.rest.RESTActivityStatsService</type>
+  </component>
+
+  <component>
+    <type>org.exoplatform.smartactivitystream.stats.cometd.CometdActivityStatsService</type>
   </component>
 
   <component>

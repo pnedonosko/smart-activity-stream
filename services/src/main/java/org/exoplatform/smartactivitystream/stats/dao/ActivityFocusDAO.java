@@ -48,28 +48,6 @@ public class ActivityFocusDAO extends GenericDAOJPAImpl<ActivityFocusEntity, Foc
   }
 
   /**
-   * Find focus by user ID, activity ID and its start time.
-   *
-   * @param userId the user id
-   * @param activityId the activity id
-   * @param startTime the start time
-   * @return the activity focus entity
-   */
-  public ActivityFocusEntity findFocus(String userId, String activityId, long startTime) {
-    TypedQuery<ActivityFocusEntity> query = getEntityManager()
-                                                              .createNamedQuery("SmartActivityFocus.findFocus",
-                                                                                ActivityFocusEntity.class)
-                                                              .setParameter("userId", userId)
-                                                              .setParameter("activityId", activityId)
-                                                              .setParameter("startTime", startTime);
-    try {
-      return query.getSingleResult();
-    } catch (NoResultException e) {
-      return null;
-    }
-  }
-
-  /**
    * Find all focus records for given user and activity.
    *
    * @param userId the user id
@@ -82,6 +60,29 @@ public class ActivityFocusDAO extends GenericDAOJPAImpl<ActivityFocusEntity, Foc
                                                                                 ActivityFocusEntity.class)
                                                               .setParameter("userId", userId)
                                                               .setParameter("activityId", activityId);
+    try {
+      return query.getResultList();
+    } catch (NoResultException e) {
+      return Collections.emptyList();
+    }
+  }
+
+  /**
+   * Find all focus records for given user and activity created after given start date. Resulting list will be sorted in
+   * descending order of start time (last record is first).
+   *
+   * @param userId the user id
+   * @param activityId the activity id
+   * @param startTimeAfter the start time after which search records
+   * @return the list sorted by start time in descending order (last record is first)
+   */
+  public List<ActivityFocusEntity> findFocusAfter(String userId, String activityId, Long startTimeAfter) {
+    TypedQuery<ActivityFocusEntity> query = getEntityManager()
+                                                              .createNamedQuery("SmartActivityFocus.findFocusAfter",
+                                                                                ActivityFocusEntity.class)
+                                                              .setParameter("userId", userId)
+                                                              .setParameter("activityId", activityId)
+                                                              .setParameter("startTimeAfter", startTimeAfter);
     try {
       return query.getResultList();
     } catch (NoResultException e) {

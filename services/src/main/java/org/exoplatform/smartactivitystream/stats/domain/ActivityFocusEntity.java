@@ -46,10 +46,10 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
 @IdClass(FocusId.class)
 @NamedQueries({
     @NamedQuery(name = "SmartActivityFocus.findTotalCount", query = "SELECT COUNT(f.activityId) FROM SmartActivityFocus f"),
-    @NamedQuery(name = "SmartActivityFocus.findFocus", query = "SELECT f FROM SmartActivityFocus f "
-        + "WHERE f.userId = :userId AND f.activityId = :activityId AND f.startTime = :startTime"),
     @NamedQuery(name = "SmartActivityFocus.findAllFocus", query = "SELECT f FROM SmartActivityFocus f "
-        + "WHERE f.userId = :userId AND f.activityId = :activityId ORDER BY f.startTime") })
+        + "WHERE f.userId = :userId AND f.activityId = :activityId ORDER BY f.startTime ASC"),
+    @NamedQuery(name = "SmartActivityFocus.findFocusAfter", query = "SELECT f FROM SmartActivityFocus f "
+        + "WHERE f.userId = :userId AND f.activityId = :activityId AND f.startTime >= :startTimeAfter ORDER BY f.startTime DESC") })
 public class ActivityFocusEntity implements Externalizable {
 
   private static final Long  NULL_LONG       = new Long(-1);
