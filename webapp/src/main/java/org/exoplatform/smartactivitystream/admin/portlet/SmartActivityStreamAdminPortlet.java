@@ -18,31 +18,20 @@
  */
 package org.exoplatform.smartactivitystream.admin.portlet;
 
-//import static org.exoplatform.webconferencing.Utils.getResourceMessages;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import javax.portlet.*;
 
-import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.smartactivitystream.ContextInfo;
-import org.exoplatform.smartactivitystream.SmartActivityService;
-import org.exoplatform.smartactivitystream.Utils;
 import org.exoplatform.smartactivitystream.stats.dao.ActivityFocusDAO;
 import org.exoplatform.smartactivitystream.stats.domain.ActivityFocusEntity;
-import org.exoplatform.web.application.JavascriptManager;
-import org.exoplatform.webui.application.WebuiRequestContext;
 import org.exoplatform.ws.frameworks.json.impl.JsonException;
 
 import static org.exoplatform.smartactivitystream.Utils.getResourceMessages;
-
-//import org.exoplatform.webconferencing.UserInfo;
-//import org.exoplatform.webconferencing.WebConferencingService;
 
 /**
  * Created by The eXo Platform SAS
@@ -56,20 +45,6 @@ public class SmartActivityStreamAdminPortlet extends GenericPortlet {
   /** The Constant LOG. */
   private static final Log LOG = ExoLogger.getLogger(SmartActivityStreamAdminPortlet.class);
 
-  /** The Web Conferencing service. */
-  // private WebConferencingService webConferencing;
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void init() throws PortletException {
-    super.init();
-
-    ExoContainer container = ExoContainerContext.getCurrentContainer();
-    // this.webConferencing =
-    // container.getComponentInstanceOfType(WebConferencingService.class);
-  }
 
   /**
    * Admin view.
@@ -83,6 +58,8 @@ public class SmartActivityStreamAdminPortlet extends GenericPortlet {
   public void doView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
     final String remoteUser = request.getRemoteUser();
 
+    /*
+    // test data
     ActivityFocusDAO activityFocusDAO = ExoContainerContext.getCurrentContainer()
                                                            .getComponentInstanceOfType(ActivityFocusDAO.class);
     List<ActivityFocusEntity> activityFocusRecords = null;
@@ -96,13 +73,13 @@ public class SmartActivityStreamAdminPortlet extends GenericPortlet {
     } catch (JsonException e) {
       LOG.error("Error converting context to JSON", e);
       contextJson = null;
-    }
+    }*/
 
     Map<String, String> messages = getResourceMessages("locale.smartactivity.SmartActivityStreamAdmin", request.getLocale());
 
     // Markup
     request.setAttribute("messages", messages);
-    request.setAttribute("contextJson", contextJson);
+    //request.setAttribute("contextJson", contextJson);
 
     try {
       PortletRequestDispatcher prDispatcher = getPortletContext().getRequestDispatcher("/WEB-INF/pages/admin.jsp");

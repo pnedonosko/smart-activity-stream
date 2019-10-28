@@ -571,6 +571,16 @@
       function profileHoverOutConvoHandler() {
         profileHoverOutHandler.call(this, convoHitHandler);
       }
+      function likesHoverInHandler() {
+        $(this).data("smartactivityHoverTime", new Date().getTime());
+      }
+      function likesHoverOutHandler() {
+        if (new Date().getTime() - $(this).data("smartactivityHoverTime") >= PROFILE_ATTENTION_TIME) {
+          convoHitHandler();
+          profileHitHandler();
+        }
+        $(this).removeData("smartactivityHoverTime");
+      }
       function reinitTrackers() {
         initHitHandlers($elem);
       }
@@ -617,7 +627,8 @@
       $commentList.find(".commentRight .contentComment a").on(hitEvents, linkHitHandler).on(hitEvents, convoHitHandler); // Comment content links
       $commentList.find(".commentRight .contentComment a[href*='/profile/']").hover(profileHoverInHandler, profileHoverOutConvoHandler); // user profiles in comments
       const $actionCommentBar = $commentList.find(".commentRight .actionCommentBar");
-      $actionCommentBar.find(".likeCommentLink, .likeCommentCount, .subComment").on("click", convoHitHandler); // comment Like/Comment
+      $actionCommentBar.find(".likeCommentCount").on("click", profileHitHandler).on("click", convoHitHandler).hover(likesHoverInHandler, likesHoverOutHandler); // comment Likes counter
+      $actionCommentBar.find(".likeCommentLink, .subComment").on("click", convoHitHandler); // comment Like and subcomments
       $actionCommentBar.find(".SendKudosButtonTemplate a, .SendKudosButtonTemplate button").on("click", convoHitHandler); // kudos on comments
       
       // Collect hits in open activity preview

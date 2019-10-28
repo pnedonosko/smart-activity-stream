@@ -35,7 +35,7 @@ import org.exoplatform.smartactivitystream.relevancy.domain.RelevanceStatsReport
 /**
  * The REST service for Activity Relevancy Service.
  */
-@Path("/smartactivity")
+@Path("/smartactivity/relevancy")
 @Produces(MediaType.APPLICATION_JSON)
 public class RESTActivityRelevancyService implements ResourceContainer {
 
@@ -65,7 +65,7 @@ public class RESTActivityRelevancyService implements ResourceContainer {
   @POST
   @RolesAllowed("users")
   @Consumes(MediaType.APPLICATION_JSON)
-  @Path("/relevancy/{userId}/{activityId}")
+  @Path("/{userId}/{activityId}")
   public Response saveRelevance(@PathParam("userId") String userId,
                                 @PathParam("activityId") String activityId,
                                 RelevanceEntity relevanceEntity) {
@@ -102,7 +102,7 @@ public class RESTActivityRelevancyService implements ResourceContainer {
    */
   @GET
   @RolesAllowed("users")
-  @Path("/relevancy/{userId}/{activityId}")
+  @Path("/{userId}/{activityId}")
   @Produces("application/json")
   public Response getRelevance(@PathParam("userId") String userId, @PathParam("activityId") String activityId) {
 

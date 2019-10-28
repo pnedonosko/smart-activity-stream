@@ -136,7 +136,7 @@
 
     $.ajax({
       type : "POST",
-      url : prefixUrl + "/portal/rest/smartactivity-stat/activities-joined-data",
+      url : prefixUrl + "/portal/rest/smartactivity/stats/activities-focuses-joined-data",
       data : {user : "nick"},
       success : successF,
       error : function (jqXHR, textStatus, errorThrown) {

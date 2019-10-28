@@ -16,16 +16,21 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.exoplatform.smartactivitystream;
+package org.exoplatform.smartactivitystream.stats;
 
+import java.security.PrivilegedAction;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.persistence.PersistenceException;
 
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.picocontainer.Startable;
 
+import org.exoplatform.commons.api.persistence.ExoTransactional;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.container.BaseContainerLifecyclePlugin;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
@@ -42,39 +47,42 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.smartactivitystream.stats.dao.ActivityFocusDAO;
 import org.exoplatform.smartactivitystream.stats.domain.ActivityFocusEntity;
+import org.exoplatform.smartactivitystream.stats.domain.FocusId;
 
 /**
  * Created by The eXo Platform SAS.
  *
  * @author <a href="mailto:pnedonosko@exoplatform.com">Peter Nedonosko</a>
- * @version $Id: SmartActivityService.java 00000 Oct 2, 2019 pnedonosko $ and
- *          Oct 25, 2019 Nikita Riabovol
+ * @version $Id: SmartActivityService.java 00000 Oct 2, 2019 pnedonosko $
  */
-public class SmartActivityService implements Startable {
+public class ActivityStatsService implements Startable {
 
   /** The Constant LOG. */
-  private static final Log                               LOG                  = ExoLogger.getLogger(SmartActivityService.class);
+  private static final Log                             LOG                  = ExoLogger.getLogger(ActivityStatsService.class);
 
   /** The Constant TRACKER_CACHE_NAME. */
-  public static final String                             TRACKER_CACHE_NAME   = "smartactivity.TrackerCache".intern();
+  public static final String                           TRACKER_CACHE_NAME   = "smartactivity.TrackerCache".intern();
 
   /** The Constant TRACKER_CACHE_PERIOD. */
-  public static final int                                TRACKER_CACHE_PERIOD = 120000;
+  public static final int                              TRACKER_CACHE_PERIOD = 120000;
 
   /** Cache of tracking activities. */
-  protected final ExoCache<String, ActivityFocusTracker> trackerCache;
+  private final ExoCache<String, ActivityFocusTracker> trackerCache;
 
   /** The focus storage. */
-  protected final ActivityFocusDAO                       focusStorage;
+  private final ActivityFocusDAO                       focusStorage;
 
   /** The focus saver. */
-  protected final Timer                                  focusSaver           = new Timer();
+  private final Timer                                  focusSaver           = new Timer();
+
+  /** The focus saver started. */
+  private final AtomicBoolean                          focusSaverStarted    = new AtomicBoolean(false);
 
   /** The enable trackers. */
-  protected boolean                                      enableTrackers       = false;
+  private final boolean                                enableTrackers;
 
   /** The activity manager. */
-  protected final ActivityManager                        activityManager;
+  protected final ActivityManager                      activityManager;
 
   /**
    * Instantiates a new smart activity service.
@@ -83,7 +91,7 @@ public class SmartActivityService implements Startable {
    * @param cacheService the cache service
    * @param params the params
    */
-  public SmartActivityService(ActivityFocusDAO focusStorage,
+  public ActivityStatsService(ActivityFocusDAO focusStorage,
                               CacheService cacheService,
                               InitParams params,
                               ActivityManager activityManager) {
@@ -91,14 +99,13 @@ public class SmartActivityService implements Startable {
     this.trackerCache = cacheService.getCacheInstance(TRACKER_CACHE_NAME);
     this.activityManager = activityManager;
 
-    LOG.info("Activity Manager: ", activityManager);
-    LOG.info("Activity Manager/ getMaxUploadSize(): ", activityManager.getMaxUploadSize());
-
     // configuration
     PropertiesParam param = params.getPropertiesParam("smartactivity-configuration");
     if (param != null) {
       String enableTrackers = param.getProperties().get("enable-trackers");
       this.enableTrackers = enableTrackers != null ? Boolean.parseBoolean(enableTrackers.trim()) : true;
+    } else {
+      this.enableTrackers = false;
     }
   }
 
@@ -106,24 +113,25 @@ public class SmartActivityService implements Startable {
    * Submit activity focus.
    *
    * @param focus the focus
-   * @throws SmartActivityException the smart activity exception
+   * @throws ActivityStatsException the smart activity exception
    */
-  public void submitActivityFocus(ActivityFocusEntity focus) throws SmartActivityException {
+  public void submitActivityFocus(ActivityFocusEntity focus) throws ActivityStatsException {
     String fkey = focusKey(focus);
     ActivityFocusTracker tracker = trackerCache.get(fkey);
     if (tracker != null) {
-      agregateFocus(tracker, focus);
+      agregateFocus(tracker.getEntity(), focus);
       trackerCache.put(fkey, tracker); // this should sycn the cache in cluster
     } else {
       trackerCache.put(fkey, new ActivityFocusTracker(focus));
     }
   }
 
-
-  public ActivityManager getActivityManager(){
-
-
-    return this.activityManager;
+  /**
+   * Save all cached trackers to database. This will save even not yet ready
+   * batches (shorten than {@link ActivityFocusTracker#BATCH_LIFETIME}).
+   */
+  public void saveTrackers() {
+    saveCacheInContainerContext(ExoContainerContext.getCurrentContainer(), false);
   }
 
   /**
@@ -135,30 +143,55 @@ public class SmartActivityService implements Startable {
     return this.enableTrackers;
   }
 
+  public ActivityManager getActivityManager() {
+
+    return this.activityManager;
+  }
+
   /**
    * {@inheritDoc}
    */
   @Override
   public void start() {
     final ExoContainer container = ExoContainerContext.getCurrentContainer();
-    final String containerName = container.getContext().getName();
     TimerTask saveTask = new TimerTask() {
       public void run() {
-        saveReadyCacheInContainerContext(containerName, true);
+        saveCacheInContainerContext(container, true);
       }
     };
     focusSaver.schedule(saveTask, TRACKER_CACHE_PERIOD * 2, TRACKER_CACHE_PERIOD);
+    focusSaverStarted.set(true);
 
-    // We want to try save all trackers on container stop, but before actual stop
-    // flow will start to get JPA layer not stopped
+    // We want to try save all trackers on machine stop, but before actual stop flow
+    // will start to get JPA layer not stopped
+    // First we react on System.exit(), then on eXo container stop - a first will do
+    // the job
+    SecurityHelper.doPrivilegedAction(new PrivilegedAction<Void>() {
+      public Void run() {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+          /**
+           * {@inheritDoc}
+           */
+          @Override
+          public void run() {
+            SecurityHelper.doPrivilegedAction(new PrivilegedAction<Void>() {
+              public Void run() {
+                stopTracker(container);
+                return null;
+              }
+            });
+          }
+        });
+        return null;
+      }
+    });
     container.addContainerLifecylePlugin(new BaseContainerLifecyclePlugin() {
       /**
        * {@inheritDoc}
        */
       @Override
       public void stopContainer(ExoContainer container) {
-        focusSaver.cancel();
-        saveReadyCacheInContainerContext(ExoContainerContext.getCurrentContainer().getContext().getName(), false);
+        stopTracker(container);
       }
     });
 
@@ -238,13 +271,12 @@ public class SmartActivityService implements Startable {
   }
 
   /**
-   * Aggregate focus adding focus into the tracker.
+   * Aggregate the adding focus into the tracked one.
    *
-   * @param tracker the tracker
-   * @param add the adding focus
+   * @param tracked the tracked focus entity
+   * @param add the adding focus entity
    */
-  protected void agregateFocus(ActivityFocusTracker tracker, ActivityFocusEntity add) {
-    ActivityFocusEntity tracked = tracker.getEntity();
+  protected void agregateFocus(ActivityFocusEntity tracked, ActivityFocusEntity add) {
     // Not null fields
     if (add.getStopTime() > tracked.getStopTime()) {
       tracked.setStopTime(add.getStopTime());
@@ -282,35 +314,54 @@ public class SmartActivityService implements Startable {
    * Save activity focus.
    *
    * @param focus the focus
-   * @throws SmartActivityException the smart activity exception
+   * @throws ActivityStatsException the smart activity exception
    */
-  protected void saveActivityFocus(ActivityFocusEntity focus) throws SmartActivityException {
+  @ExoTransactional
+  protected void saveActivityFocus(ActivityFocusEntity focus) throws ActivityStatsException {
     //
     if (LOG.isDebugEnabled()) {
       LOG.debug(">> saveActivityFocus: " + focus);
     }
     try {
-      ActivityFocusEntity tracked = focusStorage.find(focus.getId());
+      FocusId fid = focus.getId();
+      long startTimeAfter = System.currentTimeMillis() - ActivityFocusTracker.BATCH_LIFETIME;
+      if (startTimeAfter <= 0) {
+        startTimeAfter = fid.getStartTime();
+      }
+      List<ActivityFocusEntity> trackedAfter = focusStorage.findFocusAfter(fid.getUserId(), fid.getActivityId(), startTimeAfter);
+      ActivityFocusEntity tracked;
+      if (trackedAfter.size() > 0) {
+        tracked = trackedAfter.get(0);
+      } else {
+        tracked = null;
+      }
+      // ActivityFocusEntity tracked = focusStorage.find(focus.getId());
       if (tracked == null) {
         focusStorage.create(focus);
-        LOG.debug("<< saveActivityFocus => created: " + focus);
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("<< saveActivityFocus => created: " + focus);
+        }
       } else {
+        // XXX This should not happen in normal circumstances as batch lifetime, which
+        // also used by tracker.isReady(),
+        // used above to calc startTimeAfter and persistent tracked focus have to be
+        // older of it.
         // We replace if of same version
         if (tracked.getTrackerVersion().equals(focus.getTrackerVersion())) {
-          focusStorage.update(focus);
-          LOG.debug("<< saveActivityFocus => updated: " + focus);
+          agregateFocus(tracked, focus);
+          focusStorage.update(tracked);
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("<< saveActivityFocus => updated: " + tracked);
+          }
         } else {
           LOG.warn("Cannot update activity focus of different tracker versions: " + tracked.getTrackerVersion() + " vs "
               + focus.getTrackerVersion());
-          throw new SmartActivityException("Cannot update activity focus of different tracker versions");
+          throw new ActivityStatsException("Cannot update activity focus of different tracker versions");
         }
       }
-      // } catch (EntityExistsException e) {
-      // LOG.error("Activity focus already tracked {}:{}", focus.getUserId(),
-      // focus.getActivityId(), e);
     } catch (PersistenceException e) {
       LOG.error("Failed to save activity focus {}:{}", focus.getUserId(), focus.getActivityId(), e);
-      throw new SmartActivityException("Failed to save activity focus", e);
+      throw new ActivityStatsException("Failed to save activity focus", e);
     }
   }
 
@@ -320,6 +371,7 @@ public class SmartActivityService implements Startable {
    * @param readyOnly the ready only
    * @throws Exception the exception
    */
+  @ExoTransactional
   protected void saveTrackerCache(boolean readyOnly) throws Exception {
     trackerCache.select(new CachedObjectSelector<String, ActivityFocusTracker>() {
 
@@ -367,17 +419,18 @@ public class SmartActivityService implements Startable {
   }
 
   /**
-   * Save ready cache in container context.
+   * Save cached trackers in the container context.
    *
-   * @param containerName the container name
-   * @param readyOnly the ready only
+   * @param exoContainer the exo container
+   * @param readyOnly if <code>true</code> then will save ready only trackers
    */
-  protected void saveReadyCacheInContainerContext(String containerName, boolean readyOnly) {
+  protected void saveCacheInContainerContext(final ExoContainer exoContainer, final boolean readyOnly) {
     // Do the work under eXo container context (for proper work of eXo apps and JPA
     // storage)
-    ExoContainer exoContainer = ExoContainerContext.getContainerByName(containerName);
+    // ExoContainer exoContainer =
+    // ExoContainerContext.getContainerByName(containerName);
     if (exoContainer != null) {
-      ExoContainer contextContainer = ExoContainerContext.getCurrentContainerIfPresent();
+      final ExoContainer contextContainer = ExoContainerContext.getCurrentContainerIfPresent();
       try {
         // Container context
         ExoContainerContext.setCurrentContainer(exoContainer);
@@ -392,7 +445,19 @@ public class SmartActivityService implements Startable {
         ExoContainerContext.setCurrentContainer(contextContainer);
       }
     } else {
-      LOG.warn("Container not found " + containerName + " for saving trackers");
+      LOG.warn("Container not found " + exoContainer + " for saving trackers");
+    }
+  }
+
+  /**
+   * Stop tracker.
+   *
+   * @param container the container
+   */
+  private void stopTracker(ExoContainer container) {
+    if (focusSaverStarted.getAndSet(false)) {
+      focusSaver.cancel();
+      saveCacheInContainerContext(container, false);
     }
   }
 
