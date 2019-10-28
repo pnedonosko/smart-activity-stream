@@ -42,7 +42,7 @@ public class RESTActivityRelevancyService implements ResourceContainer {
   /** The Constant LOG. */
   protected static final Log               LOG = ExoLogger.getLogger(RESTActivityRelevancyService.class);
 
-  /**  The Activity Relevancy Service service. */
+  /** The Activity Relevancy Service service. */
   protected final ActivityRelevancyService activityRelevancyService;
 
   /**

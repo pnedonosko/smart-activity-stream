@@ -87,7 +87,7 @@ public class SmartActivityStreamAdminPortlet extends GenericPortlet {
                                                            .getComponentInstanceOfType(ActivityFocusDAO.class);
     List<ActivityFocusEntity> activityFocusRecords = null;
     if (activityFocusDAO != null) {
-      activityFocusRecords = activityFocusDAO.findAllFocusOfUser(remoteUser);
+      activityFocusRecords = activityFocusDAO.findAllFocusOfUser(remoteUser,60,"All streams");
     }
 
     String contextJson;
@@ -103,17 +103,6 @@ public class SmartActivityStreamAdminPortlet extends GenericPortlet {
     // Markup
     request.setAttribute("messages", messages);
     request.setAttribute("contextJson", contextJson);
-    request.setAttribute("remoteUser", remoteUser);
-
-    StringBuilder b = new StringBuilder();
-    activityFocusRecords.forEach(b::append);
-
-    try {
-      request.setAttribute("activityFocusRecords", Utils.asJSON(activityFocusRecords.toArray()));
-    } catch (JsonException e) {
-      e.printStackTrace();
-    }
-    request.setAttribute("activityFocusRecordsObj", activityFocusRecords.toArray());
 
     try {
       PortletRequestDispatcher prDispatcher = getPortletContext().getRequestDispatcher("/WEB-INF/pages/admin.jsp");

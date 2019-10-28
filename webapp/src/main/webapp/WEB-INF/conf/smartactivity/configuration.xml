@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_3.xsd http://www.exoplatform.org/xml/ns/kernel_1_3.xsd"
-  xmlns="http://www.exoplatform.org/xml/ns/kernel_1_3.xsd">
+               xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_3.xsd http://www.exoplatform.org/xml/ns/kernel_1_3.xsd"
+               xmlns="http://www.exoplatform.org/xml/ns/kernel_1_3.xsd">
 
   <component>
     <type>org.exoplatform.smartactivitystream.SmartActivityService</type>
     <init-params>
       <properties-param>
         <name>smartactivity-configuration</name>
-        <property name="enable-trackers" value="${smartactivitystream.trackers.enable:true}" />
+        <property name="enable-trackers" value="${smartactivitystream.trackers.enable:true}"/>
       </properties-param>
     </init-params>
   </component>
@@ -25,7 +25,7 @@
   <component>
     <type>org.exoplatform.smartactivitystream.relevancy.dao.RelevanceDAO</type>
   </component>
-  
+
   <component>
     <type>org.exoplatform.smartactivitystream.relevancy.dao.RelevanceStatsDAO</type>
   </component>
@@ -109,7 +109,7 @@
       </init-params>
     </component-plugin>
   </external-component-plugins>
-  
+
   <external-component-plugins>
     <target-component>org.exoplatform.commons.addons.AddOnService</target-component>
     <component-plugin>
@@ -142,7 +142,7 @@
       </init-params>
     </component-plugin>
   </external-component-plugins>
-  
+
   <external-component-plugins>
     <target-component>org.exoplatform.services.resources.ResourceBundleService</target-component>
     <component-plugin>

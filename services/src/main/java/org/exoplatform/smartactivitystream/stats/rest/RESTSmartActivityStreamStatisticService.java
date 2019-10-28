@@ -18,6 +18,8 @@
  */
 package org.exoplatform.smartactivitystream.stats.rest;
 
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -46,6 +48,8 @@ import org.exoplatform.smartactivitystream.SmartActivityService;
 import org.exoplatform.smartactivitystream.Utils;
 import org.exoplatform.smartactivitystream.stats.dao.ActivityFocusDAO;
 import org.exoplatform.smartactivitystream.stats.domain.ActivityFocusEntity;
+import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.manager.ActivityManager;
 
 /**
  * Created by The eXo Platform SAS.
@@ -64,7 +68,7 @@ public class RESTSmartActivityStreamStatisticService implements ResourceContaine
   /** The Constant LOG. */
   protected static final Log           LOG   = ExoLogger.getLogger(RESTSmartActivityStreamStatisticService.class);
 
-  /** The web conferencing. */
+  /** The smart activity. */
   protected final SmartActivityService smartActivity;
 
   /** The cache control. */
@@ -83,7 +87,7 @@ public class RESTSmartActivityStreamStatisticService implements ResourceContaine
   }
 
   /**
-   * Gets the provider config.
+   * Gets the activities joined data.
    *
    * @param uriInfo the uri info
    * @param request the request
@@ -94,6 +98,20 @@ public class RESTSmartActivityStreamStatisticService implements ResourceContaine
   @Path("/activities-joined-data")
   public Response getActivitiesJoinedData(@Context UriInfo uriInfo, @Context HttpServletRequest request) {
     LOG.info("RESTSmartActivityStreamStatisticService /smartactivity-stat/activities-joined-data");
+
+    ActivityManager activityManager = this.smartActivity.getActivityManager();
+
+    List<String> activityIds = new LinkedList<>();
+    activityIds.add("1");
+
+    List<ExoSocialActivity> activities = activityManager.getActivities(activityIds);
+    LOG.info("RESTSmartActivityStreamStatisticService ActivityManagerObj: ", activityManager);
+    LOG.info("RESTSmartActivityStreamStatisticService ActivityManagerObjSrt: ", activityManager.toString());
+    LOG.info("RESTSmartActivityStreamStatisticService ActivityManagerObj is null: ", activityManager == null);
+    LOG.info("RESTSmartActivityStreamStatisticService ActivityManager getActivities: ", Arrays.toString(activities.toArray()));
+    LOG.info("RESTSmartActivityStreamStatisticService ActivityManager getMaxUploadSize(): ", activityManager.getMaxUploadSize());
+
+
     ConversationState convo = ConversationState.getCurrent();
     if (convo != null) {
       String currentUserName = convo.getIdentity().getUserId();
@@ -103,17 +121,20 @@ public class RESTSmartActivityStreamStatisticService implements ResourceContaine
 
       List<ActivityFocusEntity> activityFocusRecords = null;
       if (activityFocusDAO != null) {
-        activityFocusRecords = activityFocusDAO.findAllFocusOfUser(currentUserName);
+        activityFocusRecords = activityFocusDAO.findAllFocusOfUser(currentUserName, 0, "");
       }
 
       String jsonResponse = null;
 
       try {
-        jsonResponse = Utils.asJSON(activityFocusRecords.toArray());
+          //activityFocusRecords.toArray()
+        jsonResponse = Utils.asJSON(activities.toArray());
 
       } catch (Throwable e) {
         LOG.error("RESTSmartActivityStreamStatisticService activities-joined-data error", e);
       }
+
+      LOG.info("RESTSmartActivityStreamStatisticService ActivityManager json(): ", jsonResponse);
 
       LOG.info("RESTSmartActivityStreamStatisticService correct");
       return Response.status(Status.ACCEPTED).cacheControl(cacheControl).entity(jsonResponse).build();

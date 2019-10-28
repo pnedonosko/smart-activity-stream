@@ -23,6 +23,7 @@ import java.util.TimerTask;
 
 import javax.persistence.PersistenceException;
 
+import org.exoplatform.social.core.manager.ActivityManager;
 import org.picocontainer.Startable;
 
 import org.exoplatform.container.BaseContainerLifecyclePlugin;
@@ -46,7 +47,8 @@ import org.exoplatform.smartactivitystream.stats.domain.ActivityFocusEntity;
  * Created by The eXo Platform SAS.
  *
  * @author <a href="mailto:pnedonosko@exoplatform.com">Peter Nedonosko</a>
- * @version $Id: SmartActivityService.java 00000 Oct 2, 2019 pnedonosko $
+ * @version $Id: SmartActivityService.java 00000 Oct 2, 2019 pnedonosko $ and
+ *          Oct 25, 2019 Nikita Riabovol
  */
 public class SmartActivityService implements Startable {
 
@@ -71,6 +73,9 @@ public class SmartActivityService implements Startable {
   /** The enable trackers. */
   protected boolean                                      enableTrackers       = false;
 
+  /** The activity manager. */
+  protected final ActivityManager                        activityManager;
+
   /**
    * Instantiates a new smart activity service.
    *
@@ -78,9 +83,16 @@ public class SmartActivityService implements Startable {
    * @param cacheService the cache service
    * @param params the params
    */
-  public SmartActivityService(ActivityFocusDAO focusStorage, CacheService cacheService, InitParams params) {
+  public SmartActivityService(ActivityFocusDAO focusStorage,
+                              CacheService cacheService,
+                              InitParams params,
+                              ActivityManager activityManager) {
     this.focusStorage = focusStorage;
     this.trackerCache = cacheService.getCacheInstance(TRACKER_CACHE_NAME);
+    this.activityManager = activityManager;
+
+    LOG.info("Activity Manager: ", activityManager);
+    LOG.info("Activity Manager/ getMaxUploadSize(): ", activityManager.getMaxUploadSize());
 
     // configuration
     PropertiesParam param = params.getPropertiesParam("smartactivity-configuration");
@@ -107,6 +119,13 @@ public class SmartActivityService implements Startable {
     }
   }
 
+
+  public ActivityManager getActivityManager(){
+
+
+    return this.activityManager;
+  }
+
   /**
    * Checks if is trackers enabled.
    *
@@ -130,7 +149,8 @@ public class SmartActivityService implements Startable {
     };
     focusSaver.schedule(saveTask, TRACKER_CACHE_PERIOD * 2, TRACKER_CACHE_PERIOD);
 
-    // We want to try save all trackers on container stop, but before actual stop flow will start to get JPA layer not stopped
+    // We want to try save all trackers on container stop, but before actual stop
+    // flow will start to get JPA layer not stopped
     container.addContainerLifecylePlugin(new BaseContainerLifecyclePlugin() {
       /**
        * {@inheritDoc}
@@ -203,7 +223,8 @@ public class SmartActivityService implements Startable {
     // TODO cleanup
     // focusSaver.cancel();
     // We want to try save all cache on container stop
-    // saveReadyCacheInContainerContext(ExoContainerContext.getCurrentContainer().getContext().getName(), false);
+    // saveReadyCacheInContainerContext(ExoContainerContext.getCurrentContainer().getContext().getName(),
+    // false);
   }
 
   /**
@@ -280,12 +301,13 @@ public class SmartActivityService implements Startable {
           LOG.debug("<< saveActivityFocus => updated: " + focus);
         } else {
           LOG.warn("Cannot update activity focus of different tracker versions: " + tracked.getTrackerVersion() + " vs "
-                  + focus.getTrackerVersion());
+              + focus.getTrackerVersion());
           throw new SmartActivityException("Cannot update activity focus of different tracker versions");
         }
       }
       // } catch (EntityExistsException e) {
-      // LOG.error("Activity focus already tracked {}:{}", focus.getUserId(), focus.getActivityId(), e);
+      // LOG.error("Activity focus already tracked {}:{}", focus.getUserId(),
+      // focus.getActivityId(), e);
     } catch (PersistenceException e) {
       LOG.error("Failed to save activity focus {}:{}", focus.getUserId(), focus.getActivityId(), e);
       throw new SmartActivityException("Failed to save activity focus", e);
@@ -331,7 +353,8 @@ public class SmartActivityService implements Startable {
             cache.remove(key);
             cacheUnlocked = false;
           } finally {
-            // If an error will happen during the save, we will keep the focus for a next attempt,
+            // If an error will happen during the save, we will keep the focus for a next
+            // attempt,
             // otherwise unlock has no actual sense.
             ft.unlock();
             if (cacheUnlocked) {
@@ -350,7 +373,8 @@ public class SmartActivityService implements Startable {
    * @param readyOnly the ready only
    */
   protected void saveReadyCacheInContainerContext(String containerName, boolean readyOnly) {
-    // Do the work under eXo container context (for proper work of eXo apps and JPA storage)
+    // Do the work under eXo container context (for proper work of eXo apps and JPA
+    // storage)
     ExoContainer exoContainer = ExoContainerContext.getContainerByName(containerName);
     if (exoContainer != null) {
       ExoContainer contextContainer = ExoContainerContext.getCurrentContainerIfPresent();

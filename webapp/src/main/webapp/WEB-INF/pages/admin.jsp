@@ -90,58 +90,5 @@
         </div>
 
 
-        <p>context
-        <p>${contextJson}</p></p>
-        <p>user info
-        <p>${remoteUser}</p></p>
-
-        <p>activity focus records</p>
-        <p>${activityFocusRecords}</p>
-
-
-
-        <p></p>
-        <p> /** The user id. */
-            @Id
-            @Column(name = "USER_ID", nullable = false)
-            protected String userId;${activityFocusRecordsObj[0].userId}</p>
-        <p>/** The activity id. */
-            @Id
-            @Column(name = "ACTIVITY_ID", nullable = false)
-            protected String activityId;${activityFocusRecordsObj[0].activityId}</p>
-        <p>/** The start time. */
-            @Id
-            @Column(name = "START_TIME", nullable = false)
-            protected Long startTime;${activityFocusRecordsObj[0].startTime}</p>
-        <p>/** The stop time. */
-            @Column(name = "STOP_TIME", nullable = false)
-            protected Long stopTime;${activityFocusRecordsObj[0].stopTime}
-        </p>
-        <p>/** The total show time. */
-            @Column(name = "TOTAL_SHOWN", nullable = false)
-            protected Long totalShown;${activityFocusRecordsObj[0].totalShown}</p>
-        <p> /** The content show time. */
-            @Column(name = "CONTENT_SHOWN")
-            protected Long contentShown;${activityFocusRecordsObj[0].contentShown}</p>
-        <p>/** The conversation show time. */
-            @Column(name = "CONVO_SHOWN")
-            protected Long convoShown;${activityFocusRecordsObj[0].convoShown}</p>
-        <p> /** The content hits. */
-            @Column(name = "CONTENT_HITS")
-            protected Long contentHits;${activityFocusRecordsObj[0].contentHits}</p>
-        <p>/** The convo hits. */
-            @Column(name = "CONVO_HITS")
-            protected Long convoHits;${activityFocusRecordsObj[0].convoHits}</p>
-        <p>/** The app hits. */
-            @Column(name = "APP_HITS")
-            protected Long appHits;${activityFocusRecordsObj[0].appHits}</p>
-        <p> /** The profile hits. */
-            @Column(name = "PROFILE_HITS")
-            protected Long profileHits;${activityFocusRecordsObj[0].profileHits}</p>
-        <p>/** The link hits. */
-            @Column(name = "LINK_HITS")
-            protected Long linkHits;${activityFocusRecordsObj[0].linkHits}</p>
-
-
     </div>
 </div>
