@@ -15,19 +15,18 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.smartactivitystream.Utils;
 import org.exoplatform.smartactivitystream.stats.ActivityStatsService;
-import org.exoplatform.smartactivitystream.stats.dao.ActivityFocusDAO;
-import org.exoplatform.smartactivitystream.stats.domain.ActivityFocusEntity;
+import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.ActivityManager;
+import org.exoplatform.social.core.space.model.Space;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -81,59 +80,146 @@ public class RESTActivityStatsService implements ResourceContainer {
   }
 
   /**
-   * Gets the activities focuses joined data.
+   * Gets user focuses data (table tow).
    *
    * @param uriInfo the uri info
    * @param request the request
-   * @return the provider config
+   * @return user focuses (rows of the parent table)
    */
   @POST
   @RolesAllowed("users")
-  @Path("/activities-focuses-joined-data")
-  public Response getActivitiesFocusesJoinedData(@Context UriInfo uriInfo, @Context HttpServletRequest request) {
+  @Path("/userfocus")
+  public Response getUserFocuses(@Context UriInfo uriInfo, @Context HttpServletRequest request) {
     if (LOG.isDebugEnabled()) {
-      LOG.debug(">> getActivitiesFocusesJoinedData");
+      LOG.debug(">> getUserFocuses");
     }
 
-    ActivityManager activityManager = this.activityStatsService.getActivityManager();
+    ActivityManager activityManager = activityStatsService.getActivityManager();
 
-    List<String> activityIds = new LinkedList<>();
+    /*List<String> activityIds = new LinkedList<>();
     activityIds.add("1");
 
-    List<ExoSocialActivity> activities = activityManager.getActivities(activityIds);
+    List<ExoSocialActivity> activities = activityManager.getActivities(activityIds);*/
 
     ConversationState convo = ConversationState.getCurrent();
     if (convo != null) {
-      String currentUserName = convo.getIdentity().getUserId();
+      String currentUserId = convo.getIdentity().getUserId();
 
-      ActivityFocusDAO activityFocusDAO = ExoContainerContext.getCurrentContainer()
-                                                             .getComponentInstanceOfType(ActivityFocusDAO.class);
 
-      List<ActivityFocusEntity> activityFocusRecords = null;
-      if (activityFocusDAO != null) {
-        activityFocusRecords = activityFocusDAO.findAllFocusOfUser(currentUserName, 0, "");
-      }
+      //List<ExoSocialActivity> selectedActivities = new LinkedList<>();
+
+      Identity userIdentity = activityStatsService.getUserIdentity(currentUserId);
+
+      RealtimeListAccess<ExoSocialActivity> usersActivities = activityManager.getActivitiesByPoster(userIdentity);
+
+
+      List<ExoSocialActivity> allUsersActivities = usersActivities.loadAsList(0, usersActivities.getSize());
+
+      /*
+       * for(ExoSocialActivity
+       * exoSocialActivity:usersActivities.loadAsList(0,usersActivities.getSize())){
+       * if(exoSocialActivity.getType()) selectedActivities.add(exoSocialActivity); }
+       */
 
       String jsonResponse = null;
 
       try {
-        // activityFocusRecords.toArray()
-        jsonResponse = Utils.asJSON(activities.toArray());
+
+        jsonResponse = Utils.asJSON(allUsersActivities.toArray());
 
       } catch (Throwable e) {
-        LOG.error("getActivitiesFocusesJoinedData error", e);
+        LOG.error("getUserFocuses error", e);
       }
 
-      // LOG.info("RESTSmartActivityStreamStatisticService ActivityManager json(): ",
-      // jsonResponse);
-
       if (LOG.isDebugEnabled()) {
-        LOG.debug("<< getActivitiesFocusesJoinedData");
+        LOG.debug("<< getUserFocuses");
       }
       return Response.status(Status.ACCEPTED).entity(jsonResponse).build();
     } else {
       if (LOG.isDebugEnabled()) {
-        LOG.debug("<< getActivitiesFocusesJoinedData conversationState == null");
+        LOG.debug("<< getUserFocuses conversationState == null");
+      }
+      return Response.status(Status.UNAUTHORIZED).build();
+    }
+  }
+
+  /**
+   * Gets user spaces.
+   *
+   * @param uriInfo the uri info
+   * @param request the request
+   * @return user spaces
+   */
+  @POST
+  @RolesAllowed("users")
+  @Path("/userspaces")
+  public Response getUserSpaces(@Context UriInfo uriInfo, @Context HttpServletRequest request) {
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(">> getUserSpaces");
+    }
+
+    ConversationState convo = ConversationState.getCurrent();
+    if (convo != null) {
+      String currentUserId = convo.getIdentity().getUserId();
+
+      List<Space> userSpaces = activityStatsService.getUserSpaces(currentUserId);
+
+      String jsonResponse = null;
+
+      try {
+        jsonResponse = Utils.asJSON(userSpaces.toArray());
+      } catch (Throwable e) {
+        LOG.error("getUserSpaces error", e);
+      }
+
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("<< getUserSpaces");
+      }
+      return Response.status(Status.ACCEPTED).entity(jsonResponse).build();
+    } else {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("<< getUserSpaces conversationState == null");
+      }
+      return Response.status(Status.UNAUTHORIZED).build();
+    }
+  }
+
+  /**
+   * Gets user connections.
+   *
+   * @param uriInfo the uri info
+   * @param request the request
+   * @return user connections
+   */
+  @POST
+  @RolesAllowed("users")
+  @Path("/userconnections")
+  public Response getUserConnections(@Context UriInfo uriInfo, @Context HttpServletRequest request) {
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(">> getUserConnections");
+    }
+
+    ConversationState convo = ConversationState.getCurrent();
+    if (convo != null) {
+      String currentUserId = convo.getIdentity().getUserId();
+
+      List<Identity> userConnections = activityStatsService.getUserConnections(currentUserId);
+
+      String jsonResponse = null;
+
+      try {
+        jsonResponse = Utils.asJSON(userConnections.toArray());
+      } catch (Throwable e) {
+        LOG.error("getUserConnections error", e);
+      }
+
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("<< getUserConnections");
+      }
+      return Response.status(Status.ACCEPTED).entity(jsonResponse).build();
+    } else {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("<< getUserConnections conversationState == null");
       }
       return Response.status(Status.UNAUTHORIZED).build();
     }

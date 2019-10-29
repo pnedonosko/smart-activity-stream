@@ -26,7 +26,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.persistence.PersistenceException;
 
+import org.exoplatform.commons.api.notification.service.setting.UserSettingService;
+import org.exoplatform.services.organization.search.UserSearchService;
+import org.exoplatform.services.security.IdentityRegistry;
+import org.exoplatform.social.core.identity.IdentityProvider;
+import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.manager.ActivityManager;
+import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.storage.api.IdentityStorage;
+import org.exoplatform.social.core.storage.api.RelationshipStorage;
+import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.picocontainer.Startable;
 
 import org.exoplatform.commons.api.persistence.ExoTransactional;
@@ -84,6 +96,18 @@ public class ActivityStatsService implements Startable {
   /** The activity manager. */
   protected final ActivityManager                      activityManager;
 
+  /** The identity manager. */
+  protected final IdentityManager                      identityManager;
+
+  /** The identity provider. */
+  protected final IdentityProvider                     identityProvider;
+
+  /** The space storage. */
+  protected final SpaceStorage                         spaceStorage;
+
+  /** The space storage. */
+  protected final RelationshipStorage                  relationshipStorage;
+
   /**
    * Instantiates a new smart activity service.
    *
@@ -94,10 +118,18 @@ public class ActivityStatsService implements Startable {
   public ActivityStatsService(ActivityFocusDAO focusStorage,
                               CacheService cacheService,
                               InitParams params,
-                              ActivityManager activityManager) {
+                              ActivityManager activityManager,
+                              IdentityManager identityManager,
+                              IdentityProvider identityProvider,
+                              SpaceStorage spaceStorage,
+                              RelationshipStorage relationshipStorage) {
     this.focusStorage = focusStorage;
     this.trackerCache = cacheService.getCacheInstance(TRACKER_CACHE_NAME);
     this.activityManager = activityManager;
+    this.identityManager = identityManager;
+    this.identityProvider = identityProvider;
+    this.spaceStorage = spaceStorage;
+    this.relationshipStorage = relationshipStorage;
 
     // configuration
     PropertiesParam param = params.getPropertiesParam("smartactivity-configuration");
@@ -146,6 +178,26 @@ public class ActivityStatsService implements Startable {
   public ActivityManager getActivityManager() {
 
     return this.activityManager;
+  }
+
+  public List<ActivityFocusEntity> findAllFocusOfUser(String currentUserId) {
+    List<ActivityFocusEntity> activityFocusRecords = null;
+
+    activityFocusRecords = focusStorage.findAllFocusOfUser(currentUserId, 0, "");
+
+    return activityFocusRecords;
+  }
+
+  public Identity getUserIdentity(String userId) {
+    return identityProvider.getIdentityByRemoteId(userId);
+  }
+
+  public List<Space> getUserSpaces(String userId) {
+    return spaceStorage.getMemberSpaces(userId);
+  }
+
+  public List<Identity> getUserConnections(String userId) {
+    return relationshipStorage.getConnections(getUserIdentity(userId));
   }
 
   /**

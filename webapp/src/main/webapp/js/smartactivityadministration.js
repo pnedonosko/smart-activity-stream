@@ -20,6 +20,8 @@
   var prefixUrl = pageBaseUrl(location);
 
   var streamSelected = 'All streams';
+  var substreamSelected = null;
+  var streamPointSelected = null;
 
   var streamSettingsVars = [
     'All streams',
@@ -136,7 +138,7 @@
 
     $.ajax({
       type : "POST",
-      url : prefixUrl + "/portal/rest/smartactivity/stats/activities-focuses-joined-data",
+      url : prefixUrl + "/portal/rest/smartactivity/stats/userfocus",
       data : {user : "nick"},
       success : successF,
       error : function (jqXHR, textStatus, errorThrown) {
@@ -257,6 +259,21 @@
         selectStream : function (event) {
           streamSelected = event;
           console.log("Selected stream: " + event);
+
+          deleteSubstreamSelector();
+
+          switch (event) {
+            case "All streams":
+              streamPointSelected = null;
+              break;
+            case "Space":
+              getPointsOfTheSelectedStream("userspaces");
+              break;
+            case "User":
+              getPointsOfTheSelectedStream("userconnections");
+              break;
+          }
+
         }
       }
     });
@@ -266,6 +283,78 @@
 
   console.log("smartactivityadministration.js");
 
+  function getPointsOfTheSelectedStream(path) {
+    $.ajax({
+      type : "POST",
+      url : prefixUrl + `/portal/rest/smartactivity/stats/${path}`,
+      data : {user : "nick"},
+      success : successF,
+      error : errorF,
+      contentType : "application/json"
+    });
+
+    function successF(data, textStatus, jqXHR) {
+      console.log(`ajax selected ${streamSelected} data: ` + data);
+      streamPointSelected = data;
+
+      addSubstreamSelector();
+      defineSubstreamSelector();
+    }
+
+    function errorF(jqXHR, textStatus, errorThrown) {
+      console.log("error jqXHR:  " + jqXHR);
+      console.log("error textStatus:  " + textStatus);
+      console.log("error errorThrown:  " + errorThrown);
+    }
+  }
+
+  function addSubstreamSelector() {
+    $("#stream-selector").after(`<div id="substream-selector" class="VuetifyApp">
+                <v-app id="substream-selector-app">
+                    <div>
+                        <v-select v-on:change="selectSubstream" v-model="substream" :items="substreams"></v-select>
+                    </div>
+                </v-app>
+            </div>`);
+  }
+
+  function deleteSubstreamSelector() {
+    $("#substream-selector").remove();
+  }
+
+  function defineSubstreamSelector() {
+    var substreamData = [];
+
+    switch (streamSelected) {
+      case "Space":
+        substreamSelected = "All spaces";
+
+        substreamData.push(substreamSelected);
+        for (var element in streamPointSelected) {
+          substreamData.push(streamPointSelected[element].displayName);
+        }
+        break;
+      case "User":
+
+        break;
+    }
+
+    new Vue({
+      el : '#substream-selector',
+      vuetify : new Vuetify(),
+      data : () => ({
+        substream : substreamSelected,
+        substreams : substreamData,
+      }),
+      methods : {
+        selectSubstream : function (event) {
+          streamSelected = event;
+          console.log("Selected substream: " + event);
+
+        }
+      }
+    });
+  }
 
 })(jqModule, vuetifyModule, vueModule, eXoVueI18nModule);
 
