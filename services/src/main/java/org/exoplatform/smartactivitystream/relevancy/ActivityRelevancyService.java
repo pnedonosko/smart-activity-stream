@@ -88,6 +88,8 @@ public class ActivityRelevancyService implements Startable {
 
     this.relevanceStorage = relevanceStorage;
     this.relevanceStats = relevanceStats;
+
+    //sessionProviders.getSessionProvider()
   }
 
   /**

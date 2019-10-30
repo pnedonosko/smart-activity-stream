@@ -42,6 +42,8 @@
     <type>org.exoplatform.smartactivitystream.relevancy.ActivityRelevancyService</type>
   </component>
 
+
+
   <!-- Cache configuration -->
   <external-component-plugins>
     <target-component>org.exoplatform.services.cache.CacheService</target-component>

@@ -161,6 +161,7 @@
       data() {
         return {
           expanded : [],
+          search: '',
           singleExpand : true,
           headers : [
 
@@ -261,10 +262,11 @@
           console.log("Selected stream: " + event);
 
           deleteSubstreamSelector();
+          streamPointSelected = null;
 
           switch (event) {
             case "All streams":
-              streamPointSelected = null;
+              //streamPointSelected = null;
               break;
             case "Space":
               getPointsOfTheSelectedStream("userspaces");
@@ -335,7 +337,12 @@
         }
         break;
       case "User":
+        substreamSelected = "All users";
 
+        substreamData.push(substreamSelected);
+        for (var element in streamPointSelected) {
+          substreamData.push(streamPointSelected[element].userFullName);
+        }
         break;
     }
 

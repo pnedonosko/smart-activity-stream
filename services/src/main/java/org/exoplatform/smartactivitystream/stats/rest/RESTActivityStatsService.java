@@ -15,15 +15,18 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.smartactivitystream.Utils;
 import org.exoplatform.smartactivitystream.stats.ActivityStatsService;
+import org.exoplatform.smartactivitystream.stats.rest.model.ConnectedUser;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.space.model.Space;
 
@@ -96,24 +99,25 @@ public class RESTActivityStatsService implements ResourceContainer {
 
     ActivityManager activityManager = activityStatsService.getActivityManager();
 
-    /*List<String> activityIds = new LinkedList<>();
-    activityIds.add("1");
-
-    List<ExoSocialActivity> activities = activityManager.getActivities(activityIds);*/
+    /*
+     * List<String> activityIds = new LinkedList<>(); activityIds.add("1");
+     * List<ExoSocialActivity> activities =
+     * activityManager.getActivities(activityIds);
+     */
 
     ConversationState convo = ConversationState.getCurrent();
     if (convo != null) {
       String currentUserId = convo.getIdentity().getUserId();
 
-
-      //List<ExoSocialActivity> selectedActivities = new LinkedList<>();
+      // List<ExoSocialActivity> selectedActivities = new LinkedList<>();
 
       Identity userIdentity = activityStatsService.getUserIdentity(currentUserId);
 
+      // Identity userIden = new Identity(currentUserId);
+
       RealtimeListAccess<ExoSocialActivity> usersActivities = activityManager.getActivitiesByPoster(userIdentity);
 
-
-      List<ExoSocialActivity> allUsersActivities = usersActivities.loadAsList(0, usersActivities.getSize());
+      List<ExoSocialActivity> allUsersActivities = usersActivities.loadAsList(0, usersActivities.getSize());// usersActivities.getSize()
 
       /*
        * for(ExoSocialActivity
@@ -125,7 +129,7 @@ public class RESTActivityStatsService implements ResourceContainer {
 
       try {
 
-        jsonResponse = Utils.asJSON(allUsersActivities.toArray());
+        jsonResponse = Utils.asJSON(allUsersActivities.toArray());//
 
       } catch (Throwable e) {
         LOG.error("getUserFocuses error", e);
@@ -207,8 +211,45 @@ public class RESTActivityStatsService implements ResourceContainer {
 
       String jsonResponse = null;
 
+      // List<String> answer = new LinkedList<>();
+      List<ConnectedUser> connectedUsers = new LinkedList<>();
+
+      // StringBuilder answerBuilder = new StringBuilder();
+
+      for (Identity connectionIdentity : userConnections) {
+
+        Profile connectionProfile = connectionIdentity.getProfile();
+
+        connectedUsers.add(new ConnectedUser(connectionIdentity.getRemoteId(), connectionProfile.getFullName()));
+
+        /*
+         * connectedUsers.add(new ConnectedUser(connectionIdentity.getRemoteId(),
+         * connectionProfile.getFullName()));
+         * answerBuilder.append("\nconnectionIdentity.getId()");
+         * answerBuilder.append(connectionIdentity.getId());
+         * answerBuilder.append("\nconnectionIdentity.getProviderId()");
+         * answerBuilder.append(connectionIdentity.getProviderId());
+         * answerBuilder.append("\nconnectionIdentity.getRemoteId()");
+         * answerBuilder.append(connectionIdentity.getRemoteId());
+         * answerBuilder.append("\nconnectionIdentity.getGlobalId()");
+         * answerBuilder.append(connectionIdentity.getGlobalId());
+         * answerBuilder.append("\nconnectionProfile.getId()");
+         * answerBuilder.append(connectionProfile.getId());
+         * answerBuilder.append("\nconnectionProfile.getFullName()");
+         * answerBuilder.append(connectionProfile.getFullName());
+         * answerBuilder.append("\nconnectionProfile.getUrl()");
+         * answerBuilder.append(connectionProfile.getUrl());
+         * answerBuilder.append("\nconnectionProfile.getEmail()");
+         * answerBuilder.append(connectionProfile.getEmail());
+         * answer.add(answerBuilder.toString()); answerBuilder.setLength(0);
+         */
+      }
+
+      // ListAccess<Identity> usersIdentityListAccess =
+      // activityStatsService.getUserConnectionsFromManager(currentUserId);
+
       try {
-        jsonResponse = Utils.asJSON(userConnections.toArray());
+        jsonResponse = Utils.asJSON(connectedUsers.toArray());//
       } catch (Throwable e) {
         LOG.error("getUserConnections error", e);
       }

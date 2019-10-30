@@ -24,19 +24,22 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.jcr.*;
 import javax.persistence.PersistenceException;
 
-import org.exoplatform.commons.api.notification.service.setting.UserSettingService;
-import org.exoplatform.services.organization.search.UserSearchService;
-import org.exoplatform.services.security.IdentityRegistry;
+import org.exoplatform.services.jcr.access.AccessManager;
+import org.exoplatform.services.jcr.ext.common.SessionProvider;
+import org.exoplatform.services.organization.UserProfile;
+import org.exoplatform.services.organization.UserProfileHandler;
 import org.exoplatform.social.core.identity.IdentityProvider;
-import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
+import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.manager.IdentityManagerImpl;
+import org.exoplatform.social.core.profile.ProfileLoader;
 import org.exoplatform.social.core.space.model.Space;
-import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.api.RelationshipStorage;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.picocontainer.Startable;
@@ -119,7 +122,7 @@ public class ActivityStatsService implements Startable {
                               CacheService cacheService,
                               InitParams params,
                               ActivityManager activityManager,
-                              IdentityManager identityManager,
+                              IdentityManagerImpl identityManager,
                               IdentityProvider identityProvider,
                               SpaceStorage spaceStorage,
                               RelationshipStorage relationshipStorage) {
@@ -188,8 +191,35 @@ public class ActivityStatsService implements Startable {
     return activityFocusRecords;
   }
 
+  protected IdentityManager socialIdentityManager() {
+    return (IdentityManager) ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(IdentityManager.class);
+  }
+
   public Identity getUserIdentity(String userId) {
-    return identityProvider.getIdentityByRemoteId(userId);
+    // identityProvider.getIdentityByRemoteId(userId)
+    // profileLoader.load().getIdentity();
+    // Profile userProfile = null;
+
+    /*
+     * SessionProvider sessionProvider =
+     * sessionProviderService.getSessionProvider(null); Session session =
+     * sessionProvider.getSession(repositoryService.getCurrentRepository().
+     * getConfiguration().getDefaultWorkspaceName(),
+     * repositoryService.getCurrentRepository());
+     */
+
+    // session.getU
+
+    // IdentityManager identityManagerI = socialIdentityManager();
+
+    Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId, true);
+
+    /*
+     * try { userProfile = userProfileHandler.findUserProfileByName(userId); } catch
+     * (Exception e) { e.printStackTrace(); }
+     */
+
+    return userIdentity;
   }
 
   public List<Space> getUserSpaces(String userId) {
@@ -199,6 +229,15 @@ public class ActivityStatsService implements Startable {
   public List<Identity> getUserConnections(String userId) {
     return relationshipStorage.getConnections(getUserIdentity(userId));
   }
+
+  public List<Identity> getLastIdentities(int n) {
+    return identityManager.getLastIdentities(n);
+  }
+
+  /*
+   * public ListAccess<Identity> getUserConnectionsFromManager(String userId) {
+   * return relationshipManager.getConnections(getUserIdentity(userId)); }
+   */
 
   /**
    * {@inheritDoc}
