@@ -15,7 +15,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
@@ -23,7 +22,9 @@ import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.smartactivitystream.Utils;
 import org.exoplatform.smartactivitystream.stats.ActivityStatsService;
 import org.exoplatform.smartactivitystream.stats.rest.model.ConnectedUser;
+import org.exoplatform.smartactivitystream.stats.rest.model.UserFocus;
 import org.exoplatform.social.common.RealtimeListAccess;
+import org.exoplatform.social.core.activity.model.ActivityStream;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
@@ -97,42 +98,60 @@ public class RESTActivityStatsService implements ResourceContainer {
       LOG.debug(">> getUserFocuses");
     }
 
-    ActivityManager activityManager = activityStatsService.getActivityManager();
+    LOG.info("getUserFocuses");
 
-    /*
-     * List<String> activityIds = new LinkedList<>(); activityIds.add("1");
-     * List<ExoSocialActivity> activities =
-     * activityManager.getActivities(activityIds);
-     */
+    String streamSelected = request.getParameter("streamselected");
+    String substreamSelected = request.getParameter("substreamselected");
+    LOG.info("streamSelected: " + streamSelected);
+    LOG.info("substreamSelected: " + substreamSelected);
+
+    ActivityManager activityManager = activityStatsService.getActivityManager();
 
     ConversationState convo = ConversationState.getCurrent();
     if (convo != null) {
       String currentUserId = convo.getIdentity().getUserId();
 
-      // List<ExoSocialActivity> selectedActivities = new LinkedList<>();
-
       Identity userIdentity = activityStatsService.getUserIdentity(currentUserId);
 
-      // Identity userIden = new Identity(currentUserId);
+      List<UserFocus> userFocuses = new LinkedList<>();
 
-      RealtimeListAccess<ExoSocialActivity> usersActivities = activityManager.getActivitiesByPoster(userIdentity);
+      RealtimeListAccess<ExoSocialActivity> usersActivities = null;// activityManager.getActivitiesByPoster(userIdentity);
 
-      List<ExoSocialActivity> allUsersActivities = usersActivities.loadAsList(0, usersActivities.getSize());// usersActivities.getSize()
-
-      /*
-       * for(ExoSocialActivity
-       * exoSocialActivity:usersActivities.loadAsList(0,usersActivities.getSize())){
-       * if(exoSocialActivity.getType()) selectedActivities.add(exoSocialActivity); }
-       */
+      List<ExoSocialActivity> allUserActivities = null;// usersActivities.loadAsList(0, usersActivities.getSize());
 
       String jsonResponse = null;
 
-      try {
+      if (streamSelected != null) {
 
-        jsonResponse = Utils.asJSON(allUsersActivities.toArray());//
+        switch (streamSelected) {
+        case "All streams":
+          usersActivities = activityManager.getActivitiesWithListAccess(userIdentity);
+          allUserActivities = usersActivities.loadAsList(0, usersActivities.getSize());
+          LOG.info("All streams");
+          for (ExoSocialActivity exoSocialActivity : allUserActivities) {
+            LOG.info("All streams add");
+            addActivityToUserFocuses(exoSocialActivity, userFocuses);
+          }
+          break;
+        case "Space":
+          usersActivities = activityManager.getActivitiesOfUserSpacesWithListAccess(userIdentity);
+          allUserActivities = usersActivities.loadAsList(0, usersActivities.getSize());
+          LOG.info("Space");
+          addActivitiesFromUserSpaceToUserFocuses(allUserActivities, substreamSelected, userFocuses);
+          break;
+        case "User":
+          usersActivities = activityManager.getActivitiesOfConnectionsWithListAccess(userIdentity);
+          allUserActivities = usersActivities.loadAsList(0, usersActivities.getSize());
+          LOG.info("User");
+          addActivitiesFromUserConnectionsToUserFocuses(allUserActivities, substreamSelected, userFocuses);
+          break;
+        }
 
-      } catch (Throwable e) {
-        LOG.error("getUserFocuses error", e);
+        try {
+          jsonResponse = Utils.asJSON(userFocuses.toArray());// allUserActivities
+        } catch (Throwable e) {
+          LOG.error("getUserFocuses error", e);
+        }
       }
 
       if (LOG.isDebugEnabled()) {
@@ -144,6 +163,57 @@ public class RESTActivityStatsService implements ResourceContainer {
         LOG.debug("<< getUserFocuses conversationState == null");
       }
       return Response.status(Status.UNAUTHORIZED).build();
+    }
+  }
+
+  private void addActivityToUserFocuses(ExoSocialActivity exoSocialActivity, List<UserFocus> userFocuses) {
+    userFocuses.add(new UserFocus(exoSocialActivity.getTitle(),
+                                  exoSocialActivity.getPostedTime(),
+                                  exoSocialActivity.getUpdated().getTime()));
+  }
+
+  private void addActivitiesFromUserSpaceToUserFocuses(List<ExoSocialActivity> allUserActivities,
+                                                       String substreamSelected,
+                                                       List<UserFocus> userFocuses) {
+    if (substreamSelected != null) {
+      if ("All spaces".equals(substreamSelected)) {
+        LOG.info("All spaces");
+        for (ExoSocialActivity exoSocialActivity : allUserActivities) {
+          LOG.info("All spaces add");
+          addActivityToUserFocuses(exoSocialActivity, userFocuses);
+        }
+      } else {
+        LOG.info("space " + substreamSelected);
+        for (ExoSocialActivity exoSocialActivity : allUserActivities) {
+          if (substreamSelected.equals(exoSocialActivity.getStreamOwner())) {
+            LOG.info("space add");
+            addActivityToUserFocuses(exoSocialActivity, userFocuses);
+          }
+        }
+      }
+    }
+  }
+
+  private void addActivitiesFromUserConnectionsToUserFocuses(List<ExoSocialActivity> allUserActivities,
+                                                             String substreamSelected,
+                                                             List<UserFocus> userFocuses) {
+    if (substreamSelected != null) {
+      if ("All users".equals(substreamSelected)) {
+        LOG.info("All users");
+
+        for (ExoSocialActivity exoSocialActivity : allUserActivities) {
+          LOG.info("All users add");
+          addActivityToUserFocuses(exoSocialActivity, userFocuses);
+        }
+      } else {
+        LOG.info("user " + substreamSelected);
+        for (ExoSocialActivity exoSocialActivity : allUserActivities) {
+          if (substreamSelected.equals(exoSocialActivity.getStreamOwner())) {
+            LOG.info("user add");
+            addActivityToUserFocuses(exoSocialActivity, userFocuses);
+          }
+        }
+      }
     }
   }
 
@@ -211,45 +281,17 @@ public class RESTActivityStatsService implements ResourceContainer {
 
       String jsonResponse = null;
 
-      // List<String> answer = new LinkedList<>();
       List<ConnectedUser> connectedUsers = new LinkedList<>();
-
-      // StringBuilder answerBuilder = new StringBuilder();
 
       for (Identity connectionIdentity : userConnections) {
 
         Profile connectionProfile = connectionIdentity.getProfile();
 
         connectedUsers.add(new ConnectedUser(connectionIdentity.getRemoteId(), connectionProfile.getFullName()));
-
-        /*
-         * connectedUsers.add(new ConnectedUser(connectionIdentity.getRemoteId(),
-         * connectionProfile.getFullName()));
-         * answerBuilder.append("\nconnectionIdentity.getId()");
-         * answerBuilder.append(connectionIdentity.getId());
-         * answerBuilder.append("\nconnectionIdentity.getProviderId()");
-         * answerBuilder.append(connectionIdentity.getProviderId());
-         * answerBuilder.append("\nconnectionIdentity.getRemoteId()");
-         * answerBuilder.append(connectionIdentity.getRemoteId());
-         * answerBuilder.append("\nconnectionIdentity.getGlobalId()");
-         * answerBuilder.append(connectionIdentity.getGlobalId());
-         * answerBuilder.append("\nconnectionProfile.getId()");
-         * answerBuilder.append(connectionProfile.getId());
-         * answerBuilder.append("\nconnectionProfile.getFullName()");
-         * answerBuilder.append(connectionProfile.getFullName());
-         * answerBuilder.append("\nconnectionProfile.getUrl()");
-         * answerBuilder.append(connectionProfile.getUrl());
-         * answerBuilder.append("\nconnectionProfile.getEmail()");
-         * answerBuilder.append(connectionProfile.getEmail());
-         * answer.add(answerBuilder.toString()); answerBuilder.setLength(0);
-         */
       }
 
-      // ListAccess<Identity> usersIdentityListAccess =
-      // activityStatsService.getUserConnectionsFromManager(currentUserId);
-
       try {
-        jsonResponse = Utils.asJSON(connectedUsers.toArray());//
+        jsonResponse = Utils.asJSON(connectedUsers.toArray());
       } catch (Throwable e) {
         LOG.error("getUserConnections error", e);
       }

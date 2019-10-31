@@ -47,6 +47,10 @@
       <div id="app-smartactivity-table-vue-and-vuetify">
         <v-app id="inspire-test">
 
+
+          <v-btn depressed large v-on:click="getDataForTheTable" min-width="90%">Apply</v-btn>
+
+
           <v-data-table
               :headers="headers"
               :items="tableVal"

@@ -21,7 +21,7 @@
 
   var streamSelected = 'All streams';
   var substreamSelected = null;
-  var streamPointSelected = null;
+  var streamPointSelectedData = null;
 
   var streamSettingsVars = [
     'All streams',
@@ -136,24 +136,6 @@
 
     console.log("prefixUrl: " + prefixUrl);
 
-    $.ajax({
-      type : "POST",
-      url : prefixUrl + "/portal/rest/smartactivity/stats/userfocus",
-      data : {user : "nick"},
-      success : successF,
-      error : function (jqXHR, textStatus, errorThrown) {
-        console.log("error jqXHR:  " + jqXHR);
-        console.log("error textStatus:  " + textStatus);
-        console.log("error errorThrown:  " + errorThrown);
-      },
-      contentType : "application/json"
-    });
-
-    function successF(data, textStatus, jqXHR) {
-      console.log("ajax data:  " + data);
-      console.log("textStatus:  " + textStatus);
-      console.log("jqXHR:  " + jqXHR);
-    }
 
     new Vue({
       el : '#app-smartactivity-table-vue-and-vuetify',
@@ -161,7 +143,7 @@
       data() {
         return {
           expanded : [],
-          search: '',
+          search : '',
           singleExpand : true,
           headers : [
 
@@ -199,8 +181,8 @@
             });
           }
         },
-        cleanTable : function (event) {
-
+        getDataForTheTable : function (event) {
+          getUserFocuses(streamSelected, substreamSelected);
         },
 
       }
@@ -262,11 +244,11 @@
           console.log("Selected stream: " + event);
 
           deleteSubstreamSelector();
-          streamPointSelected = null;
+          streamPointSelectedData = null;
 
           switch (event) {
             case "All streams":
-              //streamPointSelected = null;
+              substreamSelected = null;
               break;
             case "Space":
               getPointsOfTheSelectedStream("userspaces");
@@ -297,7 +279,7 @@
 
     function successF(data, textStatus, jqXHR) {
       console.log(`ajax selected ${streamSelected} data: ` + data);
-      streamPointSelected = data;
+      streamPointSelectedData = data;
 
       addSubstreamSelector();
       defineSubstreamSelector();
@@ -332,16 +314,16 @@
         substreamSelected = "All spaces";
 
         substreamData.push(substreamSelected);
-        for (var element in streamPointSelected) {
-          substreamData.push(streamPointSelected[element].displayName);
+        for (var element in streamPointSelectedData) {
+          substreamData.push(streamPointSelectedData[element].displayName);
         }
         break;
       case "User":
         substreamSelected = "All users";
 
         substreamData.push(substreamSelected);
-        for (var element in streamPointSelected) {
-          substreamData.push(streamPointSelected[element].userFullName);
+        for (var element in streamPointSelectedData) {
+          substreamData.push(streamPointSelectedData[element].userFullName);
         }
         break;
     }
@@ -355,12 +337,45 @@
       }),
       methods : {
         selectSubstream : function (event) {
-          streamSelected = event;
+          substreamSelected = event;
           console.log("Selected substream: " + event);
 
         }
       }
     });
+  }
+
+  function getUserFocuses(streamSelected, substreamSelected) {
+
+    var dataTransfer = {
+      streamselected : streamSelected,
+      substreamselected : substreamSelected
+    };
+
+    var dataTransferTransformed = $.param(dataTransfer);
+
+    $.ajax({
+      type : "POST",
+      url : prefixUrl + "/portal/rest/smartactivity/stats/userfocus",
+      data : dataTransferTransformed,
+      success : successF,
+      error : errorF,
+      contentType : "application/json"
+    });
+
+    function successF(data, textStatus, jqXHR) {
+
+      console.log("ajax data:  " + data);
+      console.log("textStatus:  " + textStatus);
+      console.log("jqXHR:  " + jqXHR);
+    }
+
+    function errorF(jqXHR, textStatus, errorThrown) {
+      console.log("error jqXHR:  " + jqXHR);
+      console.log("error textStatus:  " + textStatus);
+      console.log("error errorThrown:  " + errorThrown);
+    }
+
   }
 
 })(jqModule, vuetifyModule, vueModule, eXoVueI18nModule);
