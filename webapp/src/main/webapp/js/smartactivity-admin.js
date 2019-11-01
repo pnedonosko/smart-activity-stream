@@ -19,6 +19,11 @@
 
   var customDateFormat = "#DD#/#MM#/#YYYY# #hh#:#mm#:#ss#";
 
+  //customFormat license:
+  //*** This code is copyright 2002-2016 by Gavin Kistner, !@phrogz.net
+  //*** It is covered under the license viewable at http://phrogz.net/JS/_ReuseLicense.txt
+  //*** Reuse or modification is free provided you abide by the terms of that license.
+  //*** (Including the first two lines above in your source code satisfies the conditions.)
   Date.prototype.customFormat = function (formatString) {
     var YYYY, YY, MMMM, MMM, MM, M, DDDD, DDD, DD, D, hhhh, hhh, hh, h, mm, m, ss, s, ampm, AMPM, dMod, th;
     var dateObject = this;
