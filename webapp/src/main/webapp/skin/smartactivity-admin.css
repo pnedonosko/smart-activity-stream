@@ -22,6 +22,10 @@
     display: none;
 }
 
-#subtable-column{
+#subtable-column {
     padding: 0px;
+}
+
+#hidden-space-selector-data {
+    display: none;
 }

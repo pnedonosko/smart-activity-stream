@@ -1,7 +1,5 @@
 (function ($, vuetify, vue, eXoVueI18n) {
 
-  // ******** REST services ********
-
   var pageBaseUrl = function (theLocation) {
     if (!theLocation) {
       theLocation = window.location;
@@ -21,7 +19,7 @@
 
   var streamSelected = 'All streams';
   var substreamSelected = null;
-  var streamPointSelectedData = null;
+  var streamPointSelectedData = [];
 
   var streamSettingsVars = [
     'All streams',
@@ -43,53 +41,7 @@
   ];
 
 
-  var tableValues = [
-    {
-      activityTitle : 'My Activity 11',
-      activityCreated : 159,
-      activityUpdated : 6.0,
-      startTimeStatistics : 24,
-      stopTimeStatistics : 4.0,
-      totalFocusStatistics : 5,
-      contentFocusStatistics : 7545,
-      convoFocusStatistics : 456,
-      contentHitsStatistics : 0,
-      convoHitsStatistics : 5,
-      appHitsStatistics : 7,
-      profileHitsStatistics : 5,
-      linkHitsStatistics : 1,
-    },
-    {
-      activityTitle : 'My Activity 2',
-      activityCreated : 57,
-      activityUpdated : 5785.0,
-      startTimeStatistics : 57,
-      stopTimeStatistics : 68.0,
-      totalFocusStatistics : 79,
-      contentFocusStatistics : 4,
-      convoFocusStatistics : 7,
-      contentHitsStatistics : 0,
-      convoHitsStatistics : 786,
-      appHitsStatistics : 7,
-      profileHitsStatistics : 578,
-      linkHitsStatistics : 0,
-    },
-    {
-      activityTitle : 'My Activity 3',
-      activityCreated : 587,
-      activityUpdated : 87.0,
-      startTimeStatistics : 456,
-      stopTimeStatistics : 0.0,
-      totalFocusStatistics : 87,
-      contentFocusStatistics : 333,
-      convoFocusStatistics : 7,
-      contentHitsStatistics : 76,
-      convoHitsStatistics : 57689,
-      appHitsStatistics : 35,
-      profileHitsStatistics : 25,
-      linkHitsStatistics : 57857,
-    },
-  ];
+  var tableValues = [];
 
 
   appSmartactivityTableVueAndVuetifySubtableValues = [
@@ -131,13 +83,23 @@
     },
   ];
 
+  var mainTable;
 
   $(document).ready(function () {
 
     console.log("prefixUrl: " + prefixUrl);
 
+    defineMainTable();
 
-    new Vue({
+    defineTimeScaler();
+
+    defineStreamSelector();
+
+    console.log("smartactivity-admin.js and page ready!");
+  });
+
+  function defineMainTable() {
+    mainTable = new Vue({
       el : '#app-smartactivity-table-vue-and-vuetify',
       vuetify : new Vuetify(),
       data() {
@@ -184,11 +146,19 @@
         getDataForTheTable : function (event) {
           getUserFocuses(streamSelected, substreamSelected);
         },
+        updateTableVal : function (newData) {
+          this.tableVal.splice(0, this.tableVal.length);
+
+          for (var index in newData) {
+            this.tableVal.push(newData[index]);
+          }
+        }
 
       }
     });
+  }
 
-
+  function defineTimeScaler() {
     new Vue({
       el : '#time-scale',
       vuetify : new Vuetify(),
@@ -230,7 +200,9 @@
         }
       }
     });
+  }
 
+  function defineStreamSelector() {
     new Vue({
       el : '#stream-selector',
       vuetify : new Vuetify(),
@@ -244,52 +216,37 @@
           console.log("Selected stream: " + event);
 
           deleteSubstreamSelector();
-          streamPointSelectedData = null;
+          streamPointSelectedData.length = 0;
 
           switch (event) {
             case "All streams":
               substreamSelected = null;
               break;
             case "Space":
-              getPointsOfTheSelectedStream("userspaces");
+              substreamSelected = "All spaces";
+              getPointsOfTheSelectedStream("user-space");
               break;
             case "User":
-              getPointsOfTheSelectedStream("userconnections");
+              substreamSelected = "All users";
+              getPointsOfTheSelectedStream("user-connection");
               break;
           }
-
         }
       }
     });
+  }
 
-    console.log("smartactivityadministration.js and page ready!");
-  });
+  console.log("smartactivity-admin.js");
 
-  console.log("smartactivityadministration.js");
+  function getPointsOfTheSelectedStream(dataClass) {
+    streamPointSelectedData.length = 0;
 
-  function getPointsOfTheSelectedStream(path) {
-    $.ajax({
-      type : "POST",
-      url : prefixUrl + `/portal/rest/smartactivity/stats/${path}`,
-      data : {user : "nick"},
-      success : successF,
-      error : errorF,
-      contentType : "application/json"
+    $(`.${dataClass}`).each(function (index) {
+      streamPointSelectedData.push({dataValue : $(this).text()});
     });
 
-    function successF(data, textStatus, jqXHR) {
-      console.log(`ajax selected ${streamSelected} data: ` + data);
-      streamPointSelectedData = data;
-
-      addSubstreamSelector();
-      defineSubstreamSelector();
-    }
-
-    function errorF(jqXHR, textStatus, errorThrown) {
-      console.log("error jqXHR:  " + jqXHR);
-      console.log("error textStatus:  " + textStatus);
-      console.log("error errorThrown:  " + errorThrown);
-    }
+    addSubstreamSelector();
+    defineSubstreamSelector();
   }
 
   function addSubstreamSelector() {
@@ -309,23 +266,9 @@
   function defineSubstreamSelector() {
     var substreamData = [];
 
-    switch (streamSelected) {
-      case "Space":
-        substreamSelected = "All spaces";
-
-        substreamData.push(substreamSelected);
-        for (var element in streamPointSelectedData) {
-          substreamData.push(streamPointSelectedData[element].displayName);
-        }
-        break;
-      case "User":
-        substreamSelected = "All users";
-
-        substreamData.push(substreamSelected);
-        for (var element in streamPointSelectedData) {
-          substreamData.push(streamPointSelectedData[element].userFullName);
-        }
-        break;
+    substreamData.push(substreamSelected);
+    for (var element in streamPointSelectedData) {
+      substreamData.push(streamPointSelectedData[element].dataValue);
     }
 
     new Vue({
@@ -339,7 +282,6 @@
         selectSubstream : function (event) {
           substreamSelected = event;
           console.log("Selected substream: " + event);
-
         }
       }
     });
@@ -347,23 +289,18 @@
 
   function getUserFocuses(streamSelected, substreamSelected) {
 
-    var dataTransfer = {
-      streamselected : streamSelected,
-      substreamselected : substreamSelected
-    };
-
-    var dataTransferTransformed = $.param(dataTransfer);
-
     $.ajax({
-      type : "POST",
-      url : prefixUrl + "/portal/rest/smartactivity/stats/userfocus",
-      data : dataTransferTransformed,
+      async : true,
+      type : "GET",
+      url : prefixUrl + `/portal/rest/smartactivity/stats/userfocus/${streamSelected}/${substreamSelected}`,
+      contentType : "application/json",
+      dataType : 'json',
       success : successF,
-      error : errorF,
-      contentType : "application/json"
+      error : errorF
     });
 
     function successF(data, textStatus, jqXHR) {
+      mainTable.updateTableVal(data);
 
       console.log("ajax data:  " + data);
       console.log("textStatus:  " + textStatus);

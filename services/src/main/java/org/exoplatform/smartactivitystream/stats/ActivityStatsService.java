@@ -19,6 +19,7 @@
 package org.exoplatform.smartactivitystream.stats;
 
 import java.security.PrivilegedAction;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -31,6 +32,9 @@ import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.organization.UserProfile;
 import org.exoplatform.services.organization.UserProfileHandler;
+import org.exoplatform.smartactivitystream.stats.domain.UserFocus;
+import org.exoplatform.social.common.RealtimeListAccess;
+import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.IdentityProvider;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
@@ -179,10 +183,10 @@ public class ActivityStatsService implements Startable {
   }
 
   public ActivityManager getActivityManager() {
-
     return this.activityManager;
   }
 
+  // will change
   public List<ActivityFocusEntity> findAllFocusOfUser(String currentUserId) {
     List<ActivityFocusEntity> activityFocusRecords = null;
 
@@ -191,35 +195,8 @@ public class ActivityStatsService implements Startable {
     return activityFocusRecords;
   }
 
-  protected IdentityManager socialIdentityManager() {
-    return (IdentityManager) ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(IdentityManager.class);
-  }
-
   public Identity getUserIdentity(String userId) {
-    // identityProvider.getIdentityByRemoteId(userId)
-    // profileLoader.load().getIdentity();
-    // Profile userProfile = null;
-
-    /*
-     * SessionProvider sessionProvider =
-     * sessionProviderService.getSessionProvider(null); Session session =
-     * sessionProvider.getSession(repositoryService.getCurrentRepository().
-     * getConfiguration().getDefaultWorkspaceName(),
-     * repositoryService.getCurrentRepository());
-     */
-
-    // session.getU
-
-    // IdentityManager identityManagerI = socialIdentityManager();
-
-    Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId, true);
-
-    /*
-     * try { userProfile = userProfileHandler.findUserProfileByName(userId); } catch
-     * (Exception e) { e.printStackTrace(); }
-     */
-
-    return userIdentity;
+    return identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId, true);
   }
 
   public List<Space> getUserSpaces(String userId) {
@@ -230,14 +207,95 @@ public class ActivityStatsService implements Startable {
     return relationshipStorage.getConnections(getUserIdentity(userId));
   }
 
-  public List<Identity> getLastIdentities(int n) {
-    return identityManager.getLastIdentities(n);
+  public List<UserFocus> getUserFocuses(String streamSelected, String substreamSelected, String currentUserId) {
+    List<UserFocus> userFocuses = new LinkedList<>();
+
+    if (streamSelected != null) {
+      Identity userIdentity = getUserIdentity(currentUserId);
+
+      if (userIdentity != null) {
+        RealtimeListAccess<ExoSocialActivity> usersActivities = null;
+        List<ExoSocialActivity> allUserActivities = null;
+
+        switch (streamSelected) {
+        case "All streams":
+          usersActivities = activityManager.getActivitiesByPoster(userIdentity);
+          allUserActivities = usersActivities.loadAsList(0, usersActivities.getSize());
+          LOG.info("All streams");
+          for (ExoSocialActivity exoSocialActivity : allUserActivities) {
+            LOG.info("All streams add");
+            addActivityToUserFocuses(exoSocialActivity, userFocuses);
+          }
+          break;
+        case "Space":
+          usersActivities = activityManager.getActivitiesOfUserSpacesWithListAccess(userIdentity);
+          allUserActivities = usersActivities.loadAsList(0, usersActivities.getSize());
+          LOG.info("Space");
+          addActivitiesFromUserSpaceToUserFocuses(allUserActivities, substreamSelected, userFocuses);
+          break;
+        case "User":
+          usersActivities = activityManager.getActivitiesOfConnectionsWithListAccess(userIdentity);
+          allUserActivities = usersActivities.loadAsList(0, usersActivities.getSize());
+          LOG.info("User");
+          addActivitiesFromUserConnectionsToUserFocuses(allUserActivities, substreamSelected, userFocuses);
+          break;
+        }
+      }
+    }
+
+    return userFocuses;
   }
 
-  /*
-   * public ListAccess<Identity> getUserConnectionsFromManager(String userId) {
-   * return relationshipManager.getConnections(getUserIdentity(userId)); }
-   */
+  private void addActivityToUserFocuses(ExoSocialActivity exoSocialActivity, List<UserFocus> userFocuses) {
+    userFocuses.add(new UserFocus(exoSocialActivity.getTitle(),
+                                  exoSocialActivity.getPostedTime(),
+                                  exoSocialActivity.getUpdated().getTime()));
+  }
+
+  private void addActivitiesFromUserSpaceToUserFocuses(List<ExoSocialActivity> allUserActivities,
+                                                       String substreamSelected,
+                                                       List<UserFocus> userFocuses) {
+    if (substreamSelected != null) {
+      if ("All spaces".equals(substreamSelected)) {
+        LOG.info("All spaces");
+        for (ExoSocialActivity exoSocialActivity : allUserActivities) {
+          LOG.info("All spaces add");
+          addActivityToUserFocuses(exoSocialActivity, userFocuses);
+        }
+      } else {
+        LOG.info("space " + substreamSelected);
+        for (ExoSocialActivity exoSocialActivity : allUserActivities) {
+          if (substreamSelected.equals(exoSocialActivity.getStreamId())) {
+            LOG.info("space add");
+            addActivityToUserFocuses(exoSocialActivity, userFocuses);
+          }
+        }
+      }
+    }
+  }
+
+  private void addActivitiesFromUserConnectionsToUserFocuses(List<ExoSocialActivity> allUserActivities,
+                                                             String substreamSelected,
+                                                             List<UserFocus> userFocuses) {
+    if (substreamSelected != null) {
+      if ("All users".equals(substreamSelected)) {
+        LOG.info("All users");
+
+        for (ExoSocialActivity exoSocialActivity : allUserActivities) {
+          LOG.info("All users add");
+          addActivityToUserFocuses(exoSocialActivity, userFocuses);
+        }
+      } else {
+        LOG.info("user " + substreamSelected);
+        for (ExoSocialActivity exoSocialActivity : allUserActivities) {
+          if (substreamSelected.equals(exoSocialActivity.getUserId())) {
+            LOG.info("user add");
+            addActivityToUserFocuses(exoSocialActivity, userFocuses);
+          }
+        }
+      }
+    }
+  }
 
   /**
    * {@inheritDoc}

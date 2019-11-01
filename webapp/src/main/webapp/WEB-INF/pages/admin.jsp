@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib uri = "http://java.sun.com/jsp/jstl/core" prefix = "c" %>
 
 <%@ page import="java.util.Map" %>
 
@@ -50,7 +51,6 @@
 
           <v-btn depressed large v-on:click="getDataForTheTable" min-width="90%">Apply</v-btn>
 
-
           <v-data-table
               :headers="headers"
               :items="tableVal"
@@ -61,7 +61,7 @@
               :expanded.sync="expanded"
               class="elevation-1"
               show-expand
-              item-key="activityTitle"
+              item-key="activityCreated"
 
           >
 
@@ -108,6 +108,31 @@
       </div>
     </div>
 
+
+    <div id="hidden-space-selector-data">
+      <div id="user-spaces">
+        <ul>
+
+          <c:forEach items="${userSpaces}" var="spaceItem" varStatus="myItemStat">
+            <li class="user-space">
+                ${spaceItem.displayName}
+            </li>
+          </c:forEach>
+
+        </ul>
+      </div>
+      <div id="user-connections">
+        <ul>
+
+          <c:forEach items="${userConnections}" var="userFullNameItem" varStatus="myItemStat">
+            <li class="user-connection">
+                ${userFullNameItem}
+            </li>
+          </c:forEach>
+
+        </ul>
+      </div>
+    </div>
 
   </div>
 </div>

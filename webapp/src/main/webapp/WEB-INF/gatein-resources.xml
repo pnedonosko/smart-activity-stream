@@ -43,7 +43,7 @@
         <name>SmartActivityStreamAdminPortlet</name>
         <module>
             <script>
-                <path>/js/smartactivityadministration.js</path>
+                <path>/js/smartactivity-admin.js</path>
             </script>
             <depends>
                 <module>jquery</module>
@@ -86,7 +86,7 @@
         <application-name>smartactivity</application-name>
         <portlet-name>SmartActivityStreamAdminPortlet</portlet-name>
         <skin-name>Default</skin-name>
-        <css-path>/skin/smartactivityadministration.css</css-path>
+        <css-path>/skin/smartactivity-admin.css</css-path>
         <overwrite>true</overwrite>
     </portlet-skin>
 
@@ -94,7 +94,7 @@
         <application-name>smartactivity</application-name>
         <portlet-name>SmartActivityStreamAdminPortlet</portlet-name>
         <skin-name>Enterprise</skin-name>
-        <css-path>/skin/smartactivityadministration.css</css-path>
+        <css-path>/skin/smartactivity-admin.css</css-path>
         <overwrite>true</overwrite>
     </portlet-skin>
 

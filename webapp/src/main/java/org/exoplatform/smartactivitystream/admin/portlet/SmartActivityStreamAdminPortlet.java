@@ -19,6 +19,7 @@
 package org.exoplatform.smartactivitystream.admin.portlet;
 
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -27,9 +28,9 @@ import javax.portlet.*;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.smartactivitystream.stats.dao.ActivityFocusDAO;
-import org.exoplatform.smartactivitystream.stats.domain.ActivityFocusEntity;
-import org.exoplatform.ws.frameworks.json.impl.JsonException;
+import org.exoplatform.smartactivitystream.stats.ActivityStatsService;
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.space.model.Space;
 
 import static org.exoplatform.smartactivitystream.Utils.getResourceMessages;
 
@@ -45,7 +46,6 @@ public class SmartActivityStreamAdminPortlet extends GenericPortlet {
   /** The Constant LOG. */
   private static final Log LOG = ExoLogger.getLogger(SmartActivityStreamAdminPortlet.class);
 
-
   /**
    * Admin view.
    *
@@ -56,30 +56,26 @@ public class SmartActivityStreamAdminPortlet extends GenericPortlet {
    */
   @Override
   public void doView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
-    final String remoteUser = request.getRemoteUser();
+    final String currentUserId = request.getRemoteUser();
 
-    /*
-    // test data
-    ActivityFocusDAO activityFocusDAO = ExoContainerContext.getCurrentContainer()
-                                                           .getComponentInstanceOfType(ActivityFocusDAO.class);
-    List<ActivityFocusEntity> activityFocusRecords = null;
-    if (activityFocusDAO != null) {
-      activityFocusRecords = activityFocusDAO.findAllFocusOfUser(remoteUser,60,"All streams");
+    ActivityStatsService activityStatsService = ExoContainerContext.getCurrentContainer()
+                                                                   .getComponentInstanceOfType(ActivityStatsService.class);
+
+    List<Space> userSpaces = activityStatsService.getUserSpaces(currentUserId);
+
+    List<Identity> userConnections = activityStatsService.getUserConnections(currentUserId);
+    List<String> userConnectionsFullNames = new LinkedList<>();
+
+    for (Identity connectionIdentity : userConnections) {
+      userConnectionsFullNames.add(connectionIdentity.getProfile().getFullName());
     }
-
-    String contextJson;
-    try {
-      contextJson = ContextInfo.getCurrentContext(request.getRemoteUser()).asJSON();
-    } catch (JsonException e) {
-      LOG.error("Error converting context to JSON", e);
-      contextJson = null;
-    }*/
 
     Map<String, String> messages = getResourceMessages("locale.smartactivity.SmartActivityStreamAdmin", request.getLocale());
 
     // Markup
     request.setAttribute("messages", messages);
-    //request.setAttribute("contextJson", contextJson);
+    request.setAttribute("userSpaces", userSpaces.toArray());
+    request.setAttribute("userConnections", userConnectionsFullNames.toArray());
 
     try {
       PortletRequestDispatcher prDispatcher = getPortletContext().getRequestDispatcher("/WEB-INF/pages/admin.jsp");
@@ -87,7 +83,7 @@ public class SmartActivityStreamAdminPortlet extends GenericPortlet {
       prDispatcher.include(request, response);
 
     } catch (Exception e) {
-      LOG.error("Error processing Smart Activity Stream Admin portlet for user " + remoteUser, e);
+      LOG.error("Error processing Smart Activity Stream Admin portlet for user " + currentUserId, e);
     }
   }
 
