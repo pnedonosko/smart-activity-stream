@@ -24,6 +24,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.persistence.PersistenceException;
 
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.tika.parser.microsoft.OutlookExtractor;
 import org.exoplatform.smartactivitystream.stats.dao.ActivityStatsDAO;
 import org.exoplatform.smartactivitystream.stats.domain.ActivityStatsEntity;
 import org.exoplatform.social.common.RealtimeListAccess;
@@ -37,7 +39,11 @@ import org.exoplatform.social.core.manager.IdentityManagerImpl;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.RelationshipStorage;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
+import org.owasp.html.PolicyFactory;
+import org.owasp.html.HtmlPolicyBuilder;
 import org.picocontainer.Startable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.utils.SecurityHelper;
@@ -78,6 +84,28 @@ public class ActivityStatsService implements Startable {
 
   /** The Constant ACTIVITY_FOCUS_DEFAULT. */
   private static final long                            ACTIVITY_FOCUS_DEFAULT = 0;
+
+  /** The text policy. */
+  protected final PolicyFactory                        textPolicy             = new HtmlPolicyBuilder().toFactory();
+
+  /** The link with href not a hash in local document target. */
+  protected final Pattern                              linkNotLocal           =
+                                                                    Pattern.compile("href=['\"][^#][.\\w\\W\\S]*?['\"]",
+                                                                                    Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
+                                                                                        | Pattern.DOTALL);
+
+  /** The link with target. */
+  protected final Pattern                              linkWithTarget         =
+                                                                      Pattern.compile("<a(?=\\s).*?(target=['\"].*?['\"])[^>]*>",
+                                                                                      Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
+                                                                                          | Pattern.DOTALL);
+
+  /** The link without target. */
+  protected final Pattern                              linkWithoutTarget      =
+                                                                         Pattern.compile("<a(?=\\s)(?:(?!target=).)*?([.\\W\\w\\S\\s[^>]])*?(>)",
+                                                                                         Pattern.CASE_INSENSITIVE
+                                                                                             | Pattern.MULTILINE
+                                                                                             | Pattern.DOTALL);
 
   /** Cache of tracking activities. */
   private final ExoCache<String, ActivityFocusTracker> trackerCache;
@@ -237,19 +265,16 @@ public class ActivityStatsService implements Startable {
     return relationshipStorage.getConnections(getUserIdentity(userId));
   }
 
-  public List<ActivityStatsEntity> getActivityFocuses(String streamSelected,
-                                                      String substreamSelected,
-                                                      String currentUserId,
-                                                      Locale userLocale) {
+  public List<ActivityStatsEntity> getActivityFocuses(String stream, String substream, String currentUserId, Locale userLocale) {
     List<ActivityStatsEntity> activityStatsEntities = new LinkedList<>();
 
-    if (streamSelected != null) {
+    if (stream != null) {
       Identity userIdentity = getUserIdentity(currentUserId);
 
       if (userIdentity != null) {
         this.userLocale = userLocale;
 
-        switch (streamSelected) {
+        switch (stream) {
         case "All streams": {
           RealtimeListAccess<ExoSocialActivity> usersActivities = activityManager.getActivityFeedWithListAccess(userIdentity);
           List<ExoSocialActivity> allUserActivities = usersActivities.loadAsList(0, usersActivities.getSize());
@@ -265,7 +290,7 @@ public class ActivityStatsService implements Startable {
                                                                 activityManager.getActivitiesOfUserSpacesWithListAccess(userIdentity);
           List<ExoSocialActivity> allUserActivities = usersActivities.loadAsList(0, usersActivities.getSize());
           LOG.info("Space");
-          addActivitiesFromUserSpaceToUserFocuses(allUserActivities, substreamSelected, activityStatsEntities);
+          addActivitiesFromUserSpaceToUserFocuses(allUserActivities, substream, activityStatsEntities);
           break;
         }
         case "User": {
@@ -273,7 +298,7 @@ public class ActivityStatsService implements Startable {
                                                                 activityManager.getActivitiesOfConnectionsWithListAccess(userIdentity);
           List<ExoSocialActivity> allUserActivities = usersActivities.loadAsList(0, usersActivities.getSize());
           LOG.info("User");
-          addActivitiesFromUserConnectionsToUserFocuses(allUserActivities, substreamSelected, activityStatsEntities);
+          addActivitiesFromUserConnectionsToUserFocuses(allUserActivities, substream, activityStatsEntities);
           break;
         }
         }
@@ -286,9 +311,10 @@ public class ActivityStatsService implements Startable {
   private void addActivityToUserFocuses(ExoSocialActivity exoSocialActivity, List<ActivityStatsEntity> activityStatsEntities) {
     ActivityStatsEntity activityStatsEntity = findActivityStats(exoSocialActivity.getId());
 
-    if (activityStatsEntity != null) {
+    String safeActivityTitle = safeText(exoSocialActivity.getTitle());
 
-      activityStatsEntity.setActivityTitle(exoSocialActivity.getTitle());
+    if (activityStatsEntity != null) {
+      activityStatsEntity.setActivityTitle(safeActivityTitle);
 
       activityStatsEntity.setActivityCreatedMilliseconds(exoSocialActivity.getPostedTime());
 
@@ -297,7 +323,7 @@ public class ActivityStatsService implements Startable {
       activityStatsEntity.setUserLocale(userLocale);
 
     } else {
-      activityStatsEntity = new ActivityStatsEntity(exoSocialActivity.getTitle(),
+      activityStatsEntity = new ActivityStatsEntity(safeActivityTitle,
                                                     exoSocialActivity.getPostedTime(),
                                                     exoSocialActivity.getUpdated().getTime(),
                                                     exoSocialActivity.getId(),
@@ -350,6 +376,19 @@ public class ActivityStatsService implements Startable {
         }
       }
     }
+  }
+
+  /**
+   * Allow only plain text.
+   *
+   * @param content {@link String}
+   * @return {@link String} sanitized content (as plain text)
+   */
+  protected String safeText(String content) {
+    String safe = textPolicy.sanitize(content);
+    safe = makeLinksOpenNewWindow(safe);
+    safe = StringEscapeUtils.unescapeHtml(safe);
+    return safe;
   }
 
   /**
@@ -663,6 +702,64 @@ public class ActivityStatsService implements Startable {
       focusSaver.cancel();
       saveCacheInContainerContext(container, false);
     }
+  }
+
+  /**
+   * Make links open new window.
+   *
+   * @param text the text
+   * @return the string
+   */
+  protected String makeLinksOpenNewWindow(String text) {
+    // Make all links target a new window
+    // Replace in all links with target attribute to its _blank value
+    Matcher m = linkWithTarget.matcher(text);
+    StringBuilder sb = new StringBuilder();
+    int pos = 0;
+    while (m.find()) {
+      if (linkNotLocal.matcher(m.group()).find()) {
+        int start = m.start(1);
+        int end = m.end(1);
+        if (start >= 0 && end >= 0) {
+          sb.append(text.substring(pos, start));
+          sb.append("target=\"_blank\"");
+          pos = end;
+        } else {
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Cannot find link target group in " + m.group(1));
+          }
+        }
+      }
+    }
+    if (pos < text.length()) {
+      sb.append(text.substring(pos));
+    }
+    text = sb.toString();
+
+    // Add in all links without target attribute add it with _blank value
+    m = linkWithoutTarget.matcher(text);
+    sb = new StringBuilder();
+    pos = 0;
+    while (m.find()) {
+      if (linkNotLocal.matcher(m.group()).find()) {
+        int start = m.start(2);
+        int end = m.end(2);
+        if (start >= 0 && end >= 0) {
+          sb.append(text.substring(pos, start));
+          sb.append(" target=\"_blank\"");
+          sb.append(text.substring(start, end));
+          pos = end;
+        } else {
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Cannot find link end group in " + m.group(2));
+          }
+        }
+      }
+    }
+    if (pos < text.length()) {
+      sb.append(text.substring(pos));
+    }
+    return sb.toString();
   }
 
 }

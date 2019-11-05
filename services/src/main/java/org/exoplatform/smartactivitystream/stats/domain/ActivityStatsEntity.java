@@ -54,6 +54,18 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
 
   private transient Long        activityUpdatedMilliseconds;
 
+  /*
+   * The local start time of the user activity focus
+   */
+  @Transient
+  private String                localStartTime;
+
+  /*
+   * The local stop time of the user activity focus
+   */
+  @Transient
+  private String                localStopTime;
+
   /** The hash code. */
   private transient int         hashCode;
 
@@ -78,7 +90,7 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
     this.hashCode = 0;
   }
 
-  private void setLocaleDateToActivityData() {
+  private void setLocaleDateToData() {
 
     /*
      * Locale locale; try { locale = Util.getPortalRequestContext().getLocale(); }
@@ -96,6 +108,14 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
     if (activityUpdatedMilliseconds != null) {
       setActivityUpdated(dateFormat.format(activityUpdatedMilliseconds));
     }
+
+    if (startTime != null) {
+      setLocalStartTime(dateFormat.format(startTime));
+    }
+
+    if (stopTime != null) {
+      setLocalStopTime(dateFormat.format(stopTime));
+    }
   }
 
   @Transient
@@ -107,7 +127,7 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
     if (userLocale != null) {
       this.userLocale = userLocale;
 
-      setLocaleDateToActivityData();
+      setLocaleDateToData();
     }
     this.hashCode = 0;
   }
@@ -165,6 +185,22 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
     this.hashCode = 0;
   }
 
+  public String getLocalStartTime() {
+    return localStartTime;
+  }
+
+  public void setLocalStartTime(String localStartTime) {
+    this.localStartTime = localStartTime;
+  }
+
+  public String getLocalStopTime() {
+    return localStopTime;
+  }
+
+  public void setLocalStopTime(String localStopTime) {
+    this.localStopTime = localStopTime;
+  }
+
   /**
    * {@inheritDoc}
    */
@@ -179,6 +215,8 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
     out.writeLong(activityCreatedMilliseconds != null ? activityCreatedMilliseconds : NULL_LONG);
     out.writeUTF(activityUpdated != null ? activityUpdated : NULL_STRING);
     out.writeLong(activityUpdatedMilliseconds != null ? activityUpdatedMilliseconds : NULL_LONG);
+    out.writeUTF(localStartTime != null ? localStartTime : NULL_STRING);
+    out.writeUTF(localStopTime != null ? localStopTime : NULL_STRING);
   }
 
   /**
@@ -200,6 +238,8 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
     activityCreatedMilliseconds = (l = in.readLong()) != NULL_LONG ? l : null;
     activityUpdated = (s = in.readUTF()) != NULL_STRING ? s : null;
     activityUpdatedMilliseconds = (l = in.readLong()) != NULL_LONG ? l : null;
+    localStartTime = (s = in.readUTF()) != NULL_STRING ? s : null;
+    localStopTime = (s = in.readUTF()) != NULL_STRING ? s : null;
   }
 
   /**

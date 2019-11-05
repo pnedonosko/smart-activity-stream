@@ -1,3 +1,7 @@
+body {
+    overflow-y: scroll;
+}
+
 #stream-selector-app {
     padding: 10px;
 }
@@ -29,3 +33,5 @@
 #hidden-space-selector-data {
     display: none;
 }
+
+
