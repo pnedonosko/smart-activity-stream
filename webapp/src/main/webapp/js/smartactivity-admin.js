@@ -17,35 +17,6 @@
 
   var prefixUrl = pageBaseUrl(location);
 
-  var customDateFormat = "#DD#/#MM#/#YYYY# #hh#:#mm#:#ss#";
-
-  //customFormat license:
-  //*** This code is copyright 2002-2016 by Gavin Kistner, !@phrogz.net
-  //*** It is covered under the license viewable at http://phrogz.net/JS/_ReuseLicense.txt
-  //*** Reuse or modification is free provided you abide by the terms of that license.
-  //*** (Including the first two lines above in your source code satisfies the conditions.)
-  Date.prototype.customFormat = function (formatString) {
-    var YYYY, YY, MMMM, MMM, MM, M, DDDD, DDD, DD, D, hhhh, hhh, hh, h, mm, m, ss, s, ampm, AMPM, dMod, th;
-    var dateObject = this;
-    YY = ((YYYY = dateObject.getFullYear()) + "").slice(-2);
-    MM = (M = dateObject.getMonth() + 1) < 10 ? ('0' + M) : M;
-    MMM = (MMMM = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][M - 1]).substring(0, 3);
-    DD = (D = dateObject.getDate()) < 10 ? ('0' + D) : D;
-    DDD = (DDDD = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][dateObject.getDay()]).substring(0, 3);
-    th = (D >= 10 && D <= 20) ? 'th' : ((dMod = D % 10) == 1) ? 'st' : (dMod == 2) ? 'nd' : (dMod == 3) ? 'rd' : 'th';
-    formatString = formatString.replace("#YYYY#", YYYY).replace("#YY#", YY).replace("#MMMM#", MMMM).replace("#MMM#", MMM).replace("#MM#", MM).replace("#M#", M).replace("#DDDD#", DDDD).replace("#DDD#", DDD).replace("#DD#", DD).replace("#D#", D).replace("#th#", th);
-
-    h = (hhh = dateObject.getHours());
-    if (h == 0) h = 24;
-    if (h > 12) h -= 12;
-    hh = h < 10 ? ('0' + h) : h;
-    hhhh = hhh < 10 ? ('0' + hhh) : hhh;
-    AMPM = (ampm = hhh < 12 ? 'am' : 'pm').toUpperCase();
-    mm = (m = dateObject.getMinutes()) < 10 ? ('0' + m) : m;
-    ss = (s = dateObject.getSeconds()) < 10 ? ('0' + s) : s;
-    return formatString.replace("#hhhh#", hhhh).replace("#hhh#", hhh).replace("#hh#", hh).replace("#h#", h).replace("#mm#", mm).replace("#m#", m).replace("#ss#", ss).replace("#s#", s).replace("#ampm#", ampm).replace("#AMPM#", AMPM);
-  };
-
   var streamSelected = 'All streams';
   var substreamSelected = null;
   var streamPointSelectedData = [];
@@ -137,7 +108,6 @@
           search : '',
           singleExpand : true,
           headers : [
-
             {
               text : 'Activity Data (Title)',
               align : 'left',
@@ -146,16 +116,16 @@
             },
             {text : 'Created', value : 'activityCreated'},
             {text : 'Updated', value : 'activityUpdated'},
-            {text : 'Activity Statistics (Start Time)', value : 'startTimeStatistics'},
-            {text : 'Stop Time', value : 'stopTimeStatistics'},
-            {text : 'Total Focus', value : 'totalFocusStatistics'},
-            {text : 'Content Focus', value : 'contentFocusStatistics'},
-            {text : 'Convo Focus', value : 'convoFocusStatistics'},
-            {text : 'Content Hits', value : 'contentHitsStatistics'},
-            {text : 'Convo Hits', value : 'convoHitsStatistics'},
-            {text : 'App Hits', value : 'appHitsStatistics'},
-            {text : 'Profile Hits', value : 'profileHitsStatistics'},
-            {text : 'Link Hits', value : 'linkHitsStatistics'},
+            {text : 'Activity Statistics (Start Time)', value : 'startTime'},
+            {text : 'Stop Time', value : 'stopTime'},
+            {text : 'Total Focus', value : 'totalShown'},
+            {text : 'Content Focus', value : 'contentShown'},
+            {text : 'Convo Focus', value : 'convoShown'},
+            {text : 'Content Hits', value : 'contentHits'},
+            {text : 'Convo Hits', value : 'convoHits'},
+            {text : 'App Hits', value : 'appHits'},
+            {text : 'Profile Hits', value : 'profileHits'},
+            {text : 'Link Hits', value : 'linkHits'},
             {text : '', value : 'data-table-expand'},
           ],
           tableVal : tableValues,
@@ -179,19 +149,11 @@
           this.tableVal.splice(0, this.tableVal.length);
 
           for (var index in newData) {
-            newData[index].activityCreated = millisecondsToCustomDate(newData[index].activityCreated, customDateFormat);
-            newData[index].activityUpdated = millisecondsToCustomDate(newData[index].activityUpdated, customDateFormat);
-
             this.tableVal.push(newData[index]);
           }
         }
       }
     });
-
-    function millisecondsToCustomDate(milliseconds, customDateFormat) {
-      var customDate = new Date(milliseconds);
-      return customDate.customFormat(customDateFormat);
-    }
   }
 
   function defineTimeScaler() {
@@ -323,12 +285,12 @@
     });
   }
 
-  function getUserFocuses(streamSelected, substreamSelected) {
+  function getUserFocuses(stream, substream) {
 
     $.ajax({
       async : true,
       type : "GET",
-      url : prefixUrl + `/portal/rest/smartactivity/stats/userfocus/${streamSelected}/${substreamSelected}`,
+      url : prefixUrl + `/portal/rest/smartactivity/stats/userfocus/${stream}/${substream}`,
       contentType : "application/json",
       dataType : 'json',
       success : successF,

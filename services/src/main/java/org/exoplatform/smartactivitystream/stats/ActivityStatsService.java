@@ -19,30 +19,21 @@
 package org.exoplatform.smartactivitystream.stats;
 
 import java.security.PrivilegedAction;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.jcr.*;
 import javax.persistence.PersistenceException;
 
-import org.exoplatform.services.jcr.access.AccessManager;
-import org.exoplatform.services.jcr.ext.common.SessionProvider;
-import org.exoplatform.services.organization.UserProfile;
-import org.exoplatform.services.organization.UserProfileHandler;
-import org.exoplatform.smartactivitystream.stats.domain.UserFocus;
+import org.exoplatform.smartactivitystream.stats.dao.ActivityStatsDAO;
+import org.exoplatform.smartactivitystream.stats.domain.ActivityStatsEntity;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.IdentityProvider;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.IdentityManagerImpl;
-import org.exoplatform.social.core.profile.ProfileLoader;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.RelationshipStorage;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
@@ -66,7 +57,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.smartactivitystream.stats.dao.ActivityFocusDAO;
 import org.exoplatform.smartactivitystream.stats.domain.ActivityFocusEntity;
-import org.exoplatform.smartactivitystream.stats.domain.FocusId;
+import org.exoplatform.smartactivitystream.stats.domain.ActivityFocusId;
 
 /**
  * Created by The eXo Platform SAS.
@@ -77,13 +68,16 @@ import org.exoplatform.smartactivitystream.stats.domain.FocusId;
 public class ActivityStatsService implements Startable {
 
   /** The Constant LOG. */
-  private static final Log                             LOG                  = ExoLogger.getLogger(ActivityStatsService.class);
+  private static final Log                             LOG                    = ExoLogger.getLogger(ActivityStatsService.class);
 
   /** The Constant TRACKER_CACHE_NAME. */
-  public static final String                           TRACKER_CACHE_NAME   = "smartactivity.TrackerCache".intern();
+  public static final String                           TRACKER_CACHE_NAME     = "smartactivity.TrackerCache".intern();
 
   /** The Constant TRACKER_CACHE_PERIOD. */
-  public static final int                              TRACKER_CACHE_PERIOD = 120000;
+  public static final int                              TRACKER_CACHE_PERIOD   = 120000;
+
+  /** The Constant ACTIVITY_FOCUS_DEFAULT. */
+  private static final long                            ACTIVITY_FOCUS_DEFAULT = 0;
 
   /** Cache of tracking activities. */
   private final ExoCache<String, ActivityFocusTracker> trackerCache;
@@ -91,11 +85,14 @@ public class ActivityStatsService implements Startable {
   /** The focus storage. */
   private final ActivityFocusDAO                       focusStorage;
 
+  /** The stats storage. */
+  private final ActivityStatsDAO                       statsStorage;
+
   /** The focus saver. */
-  private final Timer                                  focusSaver           = new Timer();
+  private final Timer                                  focusSaver             = new Timer();
 
   /** The focus saver started. */
-  private final AtomicBoolean                          focusSaverStarted    = new AtomicBoolean(false);
+  private final AtomicBoolean                          focusSaverStarted      = new AtomicBoolean(false);
 
   /** The enable trackers. */
   private final boolean                                enableTrackers;
@@ -115,14 +112,19 @@ public class ActivityStatsService implements Startable {
   /** The space storage. */
   protected final RelationshipStorage                  relationshipStorage;
 
+  /** The user storage. */
+  private Locale                                       userLocale;
+
   /**
    * Instantiates a new smart activity service.
    *
    * @param focusStorage the focus storage
+   * @param statsStorage the stats storage
    * @param cacheService the cache service
    * @param params the params
    */
   public ActivityStatsService(ActivityFocusDAO focusStorage,
+                              ActivityStatsDAO statsStorage,
                               CacheService cacheService,
                               InitParams params,
                               ActivityManager activityManager,
@@ -131,6 +133,7 @@ public class ActivityStatsService implements Startable {
                               SpaceStorage spaceStorage,
                               RelationshipStorage relationshipStorage) {
     this.focusStorage = focusStorage;
+    this.statsStorage = statsStorage;
     this.trackerCache = cacheService.getCacheInstance(TRACKER_CACHE_NAME);
     this.activityManager = activityManager;
     this.identityManager = identityManager;
@@ -186,13 +189,40 @@ public class ActivityStatsService implements Startable {
     return this.activityManager;
   }
 
-  // will change
-  public List<ActivityFocusEntity> findAllFocusOfUser(String currentUserId) {
+  /*
+   * I (Nick Riabovol) will change it (I'm going to get a data for the subtable
+   * from this method)
+   */
+  public ActivityFocusEntity findActivityFocus(String activityId) {
+    ActivityFocusEntity activityFocusEntity = null;
     List<ActivityFocusEntity> activityFocusRecords = null;
 
-    activityFocusRecords = focusStorage.findAllFocusOfUser(currentUserId, 0, "");
+    LOG.info("findActivityFocus start");
+    activityFocusRecords = focusStorage.findActivityFocus(activityId);
 
-    return activityFocusRecords;
+    if (activityFocusRecords.size() > 0) {
+      LOG.info("findActivityFocus activityFocusRecords.size>0:");
+      activityFocusEntity = activityFocusRecords.get(0);
+      LOG.info("findActivityFocus finished successfully");
+    }
+
+    return activityFocusEntity;
+  }
+
+  public ActivityStatsEntity findActivityStats(String activityId) {
+    ActivityStatsEntity activityStatsEntity = null;
+
+    LOG.info("findActivityStats start");
+    List<ActivityStatsEntity> activityStatsRecords = activityStatsRecords = statsStorage.findActivityStats(activityId);
+
+    if (activityStatsRecords.size() > 0) {
+      LOG.info("findActivityStats activityFocusRecords.size>0, size:" + activityStatsRecords.size());
+      activityStatsEntity = activityStatsRecords.get(0);
+      LOG.info("activityStatsEntity:" + activityStatsEntity.toString());
+      LOG.info("findActivityStats finished successfully");
+    }
+
+    return activityStatsEntity;
   }
 
   public Identity getUserIdentity(String userId) {
@@ -207,67 +237,92 @@ public class ActivityStatsService implements Startable {
     return relationshipStorage.getConnections(getUserIdentity(userId));
   }
 
-  public List<UserFocus> getUserFocuses(String streamSelected, String substreamSelected, String currentUserId) {
-    List<UserFocus> userFocuses = new LinkedList<>();
+  public List<ActivityStatsEntity> getActivityFocuses(String streamSelected,
+                                                      String substreamSelected,
+                                                      String currentUserId,
+                                                      Locale userLocale) {
+    List<ActivityStatsEntity> activityStatsEntities = new LinkedList<>();
 
     if (streamSelected != null) {
       Identity userIdentity = getUserIdentity(currentUserId);
 
       if (userIdentity != null) {
-        RealtimeListAccess<ExoSocialActivity> usersActivities = null;
-        List<ExoSocialActivity> allUserActivities = null;
+        this.userLocale = userLocale;
 
         switch (streamSelected) {
-        case "All streams":
-          usersActivities = activityManager.getActivitiesByPoster(userIdentity);
-          allUserActivities = usersActivities.loadAsList(0, usersActivities.getSize());
+        case "All streams": {
+          RealtimeListAccess<ExoSocialActivity> usersActivities = activityManager.getActivityFeedWithListAccess(userIdentity);
+          List<ExoSocialActivity> allUserActivities = usersActivities.loadAsList(0, usersActivities.getSize());
           LOG.info("All streams");
           for (ExoSocialActivity exoSocialActivity : allUserActivities) {
             LOG.info("All streams add");
-            addActivityToUserFocuses(exoSocialActivity, userFocuses);
+            addActivityToUserFocuses(exoSocialActivity, activityStatsEntities);
           }
           break;
-        case "Space":
-          usersActivities = activityManager.getActivitiesOfUserSpacesWithListAccess(userIdentity);
-          allUserActivities = usersActivities.loadAsList(0, usersActivities.getSize());
+        }
+        case "Space": {
+          RealtimeListAccess<ExoSocialActivity> usersActivities =
+                                                                activityManager.getActivitiesOfUserSpacesWithListAccess(userIdentity);
+          List<ExoSocialActivity> allUserActivities = usersActivities.loadAsList(0, usersActivities.getSize());
           LOG.info("Space");
-          addActivitiesFromUserSpaceToUserFocuses(allUserActivities, substreamSelected, userFocuses);
-          break;
-        case "User":
-          usersActivities = activityManager.getActivitiesOfConnectionsWithListAccess(userIdentity);
-          allUserActivities = usersActivities.loadAsList(0, usersActivities.getSize());
-          LOG.info("User");
-          addActivitiesFromUserConnectionsToUserFocuses(allUserActivities, substreamSelected, userFocuses);
+          addActivitiesFromUserSpaceToUserFocuses(allUserActivities, substreamSelected, activityStatsEntities);
           break;
         }
+        case "User": {
+          RealtimeListAccess<ExoSocialActivity> usersActivities =
+                                                                activityManager.getActivitiesOfConnectionsWithListAccess(userIdentity);
+          List<ExoSocialActivity> allUserActivities = usersActivities.loadAsList(0, usersActivities.getSize());
+          LOG.info("User");
+          addActivitiesFromUserConnectionsToUserFocuses(allUserActivities, substreamSelected, activityStatsEntities);
+          break;
+        }
+        }
+
       }
     }
-
-    return userFocuses;
+    return activityStatsEntities;
   }
 
-  private void addActivityToUserFocuses(ExoSocialActivity exoSocialActivity, List<UserFocus> userFocuses) {
-    userFocuses.add(new UserFocus(exoSocialActivity.getTitle(),
-                                  exoSocialActivity.getPostedTime(),
-                                  exoSocialActivity.getUpdated().getTime()));
+  private void addActivityToUserFocuses(ExoSocialActivity exoSocialActivity, List<ActivityStatsEntity> activityStatsEntities) {
+    ActivityStatsEntity activityStatsEntity = findActivityStats(exoSocialActivity.getId());
+
+    if (activityStatsEntity != null) {
+
+      activityStatsEntity.setActivityTitle(exoSocialActivity.getTitle());
+
+      activityStatsEntity.setActivityCreatedMilliseconds(exoSocialActivity.getPostedTime());
+
+      activityStatsEntity.setActivityUpdatedMilliseconds(exoSocialActivity.getUpdated().getTime());
+
+      activityStatsEntity.setUserLocale(userLocale);
+
+    } else {
+      activityStatsEntity = new ActivityStatsEntity(exoSocialActivity.getTitle(),
+                                                    exoSocialActivity.getPostedTime(),
+                                                    exoSocialActivity.getUpdated().getTime(),
+                                                    exoSocialActivity.getId(),
+                                                    userLocale);
+    }
+
+    activityStatsEntities.add(activityStatsEntity);
   }
 
   private void addActivitiesFromUserSpaceToUserFocuses(List<ExoSocialActivity> allUserActivities,
                                                        String substreamSelected,
-                                                       List<UserFocus> userFocuses) {
+                                                       List<ActivityStatsEntity> activityStatsEntities) {
     if (substreamSelected != null) {
       if ("All spaces".equals(substreamSelected)) {
         LOG.info("All spaces");
         for (ExoSocialActivity exoSocialActivity : allUserActivities) {
           LOG.info("All spaces add");
-          addActivityToUserFocuses(exoSocialActivity, userFocuses);
+          addActivityToUserFocuses(exoSocialActivity, activityStatsEntities);
         }
       } else {
         LOG.info("space " + substreamSelected);
         for (ExoSocialActivity exoSocialActivity : allUserActivities) {
           if (substreamSelected.equals(exoSocialActivity.getStreamId())) {
             LOG.info("space add");
-            addActivityToUserFocuses(exoSocialActivity, userFocuses);
+            addActivityToUserFocuses(exoSocialActivity, activityStatsEntities);
           }
         }
       }
@@ -276,21 +331,21 @@ public class ActivityStatsService implements Startable {
 
   private void addActivitiesFromUserConnectionsToUserFocuses(List<ExoSocialActivity> allUserActivities,
                                                              String substreamSelected,
-                                                             List<UserFocus> userFocuses) {
+                                                             List<ActivityStatsEntity> activityStatsEntities) {
     if (substreamSelected != null) {
       if ("All users".equals(substreamSelected)) {
         LOG.info("All users");
 
         for (ExoSocialActivity exoSocialActivity : allUserActivities) {
           LOG.info("All users add");
-          addActivityToUserFocuses(exoSocialActivity, userFocuses);
+          addActivityToUserFocuses(exoSocialActivity, activityStatsEntities);
         }
       } else {
         LOG.info("user " + substreamSelected);
         for (ExoSocialActivity exoSocialActivity : allUserActivities) {
           if (substreamSelected.equals(exoSocialActivity.getUserId())) {
             LOG.info("user add");
-            addActivityToUserFocuses(exoSocialActivity, userFocuses);
+            addActivityToUserFocuses(exoSocialActivity, activityStatsEntities);
           }
         }
       }
@@ -472,7 +527,7 @@ public class ActivityStatsService implements Startable {
       LOG.debug(">> saveActivityFocus: " + focus);
     }
     try {
-      FocusId fid = focus.getId();
+      ActivityFocusId fid = focus.getId();
       long startTimeAfter = System.currentTimeMillis() - ActivityFocusTracker.BATCH_LIFETIME;
       if (startTimeAfter <= 0) {
         startTimeAfter = fid.getStartTime();

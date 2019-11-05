@@ -21,40 +21,32 @@ package org.exoplatform.smartactivitystream.stats.domain;
 import java.io.Serializable;
 
 /**
- * The Class FocusId.
+ * The Class ActivityFocusId.
  */
-public class FocusId implements Serializable {
+public class ActivityFocusId extends ActivityStatsId {
 
   /** The Constant serialVersionUID. */
-  private static final long serialVersionUID = -3464440639182127013L;
+  private static final long serialVersionUID = -3465780665489127013L;
 
   /** The user id. */
   protected String          userId;
 
-  /** The activity id. */
-  protected String          activityId;
-
-  /** The start time. */
-  protected long            startTime;
-
   /**
-   * Instantiates a new FocusId.
+   * Instantiates a new ActivityFocusId.
    */
-  public FocusId() {
+  public ActivityFocusId() {
   }
 
   /**
-   * Instantiates a new FocusId.
+   * Instantiates a new ActivityFocusId.
    *
    * @param userId the user id
    * @param activityId the activity id
    * @param startTime the start time
    */
-  public FocusId(String userId, String activityId, long startTime) {
-    super();
+  public ActivityFocusId(String userId, String activityId, long startTime) {
+    super(activityId,startTime);
     this.userId = userId;
-    this.activityId = activityId;
-    this.startTime = startTime;
   }
 
   /**
@@ -67,31 +59,13 @@ public class FocusId implements Serializable {
   }
 
   /**
-   * Gets the activity id.
-   *
-   * @return activity id
-   */
-  public String getActivityId() {
-    return activityId;
-  }
-
-  /**
-   * Gets the start time.
-   *
-   * @return the startTime
-   */
-  public long getStartTime() {
-    return startTime;
-  }
-
-  /**
    * {@inheritDoc}
    */
   @Override
   public int hashCode() {
     int hc = 7 + userId.hashCode();
-    hc = hc * 31 + activityId.hashCode();
-    hc = hc * 31 + (int) (startTime ^ (startTime >>> 32));
+    hc = hc * 31 + this.getActivityId().hashCode();
+    hc = hc * 31 + (int) (this.getStartTime() ^ (this.getStartTime() >>> 32));
     return hc;
   }
   
@@ -101,9 +75,9 @@ public class FocusId implements Serializable {
   @Override
   public boolean equals(Object o) {
     if (o != null) {
-      if (FocusId.class.isAssignableFrom(o.getClass())) {
-        FocusId other = FocusId.class.cast(o);
-        return userId.equals(other.getUserId()) && activityId.equals(other.getActivityId()) && startTime == other.startTime;
+      if (ActivityFocusId.class.isAssignableFrom(o.getClass())) {
+        ActivityFocusId other = ActivityFocusId.class.cast(o);
+        return userId.equals(other.getUserId()) && super.equals(o);
       }
     }
     return false;

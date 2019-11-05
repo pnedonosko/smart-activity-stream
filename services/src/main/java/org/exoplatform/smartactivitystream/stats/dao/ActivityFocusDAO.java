@@ -27,12 +27,12 @@ import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.smartactivitystream.stats.domain.ActivityFocusEntity;
-import org.exoplatform.smartactivitystream.stats.domain.FocusId;
+import org.exoplatform.smartactivitystream.stats.domain.ActivityFocusId;
 
 /**
  * The DAO layer for ActivityFocusEntity.
  */
-public class ActivityFocusDAO extends GenericDAOJPAImpl<ActivityFocusEntity, FocusId> {
+public class ActivityFocusDAO extends GenericDAOJPAImpl<ActivityFocusEntity, ActivityFocusId> {
 
   /** The Constant LOG. */
   private static final Log LOG = ExoLogger.getLogger(ActivityFocusDAO.class);
@@ -72,13 +72,15 @@ public class ActivityFocusDAO extends GenericDAOJPAImpl<ActivityFocusEntity, Foc
   }
 
   /**
-   * Find all focus records for given user and activity created after given start date. Resulting list will be sorted in
-   * descending order of start time (last record is first).
+   * Find all focus records for given user and activity created after given start
+   * date. Resulting list will be sorted in descending order of start time (last
+   * record is first).
    *
    * @param userId the user id
    * @param activityId the activity id
    * @param startTimeAfter the start time after which search records
-   * @return the list sorted by start time in descending order (last record is first)
+   * @return the list sorted by start time in descending order (last record is
+   *         first)
    */
   public List<ActivityFocusEntity> findFocusAfter(String userId, String activityId, Long startTimeAfter) {
     TypedQuery<ActivityFocusEntity> query = getEntityManager()
@@ -95,23 +97,46 @@ public class ActivityFocusDAO extends GenericDAOJPAImpl<ActivityFocusEntity, Foc
   }
 
   /**
-   * Find all focus records for given user.
    *
-   * @param userId the user id
+   * will change
+   * Find all focus records for given activity.
+   *
+   * @param activityId the activity id
    * @return the list
    */
-  public List<ActivityFocusEntity> findAllFocusOfUser(String userId, int timeScaleMinutes, String streamSelected) {
+  public List<ActivityFocusEntity> findActivityFocus(String activityId) {
 
-    TypedQuery<ActivityFocusEntity> query = getEntityManager()
-                                                              .createNamedQuery("SmartActivityFocus.findAllFocusOfUser",
-                                                                                ActivityFocusEntity.class)
-                                                              .setParameter("userId", userId);
+    String queryForActivityFocus =
+                                 "SELECT NEW org.exoplatform.smartactivitystream.stats.domain.ActivityFocusEntity(MAX(f.userId), f.activityId, MIN(f.startTime), "
+                                     + "MAX(f.stopTime), SUM(f.totalShown), SUM(f.contentShown), SUM(f.convoShown), SUM(f.contentHits), SUM(f.convoHits), "
+                                     + "SUM(f.appHits), SUM(f.profileHits), SUM(f.linkHits), MAX(f.trackerVersion))  FROM SmartActivityFocus f "
+                                     + "WHERE f.activityId = :activityId GROUP BY f.activityId";
 
+    LOG.info("findActivityFocus start");
+
+    TypedQuery<ActivityFocusEntity> query = getEntityManager().createQuery(queryForActivityFocus, ActivityFocusEntity.class)
+                                                              .setParameter("activityId", activityId);
+    ;
+
+    LOG.info("findActivityFocus start query");
     try {
-      return query.getResultList();
+
+      List<ActivityFocusEntity> activityFocusEntities = query.getResultList();
+
+      LOG.info("findActivityFocus query finished successfully: "
+          + Arrays.toString(activityFocusEntities.toArray(new ActivityFocusEntity[0])));
+
+      return activityFocusEntities;
     } catch (NoResultException e) {
+      LOG.error("findActivityFocus NoResultException", e);
+      return Collections.emptyList();
+    } catch (Exception e) {
+      LOG.error("findActivityFocus Exception", e);
       return Collections.emptyList();
     }
   }
+
+
+
 
 }

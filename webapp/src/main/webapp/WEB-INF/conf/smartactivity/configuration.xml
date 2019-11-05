@@ -27,6 +27,10 @@
   </component>
 
   <component>
+    <type>org.exoplatform.smartactivitystream.stats.dao.ActivityStatsDAO</type>
+  </component>
+
+  <component>
     <type>org.exoplatform.smartactivitystream.relevancy.dao.RelevanceDAO</type>
   </component>
 
@@ -41,7 +45,6 @@
   <component>
     <type>org.exoplatform.smartactivitystream.relevancy.ActivityRelevancyService</type>
   </component>
-
 
 
   <!-- Cache configuration -->
