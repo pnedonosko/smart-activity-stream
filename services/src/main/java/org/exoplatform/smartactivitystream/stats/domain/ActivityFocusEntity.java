@@ -136,16 +136,6 @@ public class ActivityFocusEntity extends BaseActivityFocusEntity {
   }
 
   /**
-   * Gets the id.
-   *
-   * @return the id
-   */
-  @Transient
-  public ActivityFocusId getId() {
-    return new ActivityFocusId(userId, activityId, startTime);
-  }
-
-  /**
    * {@inheritDoc}
    */
   @Override
