@@ -23,93 +23,93 @@
                   xsi:schemaLocation="http://www.gatein.org/xml/ns/gatein_resources_1_3 http://www.gatein.org/xml/ns/gatein_resources_1_3"
                   xmlns="http://www.gatein.org/xml/ns/gatein_resources_1_3">
 
-    <!-- Javascript for Smart Activity support -->
+  <!-- Javascript for Smart Activity support -->
+  <module>
+    <name>smartactivity</name>
+    <load-group>smartactivityGRP</load-group>
+    <script>
+      <path>/js/smartactivity.js</path>
+    </script>
+    <depends>
+      <module>jquery</module>
+    </depends>
+    <depends>
+      <module>commons-cometd3</module>
+    </depends>
+  </module>
+
+  <!-- Javascript for Smart Activity Administration support (Activity Statistics) -->
+  <portlet>
+    <name>SmartActivityStreamAdminPortlet</name>
     <module>
-        <name>smartactivity</name>
-        <load-group>smartactivityGRP</load-group>
-        <script>
-            <path>/js/smartactivity.js</path>
-        </script>
-        <depends>
-            <module>jquery</module>
-        </depends>
-        <depends>
-            <module>commons-cometd3</module>
-        </depends>
+      <script>
+        <path>/js/smartactivity-admin.js</path>
+      </script>
+      <depends>
+        <module>jquery</module>
+        <as>jqModule</as>
+      </depends>
+      <depends>
+        <module>vue</module>
+        <as>vueModule</as>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+        <as>vuetifyModule</as>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+        <as>eXoVueI18nModule</as>
+      </depends>
     </module>
+  </portlet>
 
-    <!-- Javascript for Smart Activity Administration support (Activity Statistics) -->
-    <portlet>
-        <name>SmartActivityStreamAdminPortlet</name>
-        <module>
-            <script>
-                <path>/js/smartactivity-admin.js</path>
-            </script>
-            <depends>
-                <module>jquery</module>
-                <as>jqModule</as>
-            </depends>
-            <depends>
-                <module>vue</module>
-                <as>vueModule</as>
-            </depends>
-            <depends>
-                <module>vuetify</module>
-                <as>vuetifyModule</as>
-            </depends>
-            <depends>
-                <module>eXoVueI18n</module>
-                <as>eXoVueI18nModule</as>
-            </depends>
-        </module>
-    </portlet>
+  <!-- CSS for Smart Activity Stream support -->
+  <portlet-skin>
+    <application-name>smartactivity</application-name>
+    <portlet-name>SmartActivityStreamPortlet</portlet-name>
+    <skin-name>Default</skin-name>
+    <css-path>/skin/smartactivity.css</css-path>
+    <overwrite>true</overwrite>
+  </portlet-skin>
 
-    <!-- CSS for Smart Activity Stream support -->
-    <portlet-skin>
-        <application-name>smartactivity</application-name>
-        <portlet-name>SmartActivityStreamPortlet</portlet-name>
-        <skin-name>Default</skin-name>
-        <css-path>/skin/smartactivity.css</css-path>
-        <overwrite>true</overwrite>
-    </portlet-skin>
+  <portlet-skin>
+    <application-name>smartactivity</application-name>
+    <portlet-name>SmartActivityStreamPortlet</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/smartactivity.css</css-path>
+    <overwrite>true</overwrite>
+  </portlet-skin>
 
-    <portlet-skin>
-        <application-name>smartactivity</application-name>
-        <portlet-name>SmartActivityStreamPortlet</portlet-name>
-        <skin-name>Enterprise</skin-name>
-        <css-path>/skin/smartactivity.css</css-path>
-        <overwrite>true</overwrite>
-    </portlet-skin>
+  <!-- CSS for Smart Activity Administration (Activity Statistics) support -->
+  <portlet-skin>
+    <application-name>smartactivity</application-name>
+    <portlet-name>SmartActivityStreamAdminPortlet</portlet-name>
+    <skin-name>Default</skin-name>
+    <css-path>/skin/smartactivity-admin.css</css-path>
+    <overwrite>true</overwrite>
+  </portlet-skin>
 
-    <!-- CSS for Smart Activity Administration (Activity Statistics) support -->
-    <portlet-skin>
-        <application-name>smartactivity</application-name>
-        <portlet-name>SmartActivityStreamAdminPortlet</portlet-name>
-        <skin-name>Default</skin-name>
-        <css-path>/skin/smartactivity-admin.css</css-path>
-        <overwrite>true</overwrite>
-    </portlet-skin>
+  <portlet-skin>
+    <application-name>smartactivity</application-name>
+    <portlet-name>SmartActivityStreamAdminPortlet</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/smartactivity-admin.css</css-path>
+    <overwrite>true</overwrite>
+  </portlet-skin>
 
-    <portlet-skin>
-        <application-name>smartactivity</application-name>
-        <portlet-name>SmartActivityStreamAdminPortlet</portlet-name>
-        <skin-name>Enterprise</skin-name>
-        <css-path>/skin/smartactivity-admin.css</css-path>
-        <overwrite>true</overwrite>
-    </portlet-skin>
+  <portal-skin>
+    <skin-name>Default</skin-name>
+    <skin-module>customModuleVuetify</skin-module>
+    <css-path>/../eXoSkin/skin/css/vuetify/vuetify-all.css</css-path>
+    <css-priority>10</css-priority>
+  </portal-skin>
 
-    <portal-skin>
-        <skin-name>Default</skin-name>
-        <skin-module>customModuleVuetify</skin-module>
-        <css-path>/../eXoSkin/skin/css/vuetify/vuetify-all.css</css-path>
-        <css-priority>10</css-priority>
-    </portal-skin>
-
-    <portal-skin>
-        <skin-name>Enterprise</skin-name>
-        <skin-module>customModuleVuetify</skin-module>
-        <css-path>/../EnterpriseSkin/skin/css/vuetify/vuetify-all.css</css-path>
-        <css-priority>10</css-priority>
-    </portal-skin>
+  <portal-skin>
+    <skin-name>Enterprise</skin-name>
+    <skin-module>customModuleVuetify</skin-module>
+    <css-path>/../EnterpriseSkin/skin/css/vuetify/vuetify-all.css</css-path>
+    <css-priority>10</css-priority>
+  </portal-skin>
 
 </gatein-resources>

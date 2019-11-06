@@ -226,11 +226,9 @@ public class ActivityStatsService implements Startable {
    */
   public List<ActivityStatsEntity> getActivityFocuses(String activityId, String timeScale, Locale userLocale) {
 
-
     LOG.info("findActivityFocus start");
 
     List<ActivityStatsEntity> activityFocuses = statsStorage.findActivityFocuses(activityId,timeScale);
-
 
     return activityFocuses;
   }

@@ -117,4 +117,48 @@ public class RESTActivityStatsService implements ResourceContainer {
       return Response.status(Status.UNAUTHORIZED).build();
     }
   }
+
+  /**
+   * Gets user focuses data (table tow).
+   *
+   * @param uriInfo the uri info
+   * @param request the request
+   * @return user focuses (rows of the parent table)
+   */
+  @GET
+  @RolesAllowed("users")
+  @Path("/activityfocuses/{activityId}/{timeScale}")
+  public Response getActivityFocuses(@Context UriInfo uriInfo,
+                                     @Context HttpServletRequest request,
+                                     @PathParam("activityId") String activityId,
+                                     @PathParam("timeScale") String timeScale) {
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(">> getActivityFocuses");
+    }
+
+    LOG.info("getActivityFocuses");
+    LOG.info("activity: " + activityId);
+    LOG.info("timeScale: " + timeScale);
+
+    ConversationState convo = ConversationState.getCurrent();
+    if (convo != null) {
+      Locale userLocale = request.getLocale();
+
+      List<ActivityStatsEntity> activityFocusEntities =
+                                                      activityStatsService.getActivityFocuses(activityId, timeScale, userLocale);
+
+      LOG.info("RESTActivityStatsService activityStatsEntities: "
+          + Arrays.toString(activityFocusEntities.toArray(new ActivityStatsEntity[0])));
+
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("<< getActivityFocuses");
+      }
+      return Response.status(Status.ACCEPTED).entity(activityFocusEntities.toArray()).build();
+    } else {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("<< getActivityFocuses conversationState == null");
+      }
+      return Response.status(Status.UNAUTHORIZED).build();
+    }
+  }
 }
