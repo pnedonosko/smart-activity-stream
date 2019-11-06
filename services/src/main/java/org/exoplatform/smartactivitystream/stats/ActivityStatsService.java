@@ -217,24 +217,22 @@ public class ActivityStatsService implements Startable {
     return this.activityManager;
   }
 
-  /*
-   * I (Nick Riabovol) will change it (I'm going to get a data for the subtable
-   * from this method)
+  /**
+   * Gets the data for the subtable
+   * @param activityId the selected activity of the table
+   * @param timeScale the time scaling
+   * @param userLocale the user locale
+   * @return list of the activity subtable (user focuses on selected activity)
    */
-  public ActivityFocusEntity findActivityFocus(String activityId) {
-    ActivityFocusEntity activityFocusEntity = null;
-    List<ActivityFocusEntity> activityFocusRecords = null;
+  public List<ActivityStatsEntity> getActivityFocuses(String activityId, String timeScale, Locale userLocale) {
+
 
     LOG.info("findActivityFocus start");
-    activityFocusRecords = focusStorage.findActivityFocus(activityId);
 
-    if (activityFocusRecords.size() > 0) {
-      LOG.info("findActivityFocus activityFocusRecords.size>0:");
-      activityFocusEntity = activityFocusRecords.get(0);
-      LOG.info("findActivityFocus finished successfully");
-    }
+    List<ActivityStatsEntity> activityFocuses = statsStorage.findActivityFocuses(activityId,timeScale);
 
-    return activityFocusEntity;
+
+    return activityFocuses;
   }
 
   public ActivityStatsEntity findActivityStats(String activityId) {
