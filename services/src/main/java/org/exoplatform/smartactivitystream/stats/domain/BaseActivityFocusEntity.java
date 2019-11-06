@@ -2,6 +2,7 @@ package org.exoplatform.smartactivitystream.stats.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.MappedSuperclass;
 import java.io.Externalizable;
 import java.io.IOException;
@@ -15,16 +16,6 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
 
   /** The Constant TRACKER_VERSION. */
   public static final String TRACKER_VERSION = "1.0";
-
-  /** The activity id. */
-  @Id
-  @Column(name = "ACTIVITY_ID", nullable = false)
-  protected String           activityId;
-
-  /** The start time. */
-  @Id
-  @Column(name = "START_TIME", nullable = false)
-  protected Long             startTime;
 
   /** The stop time. */
   @Column(name = "STOP_TIME", nullable = false)
@@ -71,9 +62,7 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
   public BaseActivityFocusEntity() {
   }
 
-  public BaseActivityFocusEntity(String activityId,
-                                 Long startTime,
-                                 Long stopTime,
+  public BaseActivityFocusEntity(Long stopTime,
                                  Long totalShown,
                                  Long contentShown,
                                  Long convoShown,
@@ -82,8 +71,6 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
                                  Long appHits,
                                  Long profileHits,
                                  Long linkHits) {
-    this.activityId = activityId;
-    this.startTime = startTime;
     this.stopTime = stopTime;
     this.totalShown = totalShown;
     this.contentShown = contentShown;
@@ -93,44 +80,6 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
     this.appHits = appHits;
     this.profileHits = profileHits;
     this.linkHits = linkHits;
-    this.hashCode = 0;
-  }
-
-  /**
-   * Gets the activity id.
-   *
-   * @return the activityId
-   */
-  public String getActivityId() {
-    return activityId;
-  }
-
-  /**
-   * Sets the activity id.
-   *
-   * @param activityId the activityId to set
-   */
-  public void setActivityId(String activityId) {
-    this.activityId = activityId;
-    this.hashCode = 0;
-  }
-
-  /**
-   * Gets the start time.
-   *
-   * @return the startTime
-   */
-  public Long getStartTime() {
-    return startTime;
-  }
-
-  /**
-   * Sets the start time.
-   *
-   * @param startTime the startTime to set
-   */
-  public void setStartTime(Long startTime) {
-    this.startTime = startTime;
     this.hashCode = 0;
   }
 
@@ -311,8 +260,6 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
   @Override
   public void writeExternal(ObjectOutput out) throws IOException {
     // Always have value
-    out.writeUTF(activityId);
-    out.writeLong(startTime);
     out.writeLong(stopTime);
     out.writeLong(totalShown);
     // Nullable
@@ -332,8 +279,6 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
     hashCode = 0;
     // Always have value
-    activityId = in.readUTF();
-    startTime = in.readLong();
     stopTime = in.readLong();
     totalShown = in.readLong();
     // Nullable
@@ -355,7 +300,7 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
     if (hashCode == 0) {
       final int prime = 31;
       int result = 1;
-      result = prime * result + ((activityId == null) ? 0 : activityId.hashCode());
+
       result = prime * result + ((appHits == null) ? 0 : appHits.hashCode());
       result = prime * result + ((contentHits == null) ? 0 : contentHits.hashCode());
       result = prime * result + ((contentShown == null) ? 0 : contentShown.hashCode());
@@ -363,7 +308,6 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
       result = prime * result + ((convoShown == null) ? 0 : convoShown.hashCode());
       result = prime * result + ((linkHits == null) ? 0 : linkHits.hashCode());
       result = prime * result + ((profileHits == null) ? 0 : profileHits.hashCode());
-      result = prime * result + ((startTime == null) ? 0 : startTime.hashCode());
       result = prime * result + ((stopTime == null) ? 0 : stopTime.hashCode());
       result = prime * result + ((totalShown == null) ? 0 : totalShown.hashCode());
       hashCode = result;
@@ -381,11 +325,6 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
     }
     if (obj != null && ActivityFocusEntity.class.isAssignableFrom(obj.getClass())) {
       ActivityFocusEntity other = ActivityFocusEntity.class.cast(obj);
-      if (activityId == null) {
-        if (other.activityId != null)
-          return false;
-      } else if (!activityId.equals(other.activityId))
-        return false;
       if (appHits == null) {
         if (other.appHits != null)
           return false;
@@ -421,11 +360,6 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
           return false;
       } else if (!profileHits.equals(other.profileHits))
         return false;
-      if (startTime == null) {
-        if (other.startTime != null)
-          return false;
-      } else if (!startTime.equals(other.startTime))
-        return false;
       if (stopTime == null) {
         if (other.stopTime != null)
           return false;
@@ -447,12 +381,7 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
   @Override
   public String toString() {
     StringBuilder s = new StringBuilder();
-    s.append(this.getClass().getSimpleName());
-    s.append('@');
-    s.append(activityId);
-    s.append('-');
-    s.append(startTime);
-    s.append('-');
+    s.append(" stopTime:");
     s.append(stopTime);
     s.append(";totalShown:");
     s.append(totalShown);

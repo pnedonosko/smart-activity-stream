@@ -20,6 +20,7 @@ import java.util.Locale;
  */
 @Entity(name = "SmartActivityStats")
 @ExoEntity
+@IdClass(ActivityStatsId.class)
 @NamedNativeQueries({ @NamedNativeQuery(name = "SmartActivityStats.findActivityStats", query = "SELECT f.ACTIVITY_ID, "
     + "MIN(f.START_TIME) AS START_TIME, MAX(f.STOP_TIME) AS STOP_TIME, SUM(f.TOTAL_SHOWN) AS TOTAL_SHOWN, "
     + "SUM(f.CONTENT_SHOWN) AS CONTENT_SHOWN, SUM(f.CONVO_SHOWN) AS CONVO_SHOWN, SUM(f.CONTENT_HITS) AS CONTENT_HITS, "
@@ -38,6 +39,16 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
   protected static final Long   NULL_LONG   = new Long(-1);
 
   protected static final String NULL_STRING = new String("-1");
+
+  /** The activity id. */
+  @Id
+  @Column(name = "ACTIVITY_ID", nullable = false)
+  protected String              activityId;
+
+  /** The start time. */
+  @Id
+  @Column(name = "START_TIME", nullable = false)
+  protected Long                startTime;
 
   private transient Locale      userLocale;
 
@@ -116,6 +127,44 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
     if (stopTime != null) {
       setLocalStopTime(dateFormat.format(stopTime));
     }
+  }
+
+  /**
+   * Gets the activity id.
+   *
+   * @return the activityId
+   */
+  public String getActivityId() {
+    return activityId;
+  }
+
+  /**
+   * Sets the activity id.
+   *
+   * @param activityId the activityId to set
+   */
+  public void setActivityId(String activityId) {
+    this.activityId = activityId;
+    this.hashCode = 0;
+  }
+
+  /**
+   * Gets the start time.
+   *
+   * @return the startTime
+   */
+  public Long getStartTime() {
+    return startTime;
+  }
+
+  /**
+   * Sets the start time.
+   *
+   * @param startTime the startTime to set
+   */
+  public void setStartTime(Long startTime) {
+    this.startTime = startTime;
+    this.hashCode = 0;
   }
 
   @Transient
@@ -208,6 +257,10 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
   public void writeExternal(ObjectOutput out) throws IOException {
     super.writeExternal(out);
 
+    // Always have value
+    out.writeUTF(activityId);
+    out.writeLong(startTime);
+
     // Nullable
     out.writeObject(userLocale);
     out.writeUTF(activityTitle != null ? activityTitle : NULL_STRING);
@@ -227,6 +280,10 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
     this.hashCode = 0;
 
     super.readExternal(in);
+
+    // Always have value
+    activityId = in.readUTF();
+    startTime = in.readLong();
 
     // Nullable
     Long l;
@@ -253,6 +310,8 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
       int result = 1;
 
       result = prime * result + super.hashCode();
+      result = prime * result + ((activityId == null) ? 0 : activityId.hashCode());
+      result = prime * result + ((startTime == null) ? 0 : startTime.hashCode());
       result = prime * result + ((userLocale == null) ? 0 : userLocale.hashCode());
       result = prime * result + ((activityTitle == null) ? 0 : activityTitle.hashCode());
       result = prime * result + ((activityCreatedMilliseconds == null) ? 0 : activityCreatedMilliseconds.hashCode());
@@ -275,6 +334,16 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
       if (!super.equals(obj)) {
         return false;
       }
+      if (activityId == null) {
+        if (other.activityId != null)
+          return false;
+      } else if (!activityId.equals(other.activityId))
+        return false;
+      if (startTime == null) {
+        if (other.startTime != null)
+          return false;
+      } else if (!startTime.equals(other.startTime))
+        return false;
       if (userLocale == null) {
         if (other.userLocale != null)
           return false;
@@ -299,5 +368,21 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
       return true;
     }
     return false;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString() {
+    StringBuilder s = new StringBuilder();
+    s.append(this.getClass().getSimpleName());
+    s.append('@');
+    s.append(activityId);
+    s.append('-');
+    s.append(startTime);
+    s.append('-');
+    s.append(super.toString());
+    return s.toString();
   }
 }

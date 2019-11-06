@@ -18,11 +18,14 @@
  */
 package org.exoplatform.smartactivitystream.stats.domain;
 
+import javax.persistence.IdClass;
 import java.io.Serializable;
 
 /**
  * The Class ActivityFocusId.
  */
+
+@IdClass(ActivityFocusId.class)
 public class ActivityFocusId extends ActivityStatsId {
 
   /** The Constant serialVersionUID. */
@@ -45,7 +48,7 @@ public class ActivityFocusId extends ActivityStatsId {
    * @param startTime the start time
    */
   public ActivityFocusId(String userId, String activityId, long startTime) {
-    super(activityId,startTime);
+    super(activityId, startTime);
     this.userId = userId;
   }
 
@@ -68,7 +71,7 @@ public class ActivityFocusId extends ActivityStatsId {
     hc = hc * 31 + (int) (this.getStartTime() ^ (this.getStartTime() >>> 32));
     return hc;
   }
-  
+
   /**
    * {@inheritDoc}
    */
