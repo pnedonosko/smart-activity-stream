@@ -566,12 +566,11 @@ public class ActivityStatsService implements Startable {
       LOG.debug(">> saveActivityFocus: " + focus);
     }
     try {
-      ActivityFocusId fid = focus.getId();
       long startTimeAfter = System.currentTimeMillis() - ActivityFocusTracker.BATCH_LIFETIME;
       if (startTimeAfter <= 0) {
-        startTimeAfter = fid.getStartTime();
+        startTimeAfter = focus.getStartTime();
       }
-      List<ActivityFocusEntity> trackedAfter = focusStorage.findFocusAfter(fid.getUserId(), fid.getActivityId(), startTimeAfter);
+      List<ActivityFocusEntity> trackedAfter = focusStorage.findFocusAfter(focus.getUserId(), focus.getActivityId(), startTimeAfter);
       ActivityFocusEntity tracked;
       if (trackedAfter.size() > 0) {
         tracked = trackedAfter.get(0);
