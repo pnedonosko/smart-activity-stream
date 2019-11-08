@@ -18,21 +18,22 @@
  */
 package org.exoplatform.smartactivitystream.stats.domain;
 
-import javax.persistence.IdClass;
 import java.io.Serializable;
 
 /**
  * The Class ActivityFocusId.
  */
 
-@IdClass(ActivityFocusId.class)
-public class ActivityFocusId extends ActivityStatsId {
-
-  /** The Constant serialVersionUID. */
-  private static final long serialVersionUID = -3465780665489127013L;
+public class ActivityFocusId implements Serializable {
 
   /** The user id. */
-  protected String          userId;
+  private String userId;
+
+  /** The activity id. */
+  private String activityId;
+
+  /** The start time. */
+  private Long   startTime;
 
   /**
    * Instantiates a new ActivityFocusId.
@@ -48,8 +49,9 @@ public class ActivityFocusId extends ActivityStatsId {
    * @param startTime the start time
    */
   public ActivityFocusId(String userId, String activityId, long startTime) {
-    super(activityId, startTime);
-    this.userId = userId;
+    setUserId(userId);
+    setActivityId(activityId);
+    setStartTime(startTime);
   }
 
   /**
@@ -62,13 +64,58 @@ public class ActivityFocusId extends ActivityStatsId {
   }
 
   /**
+   * Sets the user id.
+   *
+   * @param userId the user id
+   */
+  public void setUserId(String userId) {
+    this.userId = userId;
+  }
+
+  /**
+   * Gets the activity id.
+   *
+   * @return user id
+   */
+  public String getActivityId() {
+    return activityId;
+  }
+
+  /**
+   * Sets the activity id.
+   *
+   * @param activityId the activity id
+   */
+  public void setActivityId(String activityId) {
+    this.activityId = activityId;
+  }
+
+  /**
+   * Gets the start time.
+   *
+   * @return user id
+   */
+  public Long getStartTime() {
+    return startTime;
+  }
+
+  /**
+   * Sets the start time.
+   *
+   * @param startTime the start time
+   */
+  public void setStartTime(Long startTime) {
+    this.startTime = startTime;
+  }
+
+  /**
    * {@inheritDoc}
    */
   @Override
   public int hashCode() {
-    int hc = 7 + userId.hashCode();
-    hc = hc * 31 + this.getActivityId().hashCode();
-    hc = hc * 31 + (int) (this.getStartTime() ^ (this.getStartTime() >>> 32));
+    int hc = 7 + getUserId().hashCode();
+    hc = hc * 31 + getActivityId().hashCode();
+    hc = hc * 31 + (int) (getStartTime() ^ (getStartTime() >>> 32));
     return hc;
   }
 
@@ -80,7 +127,8 @@ public class ActivityFocusId extends ActivityStatsId {
     if (o != null) {
       if (ActivityFocusId.class.isAssignableFrom(o.getClass())) {
         ActivityFocusId other = ActivityFocusId.class.cast(o);
-        return userId.equals(other.getUserId()) && super.equals(o);
+        return getUserId().equals(other.getUserId()) && getActivityId().equals(other.getActivityId())
+            && getStartTime() == other.getStartTime();
       }
     }
     return false;

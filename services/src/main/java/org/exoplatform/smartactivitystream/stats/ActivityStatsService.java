@@ -23,12 +23,14 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.persistence.PersistenceException;
+import javax.persistence.Tuple;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.tika.parser.microsoft.OutlookExtractor;
 import org.exoplatform.smartactivitystream.stats.dao.ActivityStatsDAO;
 import org.exoplatform.smartactivitystream.stats.domain.ActivityStatsEntity;
 import org.exoplatform.social.common.RealtimeListAccess;
+import org.exoplatform.social.core.activity.model.ActivityStream;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.IdentityProvider;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -219,6 +221,7 @@ public class ActivityStatsService implements Startable {
 
   /**
    * Gets the data for the subtable
+   * 
    * @param activityId the selected activity of the table
    * @param timeScale the time scaling
    * @param userLocale the user locale
@@ -228,7 +231,7 @@ public class ActivityStatsService implements Startable {
 
     LOG.info("findActivityFocus start");
 
-    List<ActivityStatsEntity> activityFocuses = statsStorage.findActivityFocuses(activityId,timeScale);
+    List<ActivityStatsEntity> activityFocuses = statsStorage.findActivityFocuses(activityId, timeScale);
 
     return activityFocuses;
   }
@@ -305,28 +308,30 @@ public class ActivityStatsService implements Startable {
   }
 
   private void addActivityToUserFocuses(ExoSocialActivity exoSocialActivity, List<ActivityStatsEntity> activityStatsEntities) {
-    ActivityStatsEntity activityStatsEntity = findActivityStats(exoSocialActivity.getId());
-
-    String safeActivityTitle = safeText(exoSocialActivity.getTitle());
+    String exoSocialActivityId = exoSocialActivity.getId();
+    ActivityStatsEntity activityStatsEntity = findActivityStats(exoSocialActivityId);
 
     if (activityStatsEntity != null) {
+      String safeActivityTitle = safeText(exoSocialActivity.getTitle());
+
+      ActivityStream activityStream = exoSocialActivity.getActivityStream();
+
+
       activityStatsEntity.setActivityTitle(safeActivityTitle);
 
       activityStatsEntity.setActivityCreatedMilliseconds(exoSocialActivity.getPostedTime());
 
       activityStatsEntity.setActivityUpdatedMilliseconds(exoSocialActivity.getUpdated().getTime());
 
+      activityStatsEntity.setActivityStreamPrettyId(activityStream.getPrettyId());
+
+      activityStatsEntity.setFocusChartData(statsStorage.findActivityFocusChartData(exoSocialActivityId)
+              .toArray(new String[0][]));
+
       activityStatsEntity.setUserLocale(userLocale);
 
-    } else {
-      activityStatsEntity = new ActivityStatsEntity(safeActivityTitle,
-                                                    exoSocialActivity.getPostedTime(),
-                                                    exoSocialActivity.getUpdated().getTime(),
-                                                    exoSocialActivity.getId(),
-                                                    userLocale);
+      activityStatsEntities.add(activityStatsEntity);
     }
-
-    activityStatsEntities.add(activityStatsEntity);
   }
 
   private void addActivitiesFromUserSpaceToUserFocuses(List<ExoSocialActivity> allUserActivities,
@@ -566,7 +571,9 @@ public class ActivityStatsService implements Startable {
       if (startTimeAfter <= 0) {
         startTimeAfter = focus.getStartTime();
       }
-      List<ActivityFocusEntity> trackedAfter = focusStorage.findFocusAfter(focus.getUserId(), focus.getActivityId(), startTimeAfter);
+      List<ActivityFocusEntity> trackedAfter = focusStorage.findFocusAfter(focus.getUserId(),
+                                                                           focus.getActivityId(),
+                                                                           startTimeAfter);
       ActivityFocusEntity tracked;
       if (trackedAfter.size() > 0) {
         tracked = trackedAfter.get(0);

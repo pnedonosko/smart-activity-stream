@@ -19,39 +19,39 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
 
   /** The stop time. */
   @Column(name = "STOP_TIME", nullable = false)
-  protected Long             stopTime;
+  private Long               stopTime;
 
   /** The total show time. */
   @Column(name = "TOTAL_SHOWN", nullable = false)
-  protected Long             totalShown;
+  private Long               totalShown;
 
   /** The content show time. */
   @Column(name = "CONTENT_SHOWN")
-  protected Long             contentShown;
+  private Long               contentShown;
 
   /** The conversation show time. */
   @Column(name = "CONVO_SHOWN")
-  protected Long             convoShown;
+  private Long               convoShown;
 
   /** The content hits. */
   @Column(name = "CONTENT_HITS")
-  protected Long             contentHits;
+  private Long               contentHits;
 
   /** The convo hits. */
   @Column(name = "CONVO_HITS")
-  protected Long             convoHits;
+  private Long               convoHits;
 
   /** The app hits. */
   @Column(name = "APP_HITS")
-  protected Long             appHits;
+  private Long               appHits;
 
   /** The profile hits. */
   @Column(name = "PROFILE_HITS")
-  protected Long             profileHits;
+  private Long               profileHits;
 
   /** The link hits. */
   @Column(name = "LINK_HITS")
-  protected Long             linkHits;
+  private Long               linkHits;
 
   /** The hash code. */
   private transient int      hashCode;
@@ -71,17 +71,30 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
                                  Long appHits,
                                  Long profileHits,
                                  Long linkHits) {
-    this.stopTime = stopTime;
-    this.totalShown = totalShown;
-    this.contentShown = contentShown;
-    this.convoShown = convoShown;
-    this.contentHits = contentHits;
-    this.convoHits = convoHits;
-    this.appHits = appHits;
-    this.profileHits = profileHits;
-    this.linkHits = linkHits;
-    this.hashCode = 0;
+    setStopTime(stopTime);
+    setTotalShown(totalShown);
+    setContentShown(contentShown);
+    setConvoShown(convoShown);
+    setContentHits(contentHits);
+    setConvoHits(convoHits);
+    setAppHits(appHits);
+    setProfileHits(profileHits);
+    setLinkHits(linkHits);
   }
+
+  /**
+   * Gets the activity id.
+   *
+   * @return the activityId
+   */
+  public abstract String getActivityId();
+
+  /**
+   * Gets the start time.
+   *
+   * @return the startTime
+   */
+  public abstract Long getStartTime();
 
   /**
    * Gets the stop time.
@@ -99,7 +112,7 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
    */
   public void setStopTime(Long stopTime) {
     this.stopTime = stopTime;
-    this.hashCode = 0;
+    setHashCode(0);
   }
 
   /**
@@ -118,7 +131,7 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
    */
   public void setTotalShown(Long totalShow) {
     this.totalShown = totalShow;
-    this.hashCode = 0;
+    setHashCode(0);
   }
 
   /**
@@ -137,7 +150,7 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
    */
   public void setContentShown(Long contentShow) {
     this.contentShown = contentShow;
-    this.hashCode = 0;
+    setHashCode(0);
   }
 
   /**
@@ -156,7 +169,7 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
    */
   public void setConvoShown(Long convoShow) {
     this.convoShown = convoShow;
-    this.hashCode = 0;
+    setHashCode(0);
   }
 
   /**
@@ -175,7 +188,7 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
    */
   public void setContentHits(Long contentHits) {
     this.contentHits = contentHits;
-    this.hashCode = 0;
+    setHashCode(0);
   }
 
   /**
@@ -194,7 +207,7 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
    */
   public void setConvoHits(Long convoHits) {
     this.convoHits = convoHits;
-    this.hashCode = 0;
+    setHashCode(0);
   }
 
   /**
@@ -213,7 +226,7 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
    */
   public void setAppHits(Long appHits) {
     this.appHits = appHits;
-    this.hashCode = 0;
+    setHashCode(0);
   }
 
   /**
@@ -232,7 +245,7 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
    */
   public void setProfileHits(Long profileHits) {
     this.profileHits = profileHits;
-    this.hashCode = 0;
+    setHashCode(0);
   }
 
   /**
@@ -251,7 +264,15 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
    */
   public void setLinkHits(Long linkHits) {
     this.linkHits = linkHits;
-    this.hashCode = 0;
+    setHashCode(0);
+  }
+
+  public int getHashCode() {
+    return hashCode;
+  }
+
+  private void setHashCode(int hashCode) {
+    this.hashCode = hashCode;
   }
 
   /**
@@ -260,16 +281,16 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
   @Override
   public void writeExternal(ObjectOutput out) throws IOException {
     // Always have value
-    out.writeLong(stopTime);
-    out.writeLong(totalShown);
+    out.writeLong(getStopTime());
+    out.writeLong(getTotalShown());
     // Nullable
-    out.writeLong(contentShown != null ? contentShown : NULL_LONG);
-    out.writeLong(convoShown != null ? convoShown : NULL_LONG);
-    out.writeLong(contentHits != null ? contentHits : NULL_LONG);
-    out.writeLong(convoHits != null ? convoHits : NULL_LONG);
-    out.writeLong(appHits != null ? appHits : NULL_LONG);
-    out.writeLong(profileHits != null ? profileHits : NULL_LONG);
-    out.writeLong(linkHits != null ? linkHits : NULL_LONG);
+    out.writeLong(getContentShown() != null ? getContentShown() : NULL_LONG);
+    out.writeLong(getConvoShown() != null ? getConvoShown() : NULL_LONG);
+    out.writeLong(getContentHits() != null ? getContentHits() : NULL_LONG);
+    out.writeLong(getConvoHits() != null ? getConvoHits() : NULL_LONG);
+    out.writeLong(getAppHits() != null ? getAppHits() : NULL_LONG);
+    out.writeLong(getProfileHits() != null ? getProfileHits() : NULL_LONG);
+    out.writeLong(getLinkHits() != null ? getLinkHits() : NULL_LONG);
   }
 
   /**
@@ -277,19 +298,19 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
    */
   @Override
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-    hashCode = 0;
+    setHashCode(0);
     // Always have value
-    stopTime = in.readLong();
-    totalShown = in.readLong();
+    setStopTime(in.readLong());
+    setTotalShown(in.readLong());
     // Nullable
     Long l;
-    contentShown = (l = in.readLong()) != NULL_LONG ? l : null;
-    convoShown = (l = in.readLong()) != NULL_LONG ? l : null;
-    contentHits = (l = in.readLong()) != NULL_LONG ? l : null;
-    convoHits = (l = in.readLong()) != NULL_LONG ? l : null;
-    appHits = (l = in.readLong()) != NULL_LONG ? l : null;
-    profileHits = (l = in.readLong()) != NULL_LONG ? l : null;
-    linkHits = (l = in.readLong()) != NULL_LONG ? l : null;
+    setContentShown((l = in.readLong()) != NULL_LONG ? l : null);
+    setConvoShown((l = in.readLong()) != NULL_LONG ? l : null);
+    setContentHits((l = in.readLong()) != NULL_LONG ? l : null);
+    setConvoHits((l = in.readLong()) != NULL_LONG ? l : null);
+    setAppHits((l = in.readLong()) != NULL_LONG ? l : null);
+    setProfileHits((l = in.readLong()) != NULL_LONG ? l : null);
+    setLinkHits((l = in.readLong()) != NULL_LONG ? l : null);
   }
 
   /**
@@ -297,20 +318,20 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
    */
   @Override
   public int hashCode() {
-    if (hashCode == 0) {
+    if (getHashCode() == 0) {
       final int prime = 31;
       int result = 1;
 
-      result = prime * result + ((appHits == null) ? 0 : appHits.hashCode());
-      result = prime * result + ((contentHits == null) ? 0 : contentHits.hashCode());
-      result = prime * result + ((contentShown == null) ? 0 : contentShown.hashCode());
-      result = prime * result + ((convoHits == null) ? 0 : convoHits.hashCode());
-      result = prime * result + ((convoShown == null) ? 0 : convoShown.hashCode());
-      result = prime * result + ((linkHits == null) ? 0 : linkHits.hashCode());
-      result = prime * result + ((profileHits == null) ? 0 : profileHits.hashCode());
-      result = prime * result + ((stopTime == null) ? 0 : stopTime.hashCode());
-      result = prime * result + ((totalShown == null) ? 0 : totalShown.hashCode());
-      hashCode = result;
+      result = prime * result + ((getAppHits() == null) ? 0 : getAppHits().hashCode());
+      result = prime * result + ((getContentHits() == null) ? 0 : getContentHits().hashCode());
+      result = prime * result + ((getContentShown() == null) ? 0 : getContentShown().hashCode());
+      result = prime * result + ((getConvoHits() == null) ? 0 : getConvoHits().hashCode());
+      result = prime * result + ((getConvoShown() == null) ? 0 : getConvoShown().hashCode());
+      result = prime * result + ((getLinkHits() == null) ? 0 : getLinkHits().hashCode());
+      result = prime * result + ((getProfileHits() == null) ? 0 : getProfileHits().hashCode());
+      result = prime * result + ((getStopTime() == null) ? 0 : getStopTime().hashCode());
+      result = prime * result + ((getTotalShown() == null) ? 0 : getTotalShown().hashCode());
+      setHashCode(result);
     }
     return hashCode;
   }
@@ -325,80 +346,53 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
     }
     if (obj != null && ActivityFocusEntity.class.isAssignableFrom(obj.getClass())) {
       ActivityFocusEntity other = ActivityFocusEntity.class.cast(obj);
-      if (appHits == null) {
-        if (other.appHits != null)
+      if (getAppHits() == null) {
+        if (other.getAppHits() != null)
           return false;
-      } else if (!appHits.equals(other.appHits))
+      } else if (!getAppHits().equals(other.getAppHits()))
         return false;
-      if (contentHits == null) {
-        if (other.contentHits != null)
+      if (getContentHits() == null) {
+        if (other.getContentHits() != null)
           return false;
-      } else if (!contentHits.equals(other.contentHits))
+      } else if (!getContentHits().equals(other.getContentHits()))
         return false;
-      if (contentShown == null) {
-        if (other.contentShown != null)
+      if (getContentShown() == null) {
+        if (other.getContentShown() != null)
           return false;
-      } else if (!contentShown.equals(other.contentShown))
+      } else if (!getContentShown().equals(other.getContentShown()))
         return false;
-      if (convoHits == null) {
-        if (other.convoHits != null)
+      if (getConvoHits() == null) {
+        if (other.getConvoHits() != null)
           return false;
-      } else if (!convoHits.equals(other.convoHits))
+      } else if (!getConvoHits().equals(other.getConvoHits()))
         return false;
-      if (convoShown == null) {
-        if (other.convoShown != null)
+      if (getConvoShown() == null) {
+        if (other.getConvoShown() != null)
           return false;
-      } else if (!convoShown.equals(other.convoShown))
+      } else if (!getConvoShown().equals(other.getConvoShown()))
         return false;
-      if (linkHits == null) {
-        if (other.linkHits != null)
+      if (getLinkHits() == null) {
+        if (other.getLinkHits() != null)
           return false;
-      } else if (!linkHits.equals(other.linkHits))
+      } else if (!getLinkHits().equals(other.getLinkHits()))
         return false;
-      if (profileHits == null) {
-        if (other.profileHits != null)
+      if (getProfileHits() == null) {
+        if (other.getProfileHits() != null)
           return false;
-      } else if (!profileHits.equals(other.profileHits))
+      } else if (!getProfileHits().equals(other.getProfileHits()))
         return false;
-      if (stopTime == null) {
-        if (other.stopTime != null)
+      if (getStopTime() == null) {
+        if (other.getStopTime() != null)
           return false;
-      } else if (!stopTime.equals(other.stopTime))
+      } else if (!getStopTime().equals(other.getStopTime()))
         return false;
-      if (totalShown == null) {
-        if (other.totalShown != null)
+      if (getTotalShown() == null) {
+        if (other.getTotalShown() != null)
           return false;
-      } else if (!totalShown.equals(other.totalShown))
+      } else if (!getTotalShown().equals(other.getTotalShown()))
         return false;
       return true;
     }
     return false;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String toString() {
-    StringBuilder s = new StringBuilder();
-    s.append(" stopTime:");
-    s.append(stopTime);
-    s.append(";totalShown:");
-    s.append(totalShown);
-    s.append(";contentShown:");
-    s.append(contentShown);
-    s.append(";convoShown:");
-    s.append(convoShown);
-    s.append(";contentHits:");
-    s.append(contentHits);
-    s.append(";convoHits:");
-    s.append(convoHits);
-    s.append(";appHits:");
-    s.append(appHits);
-    s.append(";profileHits:");
-    s.append(profileHits);
-    s.append(";linkHits:");
-    s.append(linkHits);
-    return s.toString();
   }
 }

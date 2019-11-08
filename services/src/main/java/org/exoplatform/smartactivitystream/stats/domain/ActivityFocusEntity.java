@@ -59,16 +59,16 @@ public class ActivityFocusEntity extends BaseActivityFocusEntity {
   /** The activity id. */
   @Id
   @Column(name = "ACTIVITY_ID", nullable = false)
-  protected String           activityId;
+  private String           activityId;
 
   /** The start time. */
   @Id
   @Column(name = "START_TIME", nullable = false)
-  protected Long             startTime;
+  private Long             startTime;
 
   /** The tracker version. */
   @Column(name = "TRACKER_VERSION", nullable = false)
-  protected String           trackerVersion;
+  private String           trackerVersion;
 
   /** The hash code. */
   private transient int      hashCode;
@@ -79,7 +79,7 @@ public class ActivityFocusEntity extends BaseActivityFocusEntity {
   public ActivityFocusEntity() {
   }
 
-  public ActivityFocusEntity(String userId,
+  /*public ActivityFocusEntity(String userId,
                              String activityId,
                              Long startTime,
                              Long stopTime,
@@ -93,12 +93,12 @@ public class ActivityFocusEntity extends BaseActivityFocusEntity {
                              Long linkHits,
                              String trackerVersion) {
     super(stopTime, totalShown, contentShown, convoShown, contentHits, convoHits, appHits, profileHits, linkHits);
-    this.activityId = activityId;
-    this.startTime = startTime;
-    this.userId = userId;
-    this.trackerVersion = trackerVersion;
-    this.hashCode = 0;
-  }
+    setActivityId(activityId);
+    setStartTime(startTime);
+    setUserId(userId);
+    setTrackerVersion(trackerVersion);
+    setHashCode(0);
+  }*/
 
   /**
    * Gets the user id.
@@ -116,7 +116,7 @@ public class ActivityFocusEntity extends BaseActivityFocusEntity {
    */
   public void setUserId(String userId) {
     this.userId = userId;
-    this.hashCode = 0;
+    setHashCode(0);
   }
 
   /**
@@ -135,7 +135,7 @@ public class ActivityFocusEntity extends BaseActivityFocusEntity {
    */
   public void setActivityId(String activityId) {
     this.activityId = activityId;
-    this.hashCode = 0;
+    setHashCode(0);
   }
 
   /**
@@ -154,7 +154,7 @@ public class ActivityFocusEntity extends BaseActivityFocusEntity {
    */
   public void setStartTime(Long startTime) {
     this.startTime = startTime;
-    this.hashCode = 0;
+    setHashCode(0);
   }
 
   /**
@@ -173,7 +173,7 @@ public class ActivityFocusEntity extends BaseActivityFocusEntity {
    */
   public void setTrackerVersion(String trackerVersion) {
     this.trackerVersion = trackerVersion;
-    this.hashCode = 0;
+    setHashCode(0);
   }
 
   /**
@@ -184,10 +184,10 @@ public class ActivityFocusEntity extends BaseActivityFocusEntity {
     super.writeExternal(out);
 
     // Always have value
-    out.writeUTF(activityId);
-    out.writeLong(startTime);
-    out.writeUTF(userId);
-    out.writeUTF(trackerVersion);
+    out.writeUTF(getActivityId());
+    out.writeLong(getStartTime());
+    out.writeUTF(getUserId());
+    out.writeUTF(getTrackerVersion());
   }
 
   /**
@@ -195,14 +195,23 @@ public class ActivityFocusEntity extends BaseActivityFocusEntity {
    */
   @Override
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-    hashCode = 0;
+    setHashCode(0);
     super.readExternal(in);
 
     // Always have value
-    activityId = in.readUTF();
-    startTime = in.readLong();
-    userId = in.readUTF();
-    trackerVersion = in.readUTF();
+    setActivityId(in.readUTF());
+    setStartTime(in.readLong());
+    setUserId(in.readUTF());
+    setTrackerVersion(in.readUTF());
+  }
+
+  @Override
+  public int getHashCode() {
+    return hashCode;
+  }
+
+  private void setHashCode(int hashCode) {
+    this.hashCode = hashCode;
   }
 
   /**
@@ -210,16 +219,17 @@ public class ActivityFocusEntity extends BaseActivityFocusEntity {
    */
   @Override
   public int hashCode() {
-    if (hashCode == 0) {
+    if (getHashCode() == 0) {
       final int prime = 31;
       int result = 1;
       result = prime * result + super.hashCode();
-      result = prime * result + ((activityId == null) ? 0 : activityId.hashCode());
-      result = prime * result + ((startTime == null) ? 0 : startTime.hashCode());
-      result = prime * result + ((trackerVersion == null) ? 0 : trackerVersion.hashCode());
-      hashCode = prime * result + ((userId == null) ? 0 : userId.hashCode());
+      result = prime * result + ((getActivityId() == null) ? 0 : getActivityId().hashCode());
+      result = prime * result + ((getStartTime() == null) ? 0 : getStartTime().hashCode());
+      result = prime * result + ((getTrackerVersion() == null) ? 0 : getTrackerVersion().hashCode());
+      result = prime * result + ((getUserId() == null) ? 0 : getUserId().hashCode());
+      setHashCode(result);
     }
-    return hashCode;
+    return getHashCode();
   }
 
   /**
@@ -235,25 +245,25 @@ public class ActivityFocusEntity extends BaseActivityFocusEntity {
       if (!super.equals(obj)) {
         return false;
       }
-      if (activityId == null) {
-        if (other.activityId != null)
+      if (getActivityId() == null) {
+        if (other.getActivityId() != null)
           return false;
-      } else if (!activityId.equals(other.activityId))
+      } else if (!getActivityId().equals(other.getActivityId()))
         return false;
-      if (startTime == null) {
-        if (other.startTime != null)
+      if (getStartTime() == null) {
+        if (other.getStartTime() != null)
           return false;
-      } else if (!startTime.equals(other.startTime))
+      } else if (!getStartTime().equals(other.getStartTime()))
         return false;
-      if (trackerVersion == null) {
-        if (other.trackerVersion != null)
+      if (getTrackerVersion() == null) {
+        if (other.getTrackerVersion() != null)
           return false;
-      } else if (!trackerVersion.equals(other.trackerVersion))
+      } else if (!getTrackerVersion().equals(other.getTrackerVersion()))
         return false;
-      if (userId == null) {
-        if (other.userId != null)
+      if (getUserId() == null) {
+        if (other.getUserId() != null)
           return false;
-      } else if (!userId.equals(other.userId))
+      } else if (!getUserId().equals(other.getUserId()))
         return false;
       return true;
     }
@@ -268,13 +278,11 @@ public class ActivityFocusEntity extends BaseActivityFocusEntity {
     StringBuilder s = new StringBuilder();
     s.append(this.getClass().getSimpleName());
     s.append('-');
-    s.append(userId);
+    s.append(getUserId());
     s.append('@');
-    s.append(activityId);
+    s.append(getActivityId());
     s.append('-');
-    s.append(startTime);
-    s.append('-');
-    s.append(super.toString());
+    s.append(getStartTime());
     return s.toString();
   }
 

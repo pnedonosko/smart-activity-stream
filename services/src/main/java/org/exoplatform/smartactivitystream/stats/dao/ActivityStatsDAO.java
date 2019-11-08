@@ -7,9 +7,11 @@ import org.exoplatform.smartactivitystream.stats.domain.ActivityStatsEntity;
 import org.exoplatform.smartactivitystream.stats.domain.ActivityStatsId;
 
 import javax.persistence.NoResultException;
+import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -17,71 +19,106 @@ import java.util.List;
  */
 public class ActivityStatsDAO extends GenericDAOJPAImpl<ActivityStatsEntity, ActivityStatsId> {
 
-    /** The Constant LOG. */
-    private static final Log LOG = ExoLogger.getLogger(ActivityStatsDAO.class);
+  /** The Constant LOG. */
+  private static final Log LOG = ExoLogger.getLogger(ActivityStatsDAO.class);
 
-    /**
-     * Find stats records for given activity.
-     *
-     * @param activityId the activity id
-     * @return the list
-     */
-    public List<ActivityStatsEntity> findActivityStats(String activityId) {
+  /**
+   * Find stats records for given activity.
+   *
+   * @param activityId the activity id
+   * @return the list
+   */
+  public List<ActivityStatsEntity> findActivityStats(String activityId) {
 
-        LOG.info("findActivityStats start");
+    LOG.info("findActivityStats start");
 
-        TypedQuery<ActivityStatsEntity> query = getEntityManager().createNamedQuery("SmartActivityStats.findActivityStats", ActivityStatsEntity.class)
-                .setParameter("activityId", activityId);
+    TypedQuery<ActivityStatsEntity> query = getEntityManager()
+                                                              .createNamedQuery("SmartActivityStats.findActivityStats",
+                                                                                ActivityStatsEntity.class)
+                                                              .setParameter("activityId", activityId);
 
+    LOG.info("findActivityStats start query");
+    try {
 
-        LOG.info("findActivityStats start query");
-        try {
+      List<ActivityStatsEntity> activityStatsEntities = query.getResultList();
 
-            List<ActivityStatsEntity> activityStatsEntities = query.getResultList();
+      LOG.info("findActivityStats query finished successfully: "
+          + Arrays.toString(activityStatsEntities.toArray(new ActivityStatsEntity[0])));
 
-            LOG.info("findActivityStats query finished successfully: "
-                    + Arrays.toString(activityStatsEntities.toArray(new ActivityStatsEntity[0])));
-
-            return activityStatsEntities;
-        } catch (NoResultException e) {
-            LOG.error("findActivityStats NoResultException", e);
-            return Collections.emptyList();
-        } catch (Exception e) {
-            LOG.error("findActivityStats Exception", e);
-            return Collections.emptyList();
-        }
+      return activityStatsEntities;
+    } catch (NoResultException e) {
+      LOG.error("findActivityStats NoResultException", e);
+      return Collections.emptyList();
+    } catch (Exception e) {
+      LOG.error("findActivityStats Exception", e);
+      return Collections.emptyList();
     }
+  }
 
+  /**
+   * Find activity focuses (startDate,focusNumber) for ChartData.
+   *
+   * @param activityId the activity id
+   * @return the list
+   */
+  public List<String[]> findActivityFocusChartData(String activityId) {
 
-    /**
-     * Find focus records for given activity.
-     *
-     * @param activityId the activity id
-     * @return the list
-     */
-    public List<ActivityStatsEntity> findActivityFocuses(String activityId,String scaleTime) {
+    LOG.info("findActivityFocusChartData start");
 
-        LOG.info("findActivityStats start");
+    TypedQuery<Tuple> query = getEntityManager().createNamedQuery("SmartActivityStats.findActivityFocusChartData", Tuple.class)
+                                                .setParameter("activityId", activityId);
 
-        TypedQuery<ActivityStatsEntity> query = getEntityManager().createNamedQuery("SmartActivityStats.findActivityStats", ActivityStatsEntity.class)
-                .setParameter("activityId", activityId);
+    LOG.info("findActivityFocusChartData start query");
+    try {
 
+      List<Tuple> activityFocusChartDataT = query.getResultList();
 
-        LOG.info("findActivityStats start query");
-        try {
+      List<String[]> activityFocusChartData = new LinkedList<>();
+      for (Tuple tuple : activityFocusChartDataT) {
+        activityFocusChartData.add(new String[] { Long.class.cast(tuple.get(0)).toString(),
+            Long.class.cast(tuple.get(1)).toString() });
+      }
 
-            List<ActivityStatsEntity> activityStatsEntities = query.getResultList();
-
-            LOG.info("findActivityStats query finished successfully: "
-                    + Arrays.toString(activityStatsEntities.toArray(new ActivityStatsEntity[0])));
-
-            return activityStatsEntities;
-        } catch (NoResultException e) {
-            LOG.error("findActivityStats NoResultException", e);
-            return Collections.emptyList();
-        } catch (Exception e) {
-            LOG.error("findActivityStats Exception", e);
-            return Collections.emptyList();
-        }
+      return activityFocusChartData;
+    } catch (NoResultException e) {
+      LOG.error("findActivityFocusChartData NoResultException", e);
+      return Collections.emptyList();
+    } catch (Exception e) {
+      LOG.error("findActivityFocusChartData Exception", e);
+      return Collections.emptyList();
     }
+  }
+
+  /**
+   * Find focus records for given activity.
+   *
+   * @param activityId the activity id
+   * @return the list
+   */
+  public List<ActivityStatsEntity> findActivityFocuses(String activityId, String scaleTime) {
+
+    LOG.info("findActivityStats start");
+
+    TypedQuery<ActivityStatsEntity> query = getEntityManager()
+                                                              .createNamedQuery("SmartActivityStats.findActivityStats",
+                                                                                ActivityStatsEntity.class)
+                                                              .setParameter("activityId", activityId);
+
+    LOG.info("findActivityStats start query");
+    try {
+
+      List<ActivityStatsEntity> activityStatsEntities = query.getResultList();
+
+      LOG.info("findActivityStats query finished successfully: "
+          + Arrays.toString(activityStatsEntities.toArray(new ActivityStatsEntity[0])));
+
+      return activityStatsEntities;
+    } catch (NoResultException e) {
+      LOG.error("findActivityStats NoResultException", e);
+      return Collections.emptyList();
+    } catch (Exception e) {
+      LOG.error("findActivityStats Exception", e);
+      return Collections.emptyList();
+    }
+  }
 }

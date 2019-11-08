@@ -1,13 +1,11 @@
 package org.exoplatform.smartactivitystream.stats.domain;
 
-import javax.persistence.IdClass;
 import java.io.Serializable;
 
 /**
  * The Class ActivityStatsId.
  */
 
-@IdClass(ActivityStatsId.class)
 public class ActivityStatsId implements Serializable {
 
   /** The Constant serialVersionUID. */
@@ -20,7 +18,7 @@ public class ActivityStatsId implements Serializable {
   protected long            startTime;
 
   /**
-   * Instantiates a new ActivityFocusId.
+   * Instantiates a new ActivityStatsId.
    */
   public ActivityStatsId() {
   }
@@ -31,10 +29,10 @@ public class ActivityStatsId implements Serializable {
    * @param activityId the activity id
    * @param startTime the start time
    */
-  public ActivityStatsId(String activityId, long startTime) {
+  public ActivityStatsId(String activityId, Long startTime) {
     super();
-    this.activityId = activityId;
-    this.startTime = startTime;
+    setActivityId(activityId);
+    setStartTime(startTime);
   }
 
   /**
@@ -47,12 +45,30 @@ public class ActivityStatsId implements Serializable {
   }
 
   /**
+   * Sets the activity id.
+   *
+   * @param activityId the activity id
+   */
+  private void setActivityId(String activityId) {
+    this.activityId = activityId;
+  }
+
+  /**
    * Gets the start time.
    *
    * @return the startTime
    */
-  public long getStartTime() {
+  public Long getStartTime() {
     return startTime;
+  }
+
+  /**
+   * Sets the start time.
+   *
+   * @param startTime the start time
+   */
+  private void setStartTime(Long startTime) {
+    this.startTime = startTime;
   }
 
   /**
@@ -60,8 +76,8 @@ public class ActivityStatsId implements Serializable {
    */
   @Override
   public int hashCode() {
-    int hc = activityId.hashCode();
-    hc = hc * 31 + (int) (startTime ^ (startTime >>> 32));
+    int hc = getActivityId().hashCode();
+    hc = hc * 31 + (int) (getStartTime() ^ (getStartTime() >>> 32));
     return hc;
   }
 
@@ -73,7 +89,7 @@ public class ActivityStatsId implements Serializable {
     if (o != null) {
       if (ActivityStatsId.class.isAssignableFrom(o.getClass())) {
         ActivityStatsId other = ActivityStatsId.class.cast(o);
-        return activityId.equals(other.getActivityId()) && startTime == other.getStartTime();
+        return getActivityId().equals(other.getActivityId()) && getStartTime() == other.getStartTime();
       }
     }
     return false;

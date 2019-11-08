@@ -20,6 +20,7 @@ import java.util.Locale;
  */
 @Entity(name = "SmartActivityStats")
 @ExoEntity
+@Table(name = "ST_ACTIVITY_FOCUS")
 @IdClass(ActivityStatsId.class)
 @NamedNativeQueries({ @NamedNativeQuery(name = "SmartActivityStats.findActivityStats", query = "SELECT f.ACTIVITY_ID, "
     + "MIN(f.START_TIME) AS START_TIME, MAX(f.STOP_TIME) AS STOP_TIME, SUM(f.TOTAL_SHOWN) AS TOTAL_SHOWN, "
@@ -27,6 +28,9 @@ import java.util.Locale;
     + "SUM(f.CONVO_HITS) AS CONVO_HITS, SUM(f.APP_HITS) AS APP_HITS, SUM(f.PROFILE_HITS) AS PROFILE_HITS, "
     + "SUM(f.LINK_HITS) AS LINK_HITS FROM ST_ACTIVITY_FOCUS f WHERE f.ACTIVITY_ID = :activityId "
     + "GROUP BY f.ACTIVITY_ID", resultClass = ActivityStatsEntity.class) })
+
+@NamedQueries({ @NamedQuery(name = "SmartActivityStats.findActivityFocusChartData", query = "SELECT s.startTime, s.totalShown "
+    + "FROM SmartActivityStats s WHERE s.activityId = :activityId ORDER BY s.startTime ASC") })
 
 public class ActivityStatsEntity extends BaseActivityFocusEntity {
 
@@ -43,12 +47,12 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
   /** The activity id. */
   @Id
   @Column(name = "ACTIVITY_ID", nullable = false)
-  protected String              activityId;
+  private String                activityId;
 
   /** The start time. */
   @Id
   @Column(name = "START_TIME", nullable = false)
-  protected Long                startTime;
+  private Long                  startTime;
 
   private transient Locale      userLocale;
 
@@ -77,6 +81,12 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
   @Transient
   private String                localStopTime;
 
+  @Transient
+  private String                activityStreamPrettyId;
+
+  @Transient
+  private String[][]            focusChartData;
+
   /** The hash code. */
   private transient int         hashCode;
 
@@ -98,7 +108,6 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
     setActivityId(activityId);
 
     setUserLocale(userLocale);
-    this.hashCode = 0;
   }
 
   private void setLocaleDateToData() {
@@ -112,28 +121,31 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
 
     SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, getUserLocale());
 
-    if (activityCreatedMilliseconds != null) {
-      setActivityCreated(dateFormat.format(activityCreatedMilliseconds));
+    if (getActivityCreatedMilliseconds() != null) {
+      setActivityCreated(dateFormat.format(getActivityCreatedMilliseconds()));
     }
 
-    if (activityUpdatedMilliseconds != null) {
-      setActivityUpdated(dateFormat.format(activityUpdatedMilliseconds));
+    if (getActivityUpdatedMilliseconds() != null) {
+      setActivityUpdated(dateFormat.format(getActivityUpdatedMilliseconds()));
     }
 
-    if (startTime != null) {
-      setLocalStartTime(dateFormat.format(startTime));
+    if (getStartTime() != null) {
+      setLocalStartTime(dateFormat.format(getStartTime()));
     }
 
-    if (stopTime != null) {
-      setLocalStopTime(dateFormat.format(stopTime));
+    if (getStopTime() != null) {
+      setLocalStopTime(dateFormat.format(getStopTime()));
+    }
+
+    if (getFocusChartData() != null) {
+      String[][] focuses = getFocusChartData();
+      for (int i = 0; i < focuses.length; ++i) {
+        focuses[i][0] = dateFormat.format(Long.parseLong(focuses[i][0]));
+      }
     }
   }
 
-  /**
-   * Gets the activity id.
-   *
-   * @return the activityId
-   */
+  @Override
   public String getActivityId() {
     return activityId;
   }
@@ -145,14 +157,10 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
    */
   public void setActivityId(String activityId) {
     this.activityId = activityId;
-    this.hashCode = 0;
+    setHashCode(0);
   }
 
-  /**
-   * Gets the start time.
-   *
-   * @return the startTime
-   */
+  @Override
   public Long getStartTime() {
     return startTime;
   }
@@ -164,7 +172,7 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
    */
   public void setStartTime(Long startTime) {
     this.startTime = startTime;
-    this.hashCode = 0;
+    setHashCode(0);
   }
 
   @Transient
@@ -178,7 +186,7 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
 
       setLocaleDateToData();
     }
-    this.hashCode = 0;
+    setHashCode(0);
   }
 
   public String getActivityTitle() {
@@ -187,7 +195,7 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
 
   public void setActivityTitle(String activityTitle) {
     this.activityTitle = activityTitle;
-    this.hashCode = 0;
+    setHashCode(0);
   }
 
   public String getActivityCreated() {
@@ -196,7 +204,7 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
 
   public void setActivityCreated(String activityCreated) {
     this.activityCreated = activityCreated;
-    this.hashCode = 0;
+    setHashCode(0);
   }
 
   public String getActivityUpdated() {
@@ -205,7 +213,7 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
 
   public void setActivityUpdated(String activityUpdated) {
     this.activityUpdated = activityUpdated;
-    this.hashCode = 0;
+    setHashCode(0);
   }
 
   public Long getActivityCreatedMilliseconds() {
@@ -218,7 +226,7 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
     } else {
       this.activityCreatedMilliseconds = NULL_LONG;
     }
-    this.hashCode = 0;
+    setHashCode(0);
   }
 
   public Long getActivityUpdatedMilliseconds() {
@@ -231,7 +239,7 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
     } else {
       this.activityUpdatedMilliseconds = NULL_LONG;
     }
-    this.hashCode = 0;
+    setHashCode(0);
   }
 
   public String getLocalStartTime() {
@@ -250,6 +258,31 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
     this.localStopTime = localStopTime;
   }
 
+  public String getActivityStreamPrettyId() {
+    return activityStreamPrettyId;
+  }
+
+  public void setActivityStreamPrettyId(String activityStreamPrettyId) {
+    this.activityStreamPrettyId = activityStreamPrettyId;
+  }
+
+  public String[][] getFocusChartData() {
+    return focusChartData;
+  }
+
+  public void setFocusChartData(String[][] focusChartData) {
+    this.focusChartData = focusChartData;
+  }
+
+  @Override
+  public int getHashCode() {
+    return hashCode;
+  }
+
+  public void setHashCode(int hashCode) {
+    this.hashCode = hashCode;
+  }
+
   /**
    * {@inheritDoc}
    */
@@ -258,18 +291,18 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
     super.writeExternal(out);
 
     // Always have value
-    out.writeUTF(activityId);
-    out.writeLong(startTime);
+    out.writeUTF(getActivityId());
+    out.writeLong(getStartTime());
 
     // Nullable
-    out.writeObject(userLocale);
-    out.writeUTF(activityTitle != null ? activityTitle : NULL_STRING);
-    out.writeUTF(activityCreated != null ? activityCreated : NULL_STRING);
-    out.writeLong(activityCreatedMilliseconds != null ? activityCreatedMilliseconds : NULL_LONG);
-    out.writeUTF(activityUpdated != null ? activityUpdated : NULL_STRING);
-    out.writeLong(activityUpdatedMilliseconds != null ? activityUpdatedMilliseconds : NULL_LONG);
-    out.writeUTF(localStartTime != null ? localStartTime : NULL_STRING);
-    out.writeUTF(localStopTime != null ? localStopTime : NULL_STRING);
+    out.writeObject(getUserLocale());
+    out.writeUTF(getActivityTitle() != null ? getActivityTitle() : NULL_STRING);
+    out.writeUTF(getActivityCreated() != null ? getActivityCreated() : NULL_STRING);
+    out.writeLong(getActivityCreatedMilliseconds() != null ? getActivityCreatedMilliseconds() : NULL_LONG);
+    out.writeUTF(getActivityUpdated() != null ? getActivityUpdated() : NULL_STRING);
+    out.writeLong(getActivityUpdatedMilliseconds() != null ? getActivityUpdatedMilliseconds() : NULL_LONG);
+    out.writeUTF(getLocalStartTime() != null ? getLocalStartTime() : NULL_STRING);
+    out.writeUTF(getLocalStopTime() != null ? getLocalStopTime() : NULL_STRING);
   }
 
   /**
@@ -277,26 +310,26 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
    */
   @Override
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-    this.hashCode = 0;
+    setHashCode(0);
 
     super.readExternal(in);
 
     // Always have value
-    activityId = in.readUTF();
-    startTime = in.readLong();
+    setActivityId(in.readUTF());
+    setStartTime(in.readLong());
 
     // Nullable
     Long l;
     String s;
     Locale locale;
-    userLocale = (locale = (Locale) in.readObject()) != null ? locale : null;
-    activityTitle = (s = in.readUTF()) != NULL_STRING ? s : null;
-    activityCreated = (s = in.readUTF()) != NULL_STRING ? s : null;
-    activityCreatedMilliseconds = (l = in.readLong()) != NULL_LONG ? l : null;
-    activityUpdated = (s = in.readUTF()) != NULL_STRING ? s : null;
-    activityUpdatedMilliseconds = (l = in.readLong()) != NULL_LONG ? l : null;
-    localStartTime = (s = in.readUTF()) != NULL_STRING ? s : null;
-    localStopTime = (s = in.readUTF()) != NULL_STRING ? s : null;
+    setUserLocale((locale = (Locale) in.readObject()) != null ? locale : null);
+    setActivityTitle((s = in.readUTF()) != NULL_STRING ? s : null);
+    setActivityCreated((s = in.readUTF()) != NULL_STRING ? s : null);
+    setActivityCreatedMilliseconds((l = in.readLong()) != NULL_LONG ? l : null);
+    setActivityUpdated((s = in.readUTF()) != NULL_STRING ? s : null);
+    setActivityUpdatedMilliseconds((l = in.readLong()) != NULL_LONG ? l : null);
+    setLocalStartTime((s = in.readUTF()) != NULL_STRING ? s : null);
+    setLocalStopTime((s = in.readUTF()) != NULL_STRING ? s : null);
   }
 
   /**
@@ -304,19 +337,19 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
    */
   @Override
   public int hashCode() {
-    if (hashCode == 0) {
+    if (getHashCode() == 0) {
       final int prime = 31;
 
       int result = 1;
 
       result = prime * result + super.hashCode();
-      result = prime * result + ((activityId == null) ? 0 : activityId.hashCode());
-      result = prime * result + ((startTime == null) ? 0 : startTime.hashCode());
-      result = prime * result + ((userLocale == null) ? 0 : userLocale.hashCode());
-      result = prime * result + ((activityTitle == null) ? 0 : activityTitle.hashCode());
-      result = prime * result + ((activityCreatedMilliseconds == null) ? 0 : activityCreatedMilliseconds.hashCode());
-      result = prime * result + ((activityUpdatedMilliseconds == null) ? 0 : activityUpdatedMilliseconds.hashCode());
-      hashCode = result;
+      result = prime * result + ((getActivityId() == null) ? 0 : getActivityId().hashCode());
+      result = prime * result + ((getStartTime() == null) ? 0 : getStartTime().hashCode());
+      result = prime * result + ((getUserLocale() == null) ? 0 : getUserLocale().hashCode());
+      result = prime * result + ((getActivityTitle() == null) ? 0 : getActivityTitle().hashCode());
+      result = prime * result + ((getActivityCreatedMilliseconds() == null) ? 0 : getActivityCreatedMilliseconds().hashCode());
+      result = prime * result + ((getActivityUpdatedMilliseconds() == null) ? 0 : getActivityUpdatedMilliseconds().hashCode());
+      setHashCode(result);
     }
     return hashCode;
   }
@@ -334,35 +367,35 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
       if (!super.equals(obj)) {
         return false;
       }
-      if (activityId == null) {
-        if (other.activityId != null)
+      if (getActivityId() == null) {
+        if (other.getActivityId() != null)
           return false;
-      } else if (!activityId.equals(other.activityId))
+      } else if (!getActivityId().equals(other.getActivityId()))
         return false;
-      if (startTime == null) {
-        if (other.startTime != null)
+      if (getStartTime() == null) {
+        if (other.getStartTime() != null)
           return false;
-      } else if (!startTime.equals(other.startTime))
+      } else if (!getStartTime().equals(other.getStartTime()))
         return false;
-      if (userLocale == null) {
-        if (other.userLocale != null)
+      if (getUserLocale() == null) {
+        if (other.getUserLocale() != null)
           return false;
-      } else if (!userLocale.equals(other.userLocale))
+      } else if (!getUserLocale().equals(other.getUserLocale()))
         return false;
-      if (activityTitle == null) {
-        if (other.activityTitle != null)
+      if (getActivityTitle() == null) {
+        if (other.getActivityTitle() != null)
           return false;
-      } else if (!activityTitle.equals(other.activityTitle))
+      } else if (!getActivityTitle().equals(other.getActivityTitle()))
         return false;
-      if (activityCreatedMilliseconds == null) {
-        if (other.activityCreatedMilliseconds != null)
+      if (getActivityCreatedMilliseconds() == null) {
+        if (other.getActivityCreatedMilliseconds() != null)
           return false;
-      } else if (!activityCreatedMilliseconds.equals(other.activityCreatedMilliseconds))
+      } else if (!getActivityCreatedMilliseconds().equals(other.getActivityCreatedMilliseconds()))
         return false;
-      if (activityUpdatedMilliseconds == null) {
-        if (other.activityUpdatedMilliseconds != null)
+      if (getActivityUpdatedMilliseconds() == null) {
+        if (other.getActivityUpdatedMilliseconds() != null)
           return false;
-      } else if (!activityUpdatedMilliseconds.equals(other.activityUpdatedMilliseconds))
+      } else if (!getActivityUpdatedMilliseconds().equals(other.getActivityUpdatedMilliseconds()))
         return false;
 
       return true;
@@ -378,11 +411,11 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
     StringBuilder s = new StringBuilder();
     s.append(this.getClass().getSimpleName());
     s.append('@');
-    s.append(activityId);
+    s.append(getActivityId());
     s.append('-');
-    s.append(startTime);
+    s.append(getStartTime());
     s.append('-');
-    s.append(super.toString());
+    s.append(getStopTime());
     return s.toString();
   }
 }
