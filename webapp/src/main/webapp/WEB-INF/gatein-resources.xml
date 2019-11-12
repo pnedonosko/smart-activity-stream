@@ -38,6 +38,12 @@
     </depends>
   </module>
 
+  <!-- Javascript for Smart Activity Administration charts -->
+  <module>
+    <name>googleCharts</name>
+    <url>https://www.gstatic.com/charts/loader.js</url>
+  </module>
+
   <!-- Javascript for Smart Activity Administration support (Activity Statistics) -->
   <portlet>
     <name>SmartActivityStreamAdminPortlet</name>
@@ -61,7 +67,13 @@
         <module>eXoVueI18n</module>
         <as>eXoVueI18nModule</as>
       </depends>
+      <depends>
+        <module>googleCharts</module>
+        <as>googleChartsModule</as>
+      </depends>
     </module>
+
+
   </portlet>
 
   <!-- CSS for Smart Activity Stream support -->

@@ -1,4 +1,4 @@
-(function ($, vuetify, vue, eXoVueI18n) {
+(function ($, vuetify, vue, eXoVueI18n, googleCharts) {
 
   var pageBaseUrl = function (theLocation) {
     if (!theLocation) {
@@ -14,6 +14,9 @@
 
     return theLocation.protocol + "//" + theHostName;
   };
+
+  google.charts.load('current', {'packages' : ['corechart']});
+  //google.charts.setOnLoadCallback(drawChart(focusChartDatesAndValues));
 
   var prefixUrl = pageBaseUrl(location);
 
@@ -83,6 +86,14 @@
     },
   ];
 
+  var focusChartDatesAndValues = [['2013', '684'],
+    ['2014', '721'],
+    ['2015', '816'],
+    ['2016', '932'],
+    ['2016', '546'],
+    ['2016', '758'],
+  ];
+
   var mainTable;
 
   $(document).ready(function () {
@@ -108,11 +119,12 @@
           search : '',
           singleExpand : true,
           headers : [
+            {text : '', value : 'data-table-expand'},
             {
               text : 'Activity Data (Title)',
               align : 'left',
               sortable : false,
-              value : 'activityTitle',
+              value : 'activity_title',
             },
             {text : 'Created', value : 'activityCreated'},
             {text : 'Updated', value : 'activityUpdated'},
@@ -126,7 +138,7 @@
             {text : 'App Hits', value : 'appHits'},
             {text : 'Profile Hits', value : 'profileHits'},
             {text : 'Link Hits', value : 'linkHits'},
-            {text : '', value : 'data-table-expand'},
+            {text : 'Total Focus Chart', value : 'focus_chart_data'},
           ],
           tableVal : tableValues,
         }
@@ -151,6 +163,14 @@
           for (var index in newData) {
             this.tableVal.push(newData[index]);
           }
+        },
+        drawChart : function (item) {
+          var id = 'chart-div-' + item.activityId + '-' + item.startTime;
+
+          //async call
+          setTimeout(createChart, 25, id, item);
+
+          return id;
         }
       }
     });
@@ -298,7 +318,16 @@
     });
 
     function successF(data, textStatus, jqXHR) {
+
+      data.forEach(function (obj) {
+        changeObjectPropertyName(obj, "focusChartData", "focus_chart_data");
+        changeObjectPropertyName(obj, "activityTitle", "activity_title");
+      });
+
       mainTable.updateTableVal(data);
+
+      focusChartDatesAndValues = data[0].focusChartData;
+      drawChart(focusChartDatesAndValues);
 
       console.log("ajax data:  " + data);
       console.log("textStatus:  " + textStatus);
@@ -313,5 +342,99 @@
 
   }
 
-})(jqModule, vuetifyModule, vueModule, eXoVueI18nModule);
+  function drawChart(focusChartDatesAndValues) {
+    var headersAndData = [['Time', 'Focus']];
+
+    if (typeof myVar !== 'undefined') {
+      focusChartDatesAndValues.forEach(function (elem) {
+        elem[1] = Number(elem[1]);
+        headersAndData.push(elem);
+      });
+
+      var data = google.visualization.arrayToDataTable(
+        headersAndData
+      );
+
+      var options = {
+        // title : 'Focuses',
+        hAxis : {title : 'Time', titleTextStyle : {color : '#333'}},
+        vAxis : {minValue : 0}
+      };
+
+      var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
+      chart.draw(data, options);
+    }
+  }
+
+  function changeObjectPropertyName(obj, oldKey, newKey) {
+    if (oldKey !== newKey) {
+      Object.defineProperty(obj, newKey,
+        Object.getOwnPropertyDescriptor(obj, oldKey));
+      delete obj[oldKey];
+    }
+  }
+
+  function createChart(id, item) {
+
+    var chartBlock = $(`#${id}`);
+
+    if (chartBlock.length) {
+      var headersAndData = [['Time', 'Focus']];
+
+      var focusChartDatesAndValues = item.focus_chart_data;
+
+      focusChartDatesAndValues.forEach(function (elem) {
+        elem[1] = Number(elem[1]);
+        headersAndData.push(elem);
+      });
+
+      var data = google.visualization.arrayToDataTable(
+        headersAndData
+      );
+
+      var options = {
+          legend : 'none',
+          hAxis : {
+            allowContainerBoundaryTextCufoff : true,
+            textStyle : {color : '#FFF', fontSize : 0},
+            showTextEvery : 0,
+            tiks : [],
+            baseline : {
+              color : 'green'
+            },
+            gridlines : {
+              color : '#FFF'
+            },
+            minorGridlines : {
+              color : '#FFF'
+            }
+          },
+          vAxis : {
+            minValue : 0,
+            textStyle : {
+              color : '#FFF'
+            },
+            gridlines : {
+              color : '#FFF'
+            },
+            minorGridlines : {
+              color : '#FFF'
+            },
+            showTextEvery : 0,
+            baseline : {
+              color : '#FFF'
+            },
+          },
+          lineWidth : 0,
+        }
+      ;
+
+      var chart = new google.visualization.AreaChart(document.getElementById(id));
+      chart.draw(data, options);
+
+      chartBlock.parent().parent().css("height", "max-content");
+    }
+  }
+
+})(jqModule, vuetifyModule, vueModule, eXoVueI18nModule, googleChartsModule);
 
