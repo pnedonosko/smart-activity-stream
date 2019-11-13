@@ -9,10 +9,7 @@ import org.exoplatform.smartactivitystream.stats.domain.ActivityStatsId;
 import javax.persistence.NoResultException;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * The DAO layer for ActivityStatsEntity.
@@ -99,10 +96,13 @@ public class ActivityStatsDAO extends GenericDAOJPAImpl<ActivityStatsEntity, Act
 
     LOG.info("findActivityStats start");
 
+    Long startScalePoint = new Date().getTime() - Long.parseLong(scaleTime);
+
     TypedQuery<ActivityStatsEntity> query = getEntityManager()
-                                                              .createNamedQuery("SmartActivityStats.findActivityStats",
+                                                              .createNamedQuery("SmartActivityStats.findActivityFocuses",
                                                                                 ActivityStatsEntity.class)
-                                                              .setParameter("activityId", activityId);
+                                                              .setParameter("activityId", activityId)
+                                                              .setParameter("startScalePoint", startScalePoint);
 
     LOG.info("findActivityStats start query");
     try {

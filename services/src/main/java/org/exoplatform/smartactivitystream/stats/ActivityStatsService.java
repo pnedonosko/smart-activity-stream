@@ -19,6 +19,7 @@
 package org.exoplatform.smartactivitystream.stats;
 
 import java.security.PrivilegedAction;
+import java.text.DateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -224,7 +225,6 @@ public class ActivityStatsService implements Startable {
    * 
    * @param activityId the selected activity of the table
    * @param timeScale the time scaling
-   * @param userLocale the user locale
    * @return list of the activity subtable (user focuses on selected activity)
    */
   public List<ActivityStatsEntity> getActivityFocuses(String activityId, String timeScale, Locale userLocale) {
@@ -232,6 +232,10 @@ public class ActivityStatsService implements Startable {
     LOG.info("findActivityFocus start");
 
     List<ActivityStatsEntity> activityFocuses = statsStorage.findActivityFocuses(activityId, timeScale);
+
+    for (ActivityStatsEntity activityFocus : activityFocuses) {
+      activityFocus.setUserLocale(userLocale);
+    }
 
     return activityFocuses;
   }
@@ -264,7 +268,10 @@ public class ActivityStatsService implements Startable {
     return relationshipStorage.getConnections(getUserIdentity(userId));
   }
 
-  public List<ActivityStatsEntity> getActivityFocuses(String stream, String substream, String currentUserId, Locale userLocale) {
+  public List<ActivityStatsEntity> getUserActivitiesFocuses(String stream,
+                                                            String substream,
+                                                            String currentUserId,
+                                                            Locale userLocale) {
     List<ActivityStatsEntity> activityStatsEntities = new LinkedList<>();
 
     if (stream != null) {
@@ -316,7 +323,6 @@ public class ActivityStatsService implements Startable {
 
       ActivityStream activityStream = exoSocialActivity.getActivityStream();
 
-
       activityStatsEntity.setActivityTitle(safeActivityTitle);
 
       activityStatsEntity.setActivityCreatedMilliseconds(exoSocialActivity.getPostedTime());
@@ -326,7 +332,7 @@ public class ActivityStatsService implements Startable {
       activityStatsEntity.setActivityStreamPrettyId(activityStream.getPrettyId());
 
       activityStatsEntity.setFocusChartData(statsStorage.findActivityFocusChartData(exoSocialActivityId)
-              .toArray(new String[0][]));
+                                                        .toArray(new String[0][]));
 
       activityStatsEntity.setUserLocale(userLocale);
 

@@ -79,6 +79,14 @@
               <v-chip color="rgb(193,204,240)" x-small="true" dark>{{ item.activityStreamPrettyId }}</v-chip>
             </template>
 
+            <template v-slot:item.activity_created="{ item }">
+              {{item.activityCreated}}
+            </template>
+
+            <template v-slot:item.activity_updated="{ item }">
+              {{item.activityUpdated}}
+            </template>
+
             <template v-slot:top>
               <v-toolbar flat color="white">
                 <v-toolbar-title>Smartactivity Table</v-toolbar-title>
@@ -102,16 +110,41 @@
 
             <template v-slot:expanded-item="{headers, item}">
 
-              <td id="subtable-column" :colspan="14">
+              <td id="subtable-column" :colspan="15">
                 <div id="subtable">
                   <v-app id="subtable-app">
                     <v-data-table
                         :headers="headers"
-                        :items="appSmartactivityTableVueAndVuetifySubtableValues"
-                        :items-per-page="100"
+                        :items="subtableVal"
+                        :items-per-page="1000"
                         sort-by="startTimeStatistics"
                         class="elevation-2 grey lighten-4"
-                    ></v-data-table>
+                    >
+
+                      <template v-slot:item.data-table-expand="{ item }">
+                        <div class="subtable-data-table-expand subtable-hidden-value" style="width: 24px;"></div>
+                      </template>
+
+                      <template v-slot:item.activity_title="{ item }">
+                        <div class="subtable-activity-title subtable-hidden-value">
+                          <p class="subtable-activity-data-title" style="margin: 0;">{{item.activity_title}}</p>
+                          <v-chip color="rgb(193,204,240)" x-small="true" dark>{{item.activityStreamPrettyId}}</v-chip>
+                        </div>
+                      </template>
+
+                      <template v-slot:item.activity_created="{ item }">
+                        <div class="subtable-acitivty-reated subtable-hidden-value">{{item.activityCreated}}</div>
+                      </template>
+
+                      <template v-slot:item.activity_updated="{ item }">
+                        <div class="subtable-activity-updated subtable-hidden-value">{{item.activityUpdated}}</div>
+                      </template>
+
+                      <template v-slot:item.focus_chart_data="{ item }">
+                        <div class="subtable-row-chart-column subtable-hidden-value" style="width: 100px;"></div>
+                      </template>
+
+                    </v-data-table>
                   </v-app>
                 </div>
               </td>

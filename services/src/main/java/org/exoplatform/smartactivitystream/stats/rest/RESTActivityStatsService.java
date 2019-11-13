@@ -82,12 +82,12 @@ public class RESTActivityStatsService implements ResourceContainer {
   @GET
   @RolesAllowed("users")
   @Path("/userfocus/{stream}/{substream}")
-  public Response getUserFocuses(@Context UriInfo uriInfo,
-                                 @Context HttpServletRequest request,
-                                 @PathParam("stream") String stream,
-                                 @PathParam("substream") String substream) {
+  public Response getUserActivitiesFocuses(@Context UriInfo uriInfo,
+                                           @Context HttpServletRequest request,
+                                           @PathParam("stream") String stream,
+                                           @PathParam("substream") String substream) {
     if (LOG.isDebugEnabled()) {
-      LOG.debug(">> getUserFocuses");
+      LOG.debug(">> getUserActivitiesFocuses");
     }
 
     LOG.info("stream: " + stream);
@@ -98,21 +98,21 @@ public class RESTActivityStatsService implements ResourceContainer {
       String currentUserId = convo.getIdentity().getUserId();
       Locale userLocale = request.getLocale();
 
-      List<ActivityStatsEntity> activityStatsEntities = activityStatsService.getActivityFocuses(stream,
-                                                                                                substream,
-                                                                                                currentUserId,
-                                                                                                userLocale);
+      List<ActivityStatsEntity> activityStatsEntities = activityStatsService.getUserActivitiesFocuses(stream,
+                                                                                                      substream,
+                                                                                                      currentUserId,
+                                                                                                      userLocale);
 
       LOG.info("RESTActivityStatsService activityStatsEntities: "
           + Arrays.toString(activityStatsEntities.toArray(new ActivityStatsEntity[0])));
 
       if (LOG.isDebugEnabled()) {
-        LOG.debug("<< getUserFocuses");
+        LOG.debug("<< getUserActivitiesFocuses");
       }
       return Response.status(Status.ACCEPTED).entity(activityStatsEntities.toArray()).build();
     } else {
       if (LOG.isDebugEnabled()) {
-        LOG.debug("<< getUserFocuses conversationState == null");
+        LOG.debug("<< getUserActivitiesFocuses conversationState == null");
       }
       return Response.status(Status.UNAUTHORIZED).build();
     }
@@ -146,9 +146,6 @@ public class RESTActivityStatsService implements ResourceContainer {
 
       List<ActivityStatsEntity> activityFocusEntities =
                                                       activityStatsService.getActivityFocuses(activityId, timeScale, userLocale);
-
-      LOG.info("RESTActivityStatsService activityStatsEntities: "
-          + Arrays.toString(activityFocusEntities.toArray(new ActivityStatsEntity[0])));
 
       if (LOG.isDebugEnabled()) {
         LOG.debug("<< getActivityFocuses");

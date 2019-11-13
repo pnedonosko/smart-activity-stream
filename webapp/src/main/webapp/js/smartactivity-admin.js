@@ -16,7 +16,7 @@
   };
 
   google.charts.load('current', {'packages' : ['corechart']});
-  //google.charts.setOnLoadCallback(drawChart(focusChartDatesAndValues));
+
 
   var prefixUrl = pageBaseUrl(location);
 
@@ -43,48 +43,7 @@
     '1 week',
   ];
 
-
   var tableValues = [];
-
-
-  appSmartactivityTableVueAndVuetifySubtableValues = [
-    {
-      startTimeStatistics : 245,
-      stopTimeStatistics : 4.0,
-      totalFocusStatistics : 5,
-      contentFocusStatistics : 7545,
-      convoFocusStatistics : 456,
-      contentHitsStatistics : 0,
-      convoHitsStatistics : 5,
-      appHitsStatistics : 7,
-      profileHitsStatistics : 5,
-      linkHitsStatistics : 1,
-    },
-    {
-      startTimeStatistics : 57,
-      stopTimeStatistics : 68.0,
-      totalFocusStatistics : 79,
-      contentFocusStatistics : 4,
-      convoFocusStatistics : 7,
-      contentHitsStatistics : 0,
-      convoHitsStatistics : 786,
-      appHitsStatistics : 7,
-      profileHitsStatistics : 578,
-      linkHitsStatistics : 0,
-    },
-    {
-      startTimeStatistics : 456,
-      stopTimeStatistics : 0.0,
-      totalFocusStatistics : 87,
-      contentFocusStatistics : 333,
-      convoFocusStatistics : 7,
-      contentHitsStatistics : 76,
-      convoHitsStatistics : 57689,
-      appHitsStatistics : 35,
-      profileHitsStatistics : 25,
-      linkHitsStatistics : 57857,
-    },
-  ];
 
   var focusChartDatesAndValues = [['2013', '684'],
     ['2014', '721'],
@@ -95,6 +54,12 @@
   ];
 
   var mainTable;
+
+  var lastOpenedMainTableRow;
+
+  //values for subtable scaling
+  var activitiesStreamPrettyIdMaxString = "";
+  var activitiesTitleMaxString = "";
 
   $(document).ready(function () {
 
@@ -126,8 +91,8 @@
               sortable : false,
               value : 'activity_title',
             },
-            {text : 'Created', value : 'activityCreated'},
-            {text : 'Updated', value : 'activityUpdated'},
+            {text : 'Created', value : 'activity_created'},
+            {text : 'Updated', value : 'activity_updated'},
             {text : 'Start Time', value : 'localStartTime'},
             {text : 'Stop Time', value : 'localStopTime'},
             {text : 'Total Focus', value : 'totalShown'},
@@ -141,6 +106,7 @@
             {text : 'Total Focus Chart', value : 'focus_chart_data'},
           ],
           tableVal : tableValues,
+          subtableVal : [],
         }
       },
       methods : {
@@ -148,10 +114,10 @@
           if (event.value == true) {
             var activityTitle = event.item.activityTitle;
 
-            console.log(event);
-            appSmartactivityTableVueAndVuetifySubtableValues.forEach(function (elem) {
-              ++elem.linkHitsStatistics;
-            });
+            lastOpenedMainTableRow = event.item;
+
+            getActivityFocuses(lastOpenedMainTableRow.activityId);
+            console.log("Opened row: " + event);
           }
         },
         getDataForTheTable : function (event) {
@@ -161,7 +127,33 @@
           this.tableVal.splice(0, this.tableVal.length);
 
           for (var index in newData) {
+            findMaxActivityTitleAndStreamPrettyIdStringsForSubtableScaling(newData[index]);
             this.tableVal.push(newData[index]);
+          }
+
+          function findMaxActivityTitleAndStreamPrettyIdStringsForSubtableScaling(elem) {
+            if (activitiesStreamPrettyIdMaxString.length < elem.activityStreamPrettyId.length) {
+              activitiesStreamPrettyIdMaxString = elem.activityStreamPrettyId;
+            }
+
+            if (activitiesTitleMaxString.length < elem.activity_title.length) {
+              activitiesTitleMaxString = elem.activity_title;
+            }
+          }
+        },
+        updateSubtableVal : function (newData) {
+          this.subtableVal.splice(0, this.subtableVal.length);
+
+          for (var index in newData) {
+            copyActivityDataToActivityFocus(newData[index]);
+            this.subtableVal.push(newData[index]);
+          }
+
+          function copyActivityDataToActivityFocus(activityFocus) {
+            activityFocus.activity_title = activitiesTitleMaxString;
+            activityFocus.activityStreamPrettyId = activitiesStreamPrettyIdMaxString;
+            activityFocus.activityCreated = lastOpenedMainTableRow.activityCreated;
+            activityFocus.activityUpdated = lastOpenedMainTableRow.activityUpdated;
           }
         },
         drawChart : function (item) {
@@ -326,8 +318,6 @@
 
       mainTable.updateTableVal(data);
 
-      focusChartDatesAndValues = data[0].focusChartData;
-      drawChart(focusChartDatesAndValues);
 
       console.log("ajax data:  " + data);
       console.log("textStatus:  " + textStatus);
@@ -436,5 +426,41 @@
     }
   }
 
+  function getActivityFocuses(activityId) {
+
+    $.ajax({
+      async : true,
+      type : "GET",
+      url : prefixUrl + `/portal/rest/smartactivity/stats/activityfocuses/${activityId}/${timeScaleMinutes * 60000}`,
+      contentType : "application/json",
+      dataType : 'json',
+      success : successF,
+      error : errorF
+    });
+
+    function successF(data, textStatus, jqXHR) {
+
+      //copyActivityDataToActivityFocuses(data);
+
+      data.forEach(function (obj) {
+        changeObjectPropertyName(obj, "focusChartData", "focus_chart_data");
+        changeObjectPropertyName(obj, "activityTitle", "activity_title");
+      });
+
+      mainTable.updateSubtableVal(data);
+
+      console.log("ajax data:  " + data);
+      console.log("textStatus:  " + textStatus);
+      console.log("jqXHR:  " + jqXHR);
+    }
+
+    function errorF(jqXHR, textStatus, errorThrown) {
+      console.log("error jqXHR:  " + jqXHR);
+      console.log("error textStatus:  " + textStatus);
+      console.log("error errorThrown:  " + errorThrown);
+    }
+
+
+  }
 })(jqModule, vuetifyModule, vueModule, eXoVueI18nModule, googleChartsModule);
 

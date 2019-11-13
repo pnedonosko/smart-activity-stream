@@ -16,12 +16,18 @@ body {
 }
 
 #subtable {
-    margin-right: 24px;
+    padding-bottom: 1px;
+    padding-top: 3px;
 }
 
 #subtable .v-data-table-header {
     visibility: hidden;
 }
+
+#subtable .subtable-hidden-value {
+    visibility: hidden;
+}
+
 
 #subtable .v-data-footer {
     display: none;

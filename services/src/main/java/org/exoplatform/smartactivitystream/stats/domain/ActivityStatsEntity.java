@@ -29,8 +29,11 @@ import java.util.Locale;
     + "SUM(f.LINK_HITS) AS LINK_HITS FROM ST_ACTIVITY_FOCUS f WHERE f.ACTIVITY_ID = :activityId "
     + "GROUP BY f.ACTIVITY_ID", resultClass = ActivityStatsEntity.class) })
 
-@NamedQueries({ @NamedQuery(name = "SmartActivityStats.findActivityFocusChartData", query = "SELECT s.startTime, s.totalShown "
-    + "FROM SmartActivityStats s WHERE s.activityId = :activityId ORDER BY s.startTime ASC") })
+@NamedQueries({
+    @NamedQuery(name = "SmartActivityStats.findActivityFocusChartData", query = "SELECT s.startTime, s.totalShown "
+        + "FROM SmartActivityStats s WHERE s.activityId = :activityId ORDER BY s.startTime ASC"),
+    @NamedQuery(name = "SmartActivityStats.findActivityFocuses", query = "SELECT s "
+        + "FROM SmartActivityStats s WHERE s.activityId = :activityId AND s.startTime > :startScalePoint ORDER BY s.startTime ASC") })
 
 public class ActivityStatsEntity extends BaseActivityFocusEntity {
 
