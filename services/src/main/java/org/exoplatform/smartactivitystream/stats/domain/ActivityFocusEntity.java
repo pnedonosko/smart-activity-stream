@@ -79,27 +79,6 @@ public class ActivityFocusEntity extends BaseActivityFocusEntity {
   public ActivityFocusEntity() {
   }
 
-  /*public ActivityFocusEntity(String userId,
-                             String activityId,
-                             Long startTime,
-                             Long stopTime,
-                             Long totalShown,
-                             Long contentShown,
-                             Long convoShown,
-                             Long contentHits,
-                             Long convoHits,
-                             Long appHits,
-                             Long profileHits,
-                             Long linkHits,
-                             String trackerVersion) {
-    super(stopTime, totalShown, contentShown, convoShown, contentHits, convoHits, appHits, profileHits, linkHits);
-    setActivityId(activityId);
-    setStartTime(startTime);
-    setUserId(userId);
-    setTrackerVersion(trackerVersion);
-    setHashCode(0);
-  }*/
-
   /**
    * Gets the user id.
    *

@@ -95,48 +95,4 @@ public class ActivityFocusDAO extends GenericDAOJPAImpl<ActivityFocusEntity, Act
       return Collections.emptyList();
     }
   }
-
-  /**
-   *
-   * will change
-   * Find all focus records for given activity.
-   *
-   * @param activityId the activity id
-   * @return the list
-   */
-  public List<ActivityFocusEntity> findActivityFocus(String activityId) {
-
-    String queryForActivityFocus =
-                                 "SELECT NEW org.exoplatform.smartactivitystream.stats.domain.ActivityFocusEntity(MAX(f.userId), f.activityId, MIN(f.startTime), "
-                                     + "MAX(f.stopTime), SUM(f.totalShown), SUM(f.contentShown), SUM(f.convoShown), SUM(f.contentHits), SUM(f.convoHits), "
-                                     + "SUM(f.appHits), SUM(f.profileHits), SUM(f.linkHits), MAX(f.trackerVersion))  FROM SmartActivityFocus f "
-                                     + "WHERE f.activityId = :activityId GROUP BY f.activityId";
-
-    LOG.info("findActivityFocus start");
-
-    TypedQuery<ActivityFocusEntity> query = getEntityManager().createQuery(queryForActivityFocus, ActivityFocusEntity.class)
-                                                              .setParameter("activityId", activityId);
-    ;
-
-    LOG.info("findActivityFocus start query");
-    try {
-
-      List<ActivityFocusEntity> activityFocusEntities = query.getResultList();
-
-      LOG.info("findActivityFocus query finished successfully: "
-          + Arrays.toString(activityFocusEntities.toArray(new ActivityFocusEntity[0])));
-
-      return activityFocusEntities;
-    } catch (NoResultException e) {
-      LOG.error("findActivityFocus NoResultException", e);
-      return Collections.emptyList();
-    } catch (Exception e) {
-      LOG.error("findActivityFocus Exception", e);
-      return Collections.emptyList();
-    }
-  }
-
-
-
-
 }

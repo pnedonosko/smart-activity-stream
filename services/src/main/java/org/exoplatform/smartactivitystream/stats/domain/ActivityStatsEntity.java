@@ -101,23 +101,6 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
   public ActivityStatsEntity() {
   }
 
-  public ActivityStatsEntity(String activityTitle,
-                             Long activityCreated,
-                             Long activityUpdated,
-                             String activityId,
-                             Locale userLocale) {
-
-    setActivityTitle(activityTitle);
-
-    setActivityCreatedMilliseconds(activityCreated);
-
-    setActivityUpdatedMilliseconds(activityUpdated);
-
-    setActivityId(activityId);
-
-    setUserLocale(userLocale);
-  }
-
   private void setLocaleDateToData() {
 
     /*

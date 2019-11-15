@@ -89,10 +89,10 @@ public class RESTActivityStatsService implements ResourceContainer {
                                            @PathParam("substream") String substream) {
     if (LOG.isDebugEnabled()) {
       LOG.debug(">> getUserActivitiesFocuses");
-    }
 
-    LOG.info("stream: " + stream);
-    LOG.info("substream: " + substream);
+      LOG.debug("stream: " + stream);
+      LOG.debug("substream: " + substream);
+    }
 
     ConversationState convo = ConversationState.getCurrent();
     if (convo != null) {
@@ -108,10 +108,10 @@ public class RESTActivityStatsService implements ResourceContainer {
 
       UserActivityStats userActivityStats = new UserActivityStats(activityStatsEntities, maxTotalShown);
 
-      LOG.info("RESTActivityStatsService activityStatsEntities: "
-          + Arrays.toString(activityStatsEntities.toArray(new ActivityStatsEntity[0])));
-
       if (LOG.isDebugEnabled()) {
+        LOG.debug("RESTActivityStatsService activityStatsEntities: "
+                + Arrays.toString(activityStatsEntities.toArray(new ActivityStatsEntity[0])));
+
         LOG.debug("<< getUserActivitiesFocuses");
       }
       return Response.status(Status.ACCEPTED).entity(userActivityStats).build();
@@ -139,11 +139,12 @@ public class RESTActivityStatsService implements ResourceContainer {
                                      @PathParam("timeScale") String timeScale) {
     if (LOG.isDebugEnabled()) {
       LOG.debug(">> getActivityFocuses");
+
+      LOG.debug("activity: " + activityId);
+      LOG.debug("timeScale: " + timeScale);
     }
 
-    LOG.info("getActivityFocuses");
-    LOG.info("activity: " + activityId);
-    LOG.info("timeScale: " + timeScale);
+
 
     ConversationState convo = ConversationState.getCurrent();
     if (convo != null) {

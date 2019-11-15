@@ -221,7 +221,16 @@ public class ActivityStatsService implements Startable {
   }
 
   public Long getMaxTotalShown() {
-    return statsStorage.findMaxTotalShown();
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(">>> getMaxTotalShown");
+    }
+
+    Long maxTotalShown = statsStorage.findMaxTotalShown();
+
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("<<< getMaxTotalShown");
+    }
+    return maxTotalShown;
   }
 
   /**
@@ -234,7 +243,9 @@ public class ActivityStatsService implements Startable {
    */
   public List<ActivityStatsEntity> getActivityFocuses(String activityId, String timeScale, Locale userLocale) {
 
-    LOG.info("findActivityFocus start");
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(">>> getActivityFocuses");
+    }
 
     List<ActivityStatsEntity> activityFocuses = statsStorage.findActivityFocuses(activityId, timeScale);
 
@@ -242,15 +253,23 @@ public class ActivityStatsService implements Startable {
       activityFocus.setUserLocale(userLocale);
     }
 
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("<<< getActivityFocuses");
+    }
+
     return activityFocuses;
   }
 
   public ActivityStatsEntity findActivityStats(String activityId) {
-    LOG.info("findActivityStats start");
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(">>> findActivityStats");
+    }
 
     ActivityStatsEntity activityStatsRecord = statsStorage.findActivityStats(activityId);
 
-    LOG.info("findActivityStats finished");
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("<<< findActivityStats");
+    }
 
     return activityStatsRecord;
   }

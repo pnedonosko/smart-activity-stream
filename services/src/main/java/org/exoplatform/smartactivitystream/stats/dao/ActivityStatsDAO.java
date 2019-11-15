@@ -28,18 +28,26 @@ public class ActivityStatsDAO extends GenericDAOJPAImpl<ActivityStatsEntity, Act
    */
   public ActivityStatsEntity findActivityStats(String activityId) {
 
-    LOG.info("findActivityStats start");
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(">>>> findActivityStats");
+    }
 
     TypedQuery<ActivityStatsEntity> query = getEntityManager()
                                                               .createNamedQuery("SmartActivityStats.findActivityStats",
                                                                                 ActivityStatsEntity.class)
                                                               .setParameter("activityId", activityId);
 
-    LOG.info("findActivityStats start query");
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("start query");
+    }
+
     try {
       ActivityStatsEntity activityStatsEntity = query.getSingleResult();
 
-      LOG.info("findActivityStats query finished successfully: " + activityStatsEntity);
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("query finished successfully: " + activityStatsEntity);
+        LOG.debug("<<<< findActivityStats");
+      }
 
       return activityStatsEntity;
     } catch (NoResultException e) {
@@ -59,12 +67,17 @@ public class ActivityStatsDAO extends GenericDAOJPAImpl<ActivityStatsEntity, Act
    */
   public List<String[]> findActivityFocusChartData(String activityId) {
 
-    LOG.info("findActivityFocusChartData start");
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(">>>> findActivityFocusChartData");
+    }
 
     TypedQuery<Tuple> query = getEntityManager().createNamedQuery("SmartActivityStats.findActivityFocusChartData", Tuple.class)
                                                 .setParameter("activityId", activityId);
 
-    LOG.info("findActivityFocusChartData start query");
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(">>>> start query");
+    }
+
     try {
 
       List<Tuple> activityFocusChartDataT = query.getResultList();
@@ -73,6 +86,11 @@ public class ActivityStatsDAO extends GenericDAOJPAImpl<ActivityStatsEntity, Act
       for (Tuple tuple : activityFocusChartDataT) {
         activityFocusChartData.add(new String[] { Long.class.cast(tuple.get(0)).toString(),
             Long.class.cast(tuple.get(1)).toString() });
+      }
+
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("query finished successfully: ");
+        LOG.debug("<<<< findActivityFocusChartData");
       }
 
       return activityFocusChartData;
@@ -93,7 +111,9 @@ public class ActivityStatsDAO extends GenericDAOJPAImpl<ActivityStatsEntity, Act
    */
   public List<ActivityStatsEntity> findActivityFocuses(String activityId, String scaleTime) {
 
-    LOG.info("findActivityFocuses start");
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(">>>> findActivityFocuses");
+    }
 
     TypedQuery<ActivityStatsEntity> query = getEntityManager()
                                                               .createNamedQuery("SmartActivityStats.findActivityFocuses",
@@ -101,13 +121,17 @@ public class ActivityStatsDAO extends GenericDAOJPAImpl<ActivityStatsEntity, Act
                                                               .setParameter("activityId", activityId)
                                                               .setParameter("scaleTime", Long.parseLong(scaleTime));
 
-    LOG.info("findActivityFocuses start query");
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("start query");
+    }
 
     try {
       List<ActivityStatsEntity> activityStatsEntities = query.getResultList();
 
-      LOG.info("findActivityFocuses query finished successfully: "
-          + Arrays.toString(activityStatsEntities.toArray(new ActivityStatsEntity[0])));
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("query finished successfully: " + Arrays.toString(activityStatsEntities.toArray(new ActivityStatsEntity[0])));
+        LOG.debug("<<<< findActivityFocuses");
+      }
 
       return activityStatsEntities;
     } catch (NoResultException e) {
@@ -125,14 +149,23 @@ public class ActivityStatsDAO extends GenericDAOJPAImpl<ActivityStatsEntity, Act
    * @return the max number of total shown
    */
   public Long findMaxTotalShown() {
-    LOG.info("findMaxTotalShown start");
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(">>>> findMaxTotalShown");
+    }
 
     TypedQuery<Long> queryTest = getEntityManager().createNamedQuery("SmartActivityStats.findMaxTotalFocus", Long.class);
 
-    LOG.info("findMaxTotalShown start query");
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("start query");
+    }
 
     try {
       Long maxTotalShown = queryTest.getSingleResult();
+
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("query finished successfully: ");
+        LOG.debug("<<<< findMaxTotalShown");
+      }
 
       return maxTotalShown;
     } catch (NoResultException e) {
