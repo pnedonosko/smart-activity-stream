@@ -59,6 +59,7 @@
               v-on:item-expanded="selectTableRow"
               :single-expand="true"
               :expanded.sync="expanded"
+              :custom-sort="customSort"
               class="elevation-1"
               show-expand
               item-key="activityCreated"

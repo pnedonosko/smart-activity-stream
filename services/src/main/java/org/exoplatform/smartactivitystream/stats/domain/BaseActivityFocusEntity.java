@@ -1,8 +1,6 @@
 package org.exoplatform.smartactivitystream.stats.domain;
 
 import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
 import javax.persistence.MappedSuperclass;
 import java.io.Externalizable;
 import java.io.IOException;

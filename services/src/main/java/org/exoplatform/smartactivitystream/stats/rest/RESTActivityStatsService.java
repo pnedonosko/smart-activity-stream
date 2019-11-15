@@ -17,6 +17,7 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.smartactivitystream.stats.ActivityStatsService;
+import org.exoplatform.smartactivitystream.stats.domain.ActivityStatsAggregatorEntity;
 import org.exoplatform.smartactivitystream.stats.domain.ActivityStatsEntity;
 
 import java.util.Arrays;
@@ -103,13 +104,17 @@ public class RESTActivityStatsService implements ResourceContainer {
                                                                                                       currentUserId,
                                                                                                       userLocale);
 
+      Long                      maxTotalShown = activityStatsService.getMaxTotalShown();
+
+      ActivityStatsAggregatorEntity activityStatsAggregatorEntity = new ActivityStatsAggregatorEntity(activityStatsEntities,maxTotalShown);
+
       LOG.info("RESTActivityStatsService activityStatsEntities: "
           + Arrays.toString(activityStatsEntities.toArray(new ActivityStatsEntity[0])));
 
       if (LOG.isDebugEnabled()) {
         LOG.debug("<< getUserActivitiesFocuses");
       }
-      return Response.status(Status.ACCEPTED).entity(activityStatsEntities.toArray()).build();
+      return Response.status(Status.ACCEPTED).entity(activityStatsAggregatorEntity).build();
     } else {
       if (LOG.isDebugEnabled()) {
         LOG.debug("<< getUserActivitiesFocuses conversationState == null");

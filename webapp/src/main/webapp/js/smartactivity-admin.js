@@ -61,6 +61,9 @@
   var activitiesStreamPrettyIdMaxString = "";
   var activitiesTitleMaxString = "";
 
+  //activity stats max total shown
+  var maxTotalShown;
+
   $(document).ready(function () {
 
     console.log("prefixUrl: " + prefixUrl);
@@ -141,9 +144,10 @@
             }
           }
         },
-        updateSubtableVal : function (newData) {
+        clearSubtableVal : function () {
           this.subtableVal.splice(0, this.subtableVal.length);
-
+        },
+        updateSubtableVal : function (newData) {
           for (var index in newData) {
             copyActivityDataToActivityFocus(newData[index]);
             this.subtableVal.push(newData[index]);
@@ -163,6 +167,39 @@
           setTimeout(createChart, 25, id, item);
 
           return id;
+        },
+        customSort : function (items, index, isDesc) {
+
+          //default custom sort
+          if (index.length == 0) {
+            var aRating;
+            var bRating;
+
+            items.sort((a, b) => {
+              aRating = a.totalShown / (a.stopTime - a.startTime);
+              bRating = b.totalShown / (b.stopTime - b.startTime);
+
+              return bRating - aRating;
+            });
+          } else {
+            items.sort((a, b) => {
+              if (typeof a[index] == "string") {
+                if (!isDesc[0]) {
+                  return a[index].localeCompare(b[index]);
+                } else {
+                  return b[index].localeCompare(a[index]);
+                }
+              } else {
+                if (!isDesc[0]) {
+                  return a[index] < b[index] ? -1 : 1;
+                } else {
+                  return b[index] < a[index] ? -1 : 1;
+                }
+              }
+            });
+          }
+
+          return items;
         }
       }
     });
@@ -311,12 +348,17 @@
 
     function successF(data, textStatus, jqXHR) {
 
-      data.forEach(function (obj) {
+      var tableData = data.activityStatsEntities;
+      maxTotalShown = data.maxTotalShown;
+
+      tableData.forEach(function (obj) {
+        obj.activity_created = obj.activityCreated;
+        obj.activity_updated = obj.activityUpdated;
         changeObjectPropertyName(obj, "focusChartData", "focus_chart_data");
         changeObjectPropertyName(obj, "activityTitle", "activity_title");
       });
 
-      mainTable.updateTableVal(data);
+      mainTable.updateTableVal(tableData);
 
 
       console.log("ajax data:  " + data);
@@ -348,7 +390,7 @@
       var options = {
         // title : 'Focuses',
         hAxis : {title : 'Time', titleTextStyle : {color : '#333'}},
-        vAxis : {minValue : 0}
+        vAxis : {minValue : 0, maxValue : maxTotalShown}
       };
 
       var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
@@ -428,6 +470,8 @@
 
   function getActivityFocuses(activityId) {
 
+    mainTable.clearSubtableVal();
+
     $.ajax({
       async : true,
       type : "GET",
@@ -439,8 +483,6 @@
     });
 
     function successF(data, textStatus, jqXHR) {
-
-      //copyActivityDataToActivityFocuses(data);
 
       data.forEach(function (obj) {
         changeObjectPropertyName(obj, "focusChartData", "focus_chart_data");

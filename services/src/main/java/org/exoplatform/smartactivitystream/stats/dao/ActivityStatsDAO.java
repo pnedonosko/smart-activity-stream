@@ -7,6 +7,7 @@ import org.exoplatform.smartactivitystream.stats.domain.ActivityStatsEntity;
 import org.exoplatform.smartactivitystream.stats.domain.ActivityStatsId;
 
 import javax.persistence.NoResultException;
+import javax.persistence.Query;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import java.util.*;
@@ -25,7 +26,7 @@ public class ActivityStatsDAO extends GenericDAOJPAImpl<ActivityStatsEntity, Act
    * @param activityId the activity id
    * @return the list
    */
-  public List<ActivityStatsEntity> findActivityStats(String activityId) {
+  public ActivityStatsEntity findActivityStats(String activityId) {
 
     LOG.info("findActivityStats start");
 
@@ -36,19 +37,17 @@ public class ActivityStatsDAO extends GenericDAOJPAImpl<ActivityStatsEntity, Act
 
     LOG.info("findActivityStats start query");
     try {
+      ActivityStatsEntity activityStatsEntity = query.getSingleResult();
 
-      List<ActivityStatsEntity> activityStatsEntities = query.getResultList();
+      LOG.info("findActivityStats query finished successfully: " + activityStatsEntity);
 
-      LOG.info("findActivityStats query finished successfully: "
-          + Arrays.toString(activityStatsEntities.toArray(new ActivityStatsEntity[0])));
-
-      return activityStatsEntities;
+      return activityStatsEntity;
     } catch (NoResultException e) {
       LOG.error("findActivityStats NoResultException", e);
-      return Collections.emptyList();
+      return null;
     } catch (Exception e) {
       LOG.error("findActivityStats Exception", e);
-      return Collections.emptyList();
+      return null;
     }
   }
 
@@ -94,31 +93,54 @@ public class ActivityStatsDAO extends GenericDAOJPAImpl<ActivityStatsEntity, Act
    */
   public List<ActivityStatsEntity> findActivityFocuses(String activityId, String scaleTime) {
 
-    LOG.info("findActivityStats start");
-
-    Long startScalePoint = new Date().getTime() - Long.parseLong(scaleTime);
+    LOG.info("findActivityFocuses start");
 
     TypedQuery<ActivityStatsEntity> query = getEntityManager()
                                                               .createNamedQuery("SmartActivityStats.findActivityFocuses",
                                                                                 ActivityStatsEntity.class)
                                                               .setParameter("activityId", activityId)
-                                                              .setParameter("startScalePoint", startScalePoint);
+                                                              .setParameter("scaleTime", Long.parseLong(scaleTime));
 
-    LOG.info("findActivityStats start query");
+    LOG.info("findActivityFocuses start query");
+
     try {
-
       List<ActivityStatsEntity> activityStatsEntities = query.getResultList();
 
-      LOG.info("findActivityStats query finished successfully: "
+      LOG.info("findActivityFocuses query finished successfully: "
           + Arrays.toString(activityStatsEntities.toArray(new ActivityStatsEntity[0])));
 
       return activityStatsEntities;
     } catch (NoResultException e) {
-      LOG.error("findActivityStats NoResultException", e);
+      LOG.error("findActivityFocuses NoResultException", e);
       return Collections.emptyList();
     } catch (Exception e) {
-      LOG.error("findActivityStats Exception", e);
+      LOG.error("findActivityFocuses Exception", e);
       return Collections.emptyList();
+    }
+  }
+
+  /**
+   * Find the max number of total shown.
+   *
+   * @return the max number of total shown
+   */
+  public Long findMaxTotalShown() {
+    LOG.info("findMaxTotalShown start");
+
+    TypedQuery<Long> queryTest = getEntityManager().createNamedQuery("SmartActivityStats.findMaxTotalFocus", Long.class);
+
+    LOG.info("findMaxTotalShown start query");
+
+    try {
+      Long maxTotalShown = queryTest.getSingleResult();
+
+      return maxTotalShown;
+    } catch (NoResultException e) {
+      LOG.error("findMaxTotalShown NoResultException", e);
+      return null;
+    } catch (Exception e) {
+      LOG.error("findMaxTotalShown Exception", e);
+      return null;
     }
   }
 }

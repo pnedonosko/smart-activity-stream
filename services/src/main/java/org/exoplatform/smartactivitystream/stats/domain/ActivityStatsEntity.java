@@ -26,14 +26,19 @@ import java.util.Locale;
     + "MIN(f.START_TIME) AS START_TIME, MAX(f.STOP_TIME) AS STOP_TIME, SUM(f.TOTAL_SHOWN) AS TOTAL_SHOWN, "
     + "SUM(f.CONTENT_SHOWN) AS CONTENT_SHOWN, SUM(f.CONVO_SHOWN) AS CONVO_SHOWN, SUM(f.CONTENT_HITS) AS CONTENT_HITS, "
     + "SUM(f.CONVO_HITS) AS CONVO_HITS, SUM(f.APP_HITS) AS APP_HITS, SUM(f.PROFILE_HITS) AS PROFILE_HITS, "
-    + "SUM(f.LINK_HITS) AS LINK_HITS FROM ST_ACTIVITY_FOCUS f WHERE f.ACTIVITY_ID = :activityId "
-    + "GROUP BY f.ACTIVITY_ID", resultClass = ActivityStatsEntity.class) })
+    + "SUM(f.LINK_HITS) AS LINK_HITS FROM ST_ACTIVITY_FOCUS f "
+    + "WHERE f.ACTIVITY_ID = :activityId GROUP BY f.ACTIVITY_ID", resultClass = ActivityStatsEntity.class),
+    @NamedNativeQuery(name = "SmartActivityStats.findActivityFocuses", query = "SELECT MAX(f.ACTIVITY_ID) AS ACTIVITY_ID, "
+        + "MIN(f.START_TIME) AS START_TIME, MAX(f.STOP_TIME) AS STOP_TIME, SUM(f.TOTAL_SHOWN) AS TOTAL_SHOWN, "
+        + "SUM(f.CONTENT_SHOWN) AS CONTENT_SHOWN, SUM(f.CONVO_SHOWN) AS CONVO_SHOWN, SUM(f.CONTENT_HITS) AS CONTENT_HITS, "
+        + "SUM(f.CONVO_HITS) AS CONVO_HITS, SUM(f.APP_HITS) AS APP_HITS, SUM(f.PROFILE_HITS) AS PROFILE_HITS, "
+        + "SUM(f.LINK_HITS) AS LINK_HITS FROM ST_ACTIVITY_FOCUS f WHERE f.ACTIVITY_ID = :activityId "
+        + "GROUP BY (f.START_TIME - MOD(f.START_TIME,:scaleTime))/:scaleTime ORDER BY START_TIME DESC", resultClass = ActivityStatsEntity.class) })
 
 @NamedQueries({
     @NamedQuery(name = "SmartActivityStats.findActivityFocusChartData", query = "SELECT s.startTime, s.totalShown "
         + "FROM SmartActivityStats s WHERE s.activityId = :activityId ORDER BY s.startTime ASC"),
-    @NamedQuery(name = "SmartActivityStats.findActivityFocuses", query = "SELECT s "
-        + "FROM SmartActivityStats s WHERE s.activityId = :activityId AND s.startTime > :startScalePoint ORDER BY s.startTime ASC") })
+    @NamedQuery(name = "SmartActivityStats.findMaxTotalFocus", query = "SELECT MAX(s.totalShown) FROM SmartActivityStats s") })
 
 public class ActivityStatsEntity extends BaseActivityFocusEntity {
 

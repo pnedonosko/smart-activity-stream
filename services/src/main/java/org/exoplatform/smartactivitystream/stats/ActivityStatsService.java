@@ -220,11 +220,16 @@ public class ActivityStatsService implements Startable {
     return this.activityManager;
   }
 
+  public Long getMaxTotalShown() {
+    return statsStorage.findMaxTotalShown();
+  }
+
   /**
    * Gets the data for the subtable
    * 
    * @param activityId the selected activity of the table
    * @param timeScale the time scaling
+   * @param userLocale the user locale
    * @return list of the activity subtable (user focuses on selected activity)
    */
   public List<ActivityStatsEntity> getActivityFocuses(String activityId, String timeScale, Locale userLocale) {
@@ -241,19 +246,13 @@ public class ActivityStatsService implements Startable {
   }
 
   public ActivityStatsEntity findActivityStats(String activityId) {
-    ActivityStatsEntity activityStatsEntity = null;
-
     LOG.info("findActivityStats start");
-    List<ActivityStatsEntity> activityStatsRecords = activityStatsRecords = statsStorage.findActivityStats(activityId);
 
-    if (activityStatsRecords.size() > 0) {
-      LOG.info("findActivityStats activityFocusRecords.size>0, size:" + activityStatsRecords.size());
-      activityStatsEntity = activityStatsRecords.get(0);
-      LOG.info("activityStatsEntity:" + activityStatsEntity.toString());
-      LOG.info("findActivityStats finished successfully");
-    }
+    ActivityStatsEntity activityStatsRecord = statsStorage.findActivityStats(activityId);
 
-    return activityStatsEntity;
+    LOG.info("findActivityStats finished");
+
+    return activityStatsRecord;
   }
 
   public Identity getUserIdentity(String userId) {
