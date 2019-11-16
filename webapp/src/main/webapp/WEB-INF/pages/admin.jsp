@@ -123,7 +123,8 @@
                     >
 
                       <template v-slot:item.data-table-expand="{ item }">
-                        <div class="subtable-data-table-expand subtable-hidden-value" style="width: 24px;"></div>
+                        <div class="subtable-data-table-expand subtable-hidden-value subtable-chart-neighbor"
+                             style="width: 24px;"></div>
                       </template>
 
                       <template v-slot:item.activity_title="{ item }">
@@ -165,7 +166,7 @@
       <ul>
 
         <c:forEach items="${userSpaces}" var="spaceItem" varStatus="myItemStat">
-          <li class="user-space">
+          <li class="user-space" id-value="${spaceItem.prettyName}">
               ${spaceItem.displayName}
           </li>
         </c:forEach>
@@ -175,9 +176,9 @@
     <div id="user-connections">
       <ul>
 
-        <c:forEach items="${userConnections}" var="userFullNameItem" varStatus="myItemStat">
-          <li class="user-connection">
-              ${userFullNameItem}
+        <c:forEach items="${userConnections}" var="userConnection" varStatus="myItemStat">
+          <li class="user-connection" id-value="${userConnection.id}">
+              ${userConnection.fullName}
           </li>
         </c:forEach>
 

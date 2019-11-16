@@ -19,15 +19,12 @@
 package org.exoplatform.smartactivitystream.stats;
 
 import java.security.PrivilegedAction;
-import java.text.DateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.persistence.PersistenceException;
-import javax.persistence.Tuple;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.tika.parser.microsoft.OutlookExtractor;
 import org.exoplatform.smartactivitystream.stats.dao.ActivityStatsDAO;
 import org.exoplatform.smartactivitystream.stats.domain.ActivityStatsEntity;
 import org.exoplatform.social.common.RealtimeListAccess;
@@ -66,7 +63,6 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.smartactivitystream.stats.dao.ActivityFocusDAO;
 import org.exoplatform.smartactivitystream.stats.domain.ActivityFocusEntity;
-import org.exoplatform.smartactivitystream.stats.domain.ActivityFocusId;
 
 /**
  * Created by The eXo Platform SAS.
@@ -290,6 +286,10 @@ public class ActivityStatsService implements Startable {
                                                             String substream,
                                                             String currentUserId,
                                                             Locale userLocale) {
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(">>> getUserActivitiesFocuses");
+    }
+
     List<ActivityStatsEntity> activityStatsEntities = new LinkedList<>();
 
     if (stream != null) {
@@ -302,9 +302,15 @@ public class ActivityStatsService implements Startable {
         case "All streams": {
           RealtimeListAccess<ExoSocialActivity> usersActivities = activityManager.getActivityFeedWithListAccess(userIdentity);
           List<ExoSocialActivity> allUserActivities = usersActivities.loadAsList(0, usersActivities.getSize());
-          LOG.info("All streams");
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Stream selector: All streams");
+          }
+
           for (ExoSocialActivity exoSocialActivity : allUserActivities) {
-            LOG.info("All streams add");
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("activity selected:" + exoSocialActivity.getName());
+            }
+
             addActivityToUserFocuses(exoSocialActivity, activityStatsEntities);
           }
           break;
@@ -313,7 +319,10 @@ public class ActivityStatsService implements Startable {
           RealtimeListAccess<ExoSocialActivity> usersActivities =
                                                                 activityManager.getActivitiesOfUserSpacesWithListAccess(userIdentity);
           List<ExoSocialActivity> allUserActivities = usersActivities.loadAsList(0, usersActivities.getSize());
-          LOG.info("Space");
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Stream selector: Space");
+          }
+
           addActivitiesFromUserSpaceToUserFocuses(allUserActivities, substream, activityStatsEntities);
           break;
         }
@@ -321,14 +330,21 @@ public class ActivityStatsService implements Startable {
           RealtimeListAccess<ExoSocialActivity> usersActivities =
                                                                 activityManager.getActivitiesOfConnectionsWithListAccess(userIdentity);
           List<ExoSocialActivity> allUserActivities = usersActivities.loadAsList(0, usersActivities.getSize());
-          LOG.info("User");
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Stream selector: User");
+          }
+
           addActivitiesFromUserConnectionsToUserFocuses(allUserActivities, substream, activityStatsEntities);
           break;
         }
         }
-
       }
     }
+
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("<<< getUserActivitiesFocuses");
+    }
+
     return activityStatsEntities;
   }
 
@@ -363,16 +379,28 @@ public class ActivityStatsService implements Startable {
                                                        List<ActivityStatsEntity> activityStatsEntities) {
     if (substreamSelected != null) {
       if ("All spaces".equals(substreamSelected)) {
-        LOG.info("All spaces");
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("All spaces");
+        }
+
         for (ExoSocialActivity exoSocialActivity : allUserActivities) {
-          LOG.info("All spaces add");
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("activity selected:" + exoSocialActivity.getName());
+          }
+
           addActivityToUserFocuses(exoSocialActivity, activityStatsEntities);
         }
       } else {
-        LOG.info("space " + substreamSelected);
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("space: " + substreamSelected);
+        }
+
         for (ExoSocialActivity exoSocialActivity : allUserActivities) {
-          if (substreamSelected.equals(exoSocialActivity.getStreamId())) {
-            LOG.info("space add");
+          if (substreamSelected.equals(exoSocialActivity.getActivityStream().getPrettyId())) {
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("activity selected:" + exoSocialActivity.getName());
+            }
+
             addActivityToUserFocuses(exoSocialActivity, activityStatsEntities);
           }
         }
@@ -385,17 +413,27 @@ public class ActivityStatsService implements Startable {
                                                              List<ActivityStatsEntity> activityStatsEntities) {
     if (substreamSelected != null) {
       if ("All users".equals(substreamSelected)) {
-        LOG.info("All users");
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("All users");
+        }
 
         for (ExoSocialActivity exoSocialActivity : allUserActivities) {
-          LOG.info("All users add");
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("activity selected:" + exoSocialActivity.getName());
+          }
           addActivityToUserFocuses(exoSocialActivity, activityStatsEntities);
         }
       } else {
-        LOG.info("user " + substreamSelected);
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("user: " + substreamSelected);
+        }
+
         for (ExoSocialActivity exoSocialActivity : allUserActivities) {
           if (substreamSelected.equals(exoSocialActivity.getUserId())) {
-            LOG.info("user add");
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("activity selected:" + exoSocialActivity.getName());
+            }
+
             addActivityToUserFocuses(exoSocialActivity, activityStatsEntities);
           }
         }

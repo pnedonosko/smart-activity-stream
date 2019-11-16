@@ -103,13 +103,6 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
 
   private void setLocaleDateToData() {
 
-    /*
-     * Locale locale; try { locale = Util.getPortalRequestContext().getLocale(); }
-     * catch (Exception e) {
-     * LOG.warn("Cannot get locale from portal request context. {}", e); locale =
-     * Locale.getDefault(); }
-     */
-
     SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, getUserLocale());
 
     if (getActivityCreatedMilliseconds() != null) {

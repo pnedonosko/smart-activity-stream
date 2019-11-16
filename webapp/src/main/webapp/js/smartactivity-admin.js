@@ -22,6 +22,7 @@
 
   var streamSelected = 'All streams';
   var substreamSelected = null;
+  var substreamSelectedId = null;
   var streamPointSelectedData = [];
 
   var streamSettingsVars = [
@@ -124,7 +125,7 @@
           }
         },
         getDataForTheTable : function (event) {
-          getUserFocuses(streamSelected, substreamSelected);
+          getUserFocuses(streamSelected, substreamSelectedId);
         },
         updateTableVal : function (newData) {
           this.tableVal.splice(0, this.tableVal.length);
@@ -268,13 +269,16 @@
           switch (event) {
             case "All streams":
               substreamSelected = null;
+              substreamSelectedId = null;
               break;
             case "Space":
               substreamSelected = "All spaces";
+              substreamSelectedId = substreamSelected;
               getPointsOfTheSelectedStream("user-space");
               break;
             case "User":
               substreamSelected = "All users";
+              substreamSelectedId = substreamSelected;
               getPointsOfTheSelectedStream("user-connection");
               break;
           }
@@ -289,7 +293,10 @@
     streamPointSelectedData.length = 0;
 
     $(`.${dataClass}`).each(function (index) {
-      streamPointSelectedData.push({dataValue : $(this).text()});
+      streamPointSelectedData.push({
+        dataValue : $(this).text(),
+        streamPointId : $(this).attr("id-value")
+      });
     });
 
     addSubstreamSelector();
@@ -328,7 +335,17 @@
       methods : {
         selectSubstream : function (event) {
           substreamSelected = event;
+          substreamSelectedId = event;
+
+          for (let el of streamPointSelectedData) {
+            if (el.dataValue == substreamSelected) {
+              substreamSelectedId = el.streamPointId;
+              break;
+            }
+          }
+
           console.log("Selected substream: " + event);
+          console.log("Selected substreamId: " + substreamSelectedId);
         }
       }
     });

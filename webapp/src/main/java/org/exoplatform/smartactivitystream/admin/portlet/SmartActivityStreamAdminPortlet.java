@@ -28,6 +28,7 @@ import javax.portlet.*;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.smartactivitystream.admin.model.CustomUserConnection;
 import org.exoplatform.smartactivitystream.stats.ActivityStatsService;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.space.model.Space;
@@ -64,10 +65,11 @@ public class SmartActivityStreamAdminPortlet extends GenericPortlet {
     List<Space> userSpaces = activityStatsService.getUserSpaces(currentUserId);
 
     List<Identity> userConnections = activityStatsService.getUserConnections(currentUserId);
-    List<String> userConnectionsFullNames = new LinkedList<>();
+    List<CustomUserConnection> customUserConnections = new LinkedList<>();
 
     for (Identity connectionIdentity : userConnections) {
-      userConnectionsFullNames.add(connectionIdentity.getProfile().getFullName());
+      customUserConnections.add(new CustomUserConnection(connectionIdentity.getProfile().getId(),
+                                                         connectionIdentity.getProfile().getFullName()));
     }
 
     Map<String, String> messages = getResourceMessages("locale.smartactivity.SmartActivityStreamAdmin", request.getLocale());
@@ -75,7 +77,7 @@ public class SmartActivityStreamAdminPortlet extends GenericPortlet {
     // Markup
     request.setAttribute("messages", messages);
     request.setAttribute("userSpaces", userSpaces.toArray());
-    request.setAttribute("userConnections", userConnectionsFullNames.toArray());
+    request.setAttribute("userConnections", customUserConnections.toArray());
 
     try {
       PortletRequestDispatcher prDispatcher = getPortletContext().getRequestDispatcher("/WEB-INF/pages/admin.jsp");
@@ -86,5 +88,4 @@ public class SmartActivityStreamAdminPortlet extends GenericPortlet {
       LOG.error("Error processing Smart Activity Stream Admin portlet for user " + currentUserId, e);
     }
   }
-
 }
