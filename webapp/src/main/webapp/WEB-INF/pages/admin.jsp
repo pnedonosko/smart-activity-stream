@@ -76,7 +76,9 @@
             </template>
 
             <template v-slot:item.activity_title="{ item }">
-              <p class="activity-data-title" style="margin: 0;">{{ item.activity_title }}</p>
+              <p class="activity-data-title" style="margin: 0;">
+                <a :href="item.activityUrl" target="_blank">{{ item.activity_title }}</a>
+              </p>
               <v-chip color="rgb(193,204,240)" x-small="true" dark>{{ item.activityStreamPrettyId }}</v-chip>
             </template>
 

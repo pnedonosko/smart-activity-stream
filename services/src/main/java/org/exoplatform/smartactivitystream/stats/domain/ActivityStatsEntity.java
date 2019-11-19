@@ -22,12 +22,13 @@ import java.util.Locale;
 @ExoEntity
 @Table(name = "ST_ACTIVITY_FOCUS")
 @IdClass(ActivityStatsId.class)
-@NamedNativeQueries({ @NamedNativeQuery(name = "SmartActivityStats.findActivityStats", query = "SELECT f.ACTIVITY_ID, "
-    + "MIN(f.START_TIME) AS START_TIME, MAX(f.STOP_TIME) AS STOP_TIME, SUM(f.TOTAL_SHOWN) AS TOTAL_SHOWN, "
-    + "SUM(f.CONTENT_SHOWN) AS CONTENT_SHOWN, SUM(f.CONVO_SHOWN) AS CONVO_SHOWN, SUM(f.CONTENT_HITS) AS CONTENT_HITS, "
-    + "SUM(f.CONVO_HITS) AS CONVO_HITS, SUM(f.APP_HITS) AS APP_HITS, SUM(f.PROFILE_HITS) AS PROFILE_HITS, "
-    + "SUM(f.LINK_HITS) AS LINK_HITS FROM ST_ACTIVITY_FOCUS f "
-    + "WHERE f.ACTIVITY_ID = :activityId GROUP BY f.ACTIVITY_ID", resultClass = ActivityStatsEntity.class),
+@NamedNativeQueries({
+    @NamedNativeQuery(name = "SmartActivityStats.findActivityStats", query = "SELECT f.ACTIVITY_ID, "
+        + "MIN(f.START_TIME) AS START_TIME, MAX(f.STOP_TIME) AS STOP_TIME, SUM(f.TOTAL_SHOWN) AS TOTAL_SHOWN, "
+        + "SUM(f.CONTENT_SHOWN) AS CONTENT_SHOWN, SUM(f.CONVO_SHOWN) AS CONVO_SHOWN, SUM(f.CONTENT_HITS) AS CONTENT_HITS, "
+        + "SUM(f.CONVO_HITS) AS CONVO_HITS, SUM(f.APP_HITS) AS APP_HITS, SUM(f.PROFILE_HITS) AS PROFILE_HITS, "
+        + "SUM(f.LINK_HITS) AS LINK_HITS FROM ST_ACTIVITY_FOCUS f "
+        + "WHERE f.ACTIVITY_ID = :activityId GROUP BY f.ACTIVITY_ID", resultClass = ActivityStatsEntity.class),
     @NamedNativeQuery(name = "SmartActivityStats.findActivityFocuses", query = "SELECT MAX(f.ACTIVITY_ID) AS ACTIVITY_ID, "
         + "MIN(f.START_TIME) AS START_TIME, MAX(f.STOP_TIME) AS STOP_TIME, SUM(f.TOTAL_SHOWN) AS TOTAL_SHOWN, "
         + "SUM(f.CONTENT_SHOWN) AS CONTENT_SHOWN, SUM(f.CONVO_SHOWN) AS CONVO_SHOWN, SUM(f.CONTENT_HITS) AS CONTENT_HITS, "
@@ -94,6 +95,9 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
 
   @Transient
   private String[][]            focusChartData;
+
+  @Transient
+  private String                activityUrl;
 
   /** The hash code. */
   private transient int         hashCode;
@@ -256,6 +260,14 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
 
   public void setFocusChartData(String[][] focusChartData) {
     this.focusChartData = focusChartData;
+  }
+
+  public String getActivityUrl() {
+    return activityUrl;
+  }
+
+  public void setActivityUrl(String activityUrl) {
+    this.activityUrl = activityUrl;
   }
 
   @Override

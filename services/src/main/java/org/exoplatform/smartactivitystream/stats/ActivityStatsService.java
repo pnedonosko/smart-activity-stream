@@ -36,6 +36,7 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.IdentityManagerImpl;
+import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.RelationshipStorage;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
@@ -367,6 +368,8 @@ public class ActivityStatsService implements Startable {
 
       activityStatsEntity.setFocusChartData(statsStorage.findActivityFocusChartData(exoSocialActivityId)
                                                         .toArray(new String[0][]));
+
+      activityStatsEntity.setActivityUrl(LinkProvider.getSingleActivityUrl(exoSocialActivity.getId()));
 
       activityStatsEntity.setUserLocale(userLocale);
 
