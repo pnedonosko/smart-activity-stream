@@ -92,7 +92,6 @@
               <v-toolbar flat color="white">
                 <v-toolbar-title>Smartactivity Table</v-toolbar-title>
                 <v-spacer></v-spacer>
-
               </v-toolbar>
 
               <v-text-field
@@ -118,8 +117,10 @@
                         :headers="headers"
                         :items="subtableVal"
                         :items-per-page="1000"
+                        :search="subtableSearch"
                         sort-by="startTimeStatistics"
                         class="elevation-2 grey lighten-4"
+                        item-key="localStartTime"
                     >
 
                       <template v-slot:item.data-table-expand="{ item }">

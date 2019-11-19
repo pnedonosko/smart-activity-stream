@@ -28,7 +28,6 @@ body {
     visibility: hidden;
 }
 
-
 #subtable .v-data-footer {
     display: none;
 }
@@ -48,4 +47,18 @@ body {
 .activity-data-title {
     margin: 0;
 }
+
+.subchart {
+    position: absolute;
+    margin-top: 3px;
+    width: 370px;
+    height: 110px;
+    visibility: visible;
+    z-index: 1;
+}
+
+#subtable-chart {
+    display: block;
+}
+
 

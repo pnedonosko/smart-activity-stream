@@ -86,6 +86,7 @@
         return {
           expanded : [],
           search : '',
+          subtableSearch : '',
           singleExpand : true,
           headers : [
             {text : '', value : 'data-table-expand'},
@@ -115,6 +116,9 @@
       },
       methods : {
         selectTableRow : function (event) {
+
+          $('#subtable-chart').remove();
+
           if (event.value == true) {
             var activityTitle = event.item.activityTitle;
 
@@ -160,14 +164,21 @@
             activityFocus.activityCreated = lastOpenedMainTableRow.activityCreated;
             activityFocus.activityUpdated = lastOpenedMainTableRow.activityUpdated;
           }
+
+          this.drawSubtableChart();
         },
         drawChart : function (item) {
           var id = 'chart-div-' + item.activityId + '-' + item.startTime;
 
           //async call
-          setTimeout(createChart, 25, id, item);
+          setTimeout(createTableChart, 25, id, item);
 
           return id;
+        },
+        drawSubtableChart : function (items) {
+          //async call
+          //setTimeout(createSubtableChart, 25, this.subtableVal);
+          createSubtableChart(this.subtableVal);
         },
         customSort : function (items, index, isDesc) {
 
@@ -377,7 +388,6 @@
 
       mainTable.updateTableVal(tableData);
 
-
       console.log("ajax data:  " + data);
       console.log("textStatus:  " + textStatus);
       console.log("jqXHR:  " + jqXHR);
@@ -388,17 +398,18 @@
       console.log("error textStatus:  " + textStatus);
       console.log("error errorThrown:  " + errorThrown);
     }
-
   }
 
-  function drawChart(focusChartDatesAndValues) {
-    var headersAndData = [['Time', 'Focus']];
+  function createSubtableChart(subtableData) {
 
-    if (typeof myVar !== 'undefined') {
-      focusChartDatesAndValues.forEach(function (elem) {
-        elem[1] = Number(elem[1]);
-        headersAndData.push(elem);
-      });
+    if (subtableData.length != 0) {
+      $('#subtable-column').prepend(`<div id="subtable-chart" class="subchart"></div>`);
+
+      var headersAndData = [['Time', 'Focus']];
+
+      for (var i = subtableData.length - 1; i >= 0; --i) {
+        headersAndData.push([subtableData[i].localStartTime, Number(subtableData[i].totalShown)]);
+      }
 
       var data = google.visualization.arrayToDataTable(
         headersAndData
@@ -406,12 +417,31 @@
 
       var options = {
         // title : 'Focuses',
+        legend : 'none',
         hAxis : {title : 'Time', titleTextStyle : {color : '#333'}},
-        vAxis : {minValue : 0, maxValue : maxTotalShown}
+        vAxis : {minValue : 0}
       };
 
-      var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
+      var chart = new google.visualization.AreaChart(document.getElementById('subtable-chart'));
       chart.draw(data, options);
+
+      google.visualization.events.addListener(chart, 'onmouseover', function (e) {
+        findHoveredStatistic(data, e.row);
+      });
+
+      $('#subtable-chart').mouseleave(function () {
+          mainTable.subtableSearch = '';
+        }
+      );
+    }
+
+    function findHoveredStatistic(chartData, element) {
+      console.log("hovered point");
+      console.log(chartData);
+      console.log(element);
+
+      //search hovered point
+      mainTable.subtableSearch = chartData.jc[element][0].gf;
     }
   }
 
@@ -423,7 +453,7 @@
     }
   }
 
-  function createChart(id, item) {
+  function createTableChart(id, item) {
 
     var chartBlock = $(`#${id}`);
 
@@ -460,6 +490,7 @@
           },
           vAxis : {
             minValue : 0,
+            maxValue : maxTotalShown,
             textStyle : {
               color : '#FFF'
             },
