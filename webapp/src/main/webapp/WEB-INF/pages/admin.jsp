@@ -10,36 +10,40 @@
 <div id="webconferencing-admin" class="container-fluid">
   <h3 class="titleWithBorder">${messages["smartactivity.admin.title"]}</h3>
   <div class="content">
-    <div id="smartactivity-settings">
-      <h4>${messages["smartactivity.admin.setting-title"]}</h4>
+    <div id="smartactivity-settings" class="VuetifyApp">
 
-      <div id="time-scale" class="VuetifyApp">
-        <v-app id="time-scale-app">
-          <v-card flat color="transparent">
-            <v-subheader>${messages["smartactivity.admin.time-scale-setting-title"]}</v-subheader>
-            <v-card-text>
-              <v-slider
-                  v-model="timeScaleModel"
-                  :tick-labels="ticksLabels"
-                  :max="6"
-                  step="1"
-                  ticks="always"
-                  tick-size="7"
-                  v-on:change="selectTimeScale"
-              ></v-slider>
-            </v-card-text>
-          </v-card>
-        </v-app>
-      </div>
-
-      <div id="stream-selector" class="VuetifyApp">
-        <v-app id="stream-selector-app">
-          <v-subheader>Stream selector</v-subheader>
-          <div>
-            <v-select v-on:change="selectStream" v-model="stream" :items="streams"></v-select>
-          </div>
-        </v-app>
-      </div>
+      <b-container fluid>
+        <b-row>
+          <b-col cols="6">
+            <div id="time-scale">
+              <v-app id="time-scale-app">
+                <v-card flat color="transparent">
+                  <v-card-text>
+                    <v-slider
+                        v-model="timeScaleModel"
+                        :tick-labels="ticksLabels"
+                        :max="6"
+                        step="1"
+                        ticks="always"
+                        tick-size="7"
+                        v-on:change="selectTimeScale"
+                    ></v-slider>
+                  </v-card-text>
+                </v-card>
+              </v-app>
+            </div>
+          </b-col>
+          <b-col>
+            <div id="stream-selector">
+              <v-app id="stream-selector-app">
+                <div>
+                  <v-select v-on:change="selectStream" v-model="stream" :items="streams"></v-select>
+                </div>
+              </v-app>
+            </div>
+          </b-col>
+        </b-row>
+      </b-container>
 
     </div>
 
@@ -47,9 +51,6 @@
     <div id="app-smartactivity-table-vue-and-vuetify-wrapper" class="VuetifyApp">
       <v-container id="app-smartactivity-table-vue-and-vuetify" fluid>
         <v-app id="inspire-test">
-
-
-          <v-btn depressed large v-on:click="getDataForTheTable">Apply</v-btn>
 
           <v-data-table
               :headers="headers"

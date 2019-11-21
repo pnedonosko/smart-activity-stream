@@ -75,6 +75,11 @@
 
     defineStreamSelector();
 
+    //get all default table data
+    substreamSelected = null;
+    substreamSelectedId = null;
+    mainTable.getDataForTheTable();
+
     console.log("smartactivity-admin.js and page ready!");
   });
 
@@ -171,7 +176,7 @@
           var id = 'chart-div-' + item.activityId + '-' + item.startTime;
 
           //async call
-          setTimeout(createTableChart, 25, id, item);
+          setTimeout(createTableChart, 25, id, item, 0);
 
           return id;
         },
@@ -188,8 +193,8 @@
             var bRating;
 
             items.sort((a, b) => {
-              aRating = a.totalShown / (a.stopTime - a.startTime);
-              bRating = b.totalShown / (b.stopTime - b.startTime);
+              aRating = a.totalShown / (a.stopTime - a.activity_created);
+              bRating = b.totalShown / (b.stopTime - b.activity_created);
 
               return bRating - aRating;
             });
@@ -293,6 +298,8 @@
               getPointsOfTheSelectedStream("user-connection");
               break;
           }
+
+          mainTable.getDataForTheTable();
         }
       }
     });
@@ -357,6 +364,8 @@
 
           console.log("Selected substream: " + event);
           console.log("Selected substreamId: " + substreamSelectedId);
+
+          mainTable.getDataForTheTable();
         }
       }
     });
@@ -453,67 +462,87 @@
     }
   }
 
-  function createTableChart(id, item) {
+  function createTableChart(id, item, iteration) {
 
-    var chartBlock = $(`#${id}`);
+    /* if (iteration < 100) {
+       if (google != undefined && google.visualization != undefined
+         && google.visualization.arrayToDataTable != undefined && google.visualization.AreaChart != undefined) {
+         var chartBlock = $(`#${id}`);
 
-    if (chartBlock.length) {
-      var headersAndData = [['Time', 'Focus']];
+         if (chartBlock.length) {
+           var headersAndData = [['Time', 'Focus', 'Focus_without_common_scale']];
 
-      var focusChartDatesAndValues = item.focus_chart_data;
+           var focusChartDatesAndValues = item.focus_chart_data;
 
-      focusChartDatesAndValues.forEach(function (elem) {
-        elem[1] = Number(elem[1]);
-        headersAndData.push(elem);
-      });
+           var maxPointInLocalChart = 0;
 
-      var data = google.visualization.arrayToDataTable(
-        headersAndData
-      );
+           focusChartDatesAndValues.forEach(function (elem) {
+             elem[1] = Number(elem[1]);
+             if (maxPointInLocalChart < elem[1]) {
+               maxPointInLocalChart = elem[1];
+             }
+           });
 
-      var options = {
-          legend : 'none',
-          hAxis : {
-            allowContainerBoundaryTextCufoff : true,
-            textStyle : {color : '#FFF', fontSize : 0},
-            showTextEvery : 0,
-            tiks : [],
-            baseline : {
-              color : 'green'
-            },
-            gridlines : {
-              color : '#FFF'
-            },
-            minorGridlines : {
-              color : '#FFF'
-            }
-          },
-          vAxis : {
-            minValue : 0,
-            maxValue : maxTotalShown,
-            textStyle : {
-              color : '#FFF'
-            },
-            gridlines : {
-              color : '#FFF'
-            },
-            minorGridlines : {
-              color : '#FFF'
-            },
-            showTextEvery : 0,
-            baseline : {
-              color : '#FFF'
-            },
-          },
-          lineWidth : 0,
-        }
-      ;
+           var increaseCoeff = maxTotalShown / maxPointInLocalChart;
 
-      var chart = new google.visualization.AreaChart(document.getElementById(id));
-      chart.draw(data, options);
+           focusChartDatesAndValues.forEach(function (elem) {
+             elem.push(elem[1] * increaseCoeff);
+             elem.length = 3;
+             headersAndData.push(elem);
+           });
 
-      chartBlock.parent().parent().css("height", "max-content");
-    }
+           var data = google.visualization.arrayToDataTable(
+             headersAndData
+           );
+
+           var options = {
+               legend : 'none',
+               hAxis : {
+                 allowContainerBoundaryTextCufoff : true,
+                 textStyle : {color : '#FFF', fontSize : 0},
+                 showTextEvery : 0,
+                 tiks : [],
+                 baseline : {
+                   color : 'green'
+                 },
+                 gridlines : {
+                   color : '#FFF'
+                 },
+                 minorGridlines : {
+                   color : '#FFF'
+                 }
+               },
+               vAxis : {
+                 minValue : 0,
+                 maxValue : maxTotalShown,
+                 textStyle : {
+                   color : '#FFF'
+                 },
+                 gridlines : {
+                   color : '#FFF'
+                 },
+                 minorGridlines : {
+                   color : '#FFF'
+                 },
+                 showTextEvery : 0,
+                 baseline : {
+                   color : '#FFF'
+                 },
+               },
+               lineWidth : 0,
+             }
+           ;
+
+           var chart = new google.visualization.AreaChart(document.getElementById(id));
+           chart.draw(data, options);
+
+           chartBlock.parent().parent().css("height", "max-content");
+         }
+       } else {
+         //async call
+         setTimeout(createTableChart, 25, id, item, ++iteration);
+       }
+     }*/
   }
 
   function getActivityFocuses(activityId) {
