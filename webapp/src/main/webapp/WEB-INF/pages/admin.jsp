@@ -12,38 +12,32 @@
   <div class="content">
     <div id="smartactivity-settings" class="VuetifyApp">
 
-      <b-container fluid>
-        <b-row>
-          <b-col cols="6">
-            <div id="time-scale">
-              <v-app id="time-scale-app">
-                <v-card flat color="transparent">
-                  <v-card-text>
-                    <v-slider
-                        v-model="timeScaleModel"
-                        :tick-labels="ticksLabels"
-                        :max="6"
-                        step="1"
-                        ticks="always"
-                        tick-size="7"
-                        v-on:change="selectTimeScale"
-                    ></v-slider>
-                  </v-card-text>
-                </v-card>
-              </v-app>
-            </div>
-          </b-col>
-          <b-col>
-            <div id="stream-selector">
-              <v-app id="stream-selector-app">
-                <div>
-                  <v-select v-on:change="selectStream" v-model="stream" :items="streams"></v-select>
-                </div>
-              </v-app>
-            </div>
-          </b-col>
-        </b-row>
-      </b-container>
+      <div id="time-scale">
+        <v-app id="time-scale-app">
+          <v-card flat color="transparent">
+            <v-card-text>
+              <v-slider
+                  v-model="timeScaleModel"
+                  :tick-labels="ticksLabels"
+                  :max="6"
+                  step="1"
+                  ticks="always"
+                  tick-size="7"
+                  v-on:change="selectTimeScale"
+              ></v-slider>
+            </v-card-text>
+          </v-card>
+        </v-app>
+      </div>
+
+      <div id="stream-selector">
+        <v-app id="stream-selector-app">
+          <div>
+            <v-select v-on:change="selectStream" v-model="stream" :items="streams"></v-select>
+          </div>
+        </v-app>
+      </div>
+
 
     </div>
 
@@ -133,7 +127,8 @@
 
                       <template v-slot:item.activity_title="{ item }">
                         <div class="subtable-activity-title subtable-hidden-value">
-                          <p class="subtable-activity-data-title" style="margin: 0;">{{item.activity_title}}</p>
+                          <p class="subtable-activity-data-title" style="margin: 0; height: 5px">
+                            {{item.activity_title}}</p>
                           <v-chip color="rgb(193,204,240)" x-small="true" dark>{{item.activityStreamPrettyId}}</v-chip>
                         </div>
                       </template>

@@ -3,17 +3,39 @@ body {
     overflow-x: hidden;
 }
 
+#time-scale {
+    width: 70%;
+    float: left;
+}
+
+#stream-selector {
+    width: 30%;
+    float: left;
+    border-left: 1px solid silver;
+    margin-left: -1px;
+}
+
+#stream-selector .v-input {
+    padding-top: 2px;
+    padding-left: 5px;
+}
+
 #stream-selector-app {
-    padding: 10px;
+    /*  padding: 10px;*/
 }
 
 #substream-selector-app {
-    padding: 10px;
+    /* padding: 10px;*/
+}
+
+#app-smartactivity-table-vue-and-vuetify {
+    float: left;
 }
 
 #app-smartactivity-table-vue-and-vuetify tbody td {
     font-size: 12px;
 }
+
 #app-smartactivity-table-vue-and-vuetify tbody p {
     font-size: 12px;
 }
@@ -30,6 +52,7 @@ body {
 #subtable tbody td {
     font-size: 12px;
 }
+
 #subtable tbody p {
     font-size: 12px;
 }
@@ -67,10 +90,10 @@ body {
     position: relative;
     margin-top: 3px;
     width: 360px;
-    height: 110px;
+    height: 100px;
     visibility: visible;
     z-index: 1;
-    margin-bottom: -113px;
+    margin-bottom: -103px;
 }
 
 #subtable-chart {
