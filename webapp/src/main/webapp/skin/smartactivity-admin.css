@@ -43,6 +43,7 @@ body {
 #app-smartactivity-table-vue-and-vuetify thead th {
     vertical-align: top;
     padding: 2px 4px 2px 4px;
+    height: fit-content;
 }
 
 #app-smartactivity-table-vue-and-vuetify tbody td {

@@ -170,7 +170,8 @@
             activityFocus.activityUpdated = lastOpenedMainTableRow.activityUpdated;
           }
 
-          this.drawSubtableChart();
+          //async call
+          setTimeout(defineSubtableColumnChartSelector, 200);
         },
         drawChart : function (item) {
           var id = 'chart-div-' + item.activityId + '-' + item.startTime;
@@ -179,9 +180,6 @@
           //async call
           setTimeout(createTableChart, 25, id, item, iteration);
           return id;
-        },
-        drawSubtableChart : function (items) {
-          createSubtableChart(this.subtableVal);
         },
         customSort : function (items, index, isDesc) {
 
@@ -218,6 +216,69 @@
         }
       }
     });
+
+    function defineSubtableColumnChartSelector() {
+      $(`#subtable td`).on('click', function () {
+        var elementClickedColumn = this.cellIndex;
+
+        if (elementClickedColumn > 6) {
+          //clear selection before
+          $(`#subtable`).find('td').css("background-color", "");
+
+          $(`#subtable tr`).each(function () {
+            $(this).find('td').eq(elementClickedColumn).css("background-color", "#e6e6e6");
+          });
+
+          var dataHeader;
+
+          switch (elementClickedColumn) {
+            case 7:
+              dataHeader = "totalShown";
+              break;
+            case 8:
+              dataHeader = "contentShown";
+              break;
+            case 9:
+              dataHeader = "convoShown";
+              break;
+            case 10:
+              dataHeader = "contentHits";
+              break;
+            case 11:
+              dataHeader = "convoHits";
+              break;
+            case 12:
+              dataHeader = "appHits";
+              break;
+            case 13:
+              dataHeader = "profileHits";
+              break;
+            case 14:
+              dataHeader = "linkHits";
+              break;
+          }
+          createSubtableChart(mainTable.subtableVal, dataHeader);
+        }
+      });
+
+      $(`#subtable td`).hover(function () {
+        var elementHoveredColumn = this.cellIndex;
+
+        if (elementHoveredColumn > 6) {
+          $(`#subtable tr`).each(function () {
+            $(this).find('td').eq(elementHoveredColumn).css(
+              "box-shadow", "0 0 5px silver"
+            );
+          });
+        }
+      }, function () {
+        //clear hovered before
+        $(`#subtable`).find('td').css("box-shadow", "");
+      });
+
+      //default column for the chart
+      $(`#subtable td`).eq(7).click();
+    }
   }
 
   function defineTimeScaler() {
@@ -311,13 +372,6 @@
     definePadding();
 
     function definePadding() {
-      /*#stream-selector .VuetifyApp .v-text-field {
-        padding-top: 2px;
-      }
-
-      #stream-selector .VuetifyApp .v-application .v-text-field {
-        padding-top: 0;
-      }*/
       $('#stream-selector .VuetifyApp .v-text-field').css("padding-top", "2px");
       $('#stream-selector .VuetifyApp .v-application .v-text-field ').css("padding-top", "2px");
     }
@@ -435,7 +489,7 @@
     }
   }
 
-  function createSubtableChart(subtableData) {
+  function createSubtableChart(subtableData, dataHeader) {
 
     if (subtableData.length != 0) {
       var subtableChartHeight = 38;
@@ -449,14 +503,18 @@
         }
       }
 
+      //remove chart if exists
+      $('#subtable-chart').remove();
+
       $('#subtable-column')
         .prepend(`<div id="subtable-chart" style="height: ${subtableChartHeight}px;
                                                 margin-bottom: -${subtableChartHeight + 3}px" class="subchart"></div>`);
 
-      var headersAndData = [['Time', 'Focus']];
+      var headersAndData = [['Time', 'Value']];
 
       for (var i = subtableData.length - 1; i >= 0; --i) {
-        headersAndData.push([subtableData[i].localStartTime, Number(subtableData[i].totalShown)]);
+        //headersAndData.push([subtableData[i].localStartTime, Number(subtableData[i].totalShown)]);
+        headersAndData.push([subtableData[i].localStartTime, Number(subtableData[i][dataHeader])]);
       }
 
       var data = google.visualization.arrayToDataTable(
