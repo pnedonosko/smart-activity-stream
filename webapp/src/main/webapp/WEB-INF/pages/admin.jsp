@@ -49,7 +49,7 @@
           <v-data-table
               :headers="headers"
               :items="tableVal"
-              :items-per-page="10"
+              :items-per-page="7"
               :search="search"
               v-on:item-expanded="selectTableRow"
               :single-expand="true"
@@ -63,7 +63,7 @@
             <template v-slot:item.focus_chart_data="{ item }">
               <v-sheet
                   :width="100"
-                  :height="70"
+                  :height="60"
                   :elevation="0"
               >
                 <div v-bind:id="drawChart(item)" class='chart' style="width: 100%; height: 100%;"></div>
@@ -78,18 +78,30 @@
             </template>
 
             <template v-slot:item.activity_created="{ item }">
-              {{item.activityCreated}}
+              <div class="time-table-block">
+                {{item.activityCreated}}
+              </div>
             </template>
 
             <template v-slot:item.activity_updated="{ item }">
-              {{item.activityUpdated}}
+              <div class="time-table-block">
+                {{item.activityUpdated}}
+              </div>
+            </template>
+
+            <template v-slot:item.local_start_time="{ item }">
+              <div class="time-table-block">
+                {{item.localStartTime}}
+              </div>
+            </template>
+
+            <template v-slot:item.local_stop_time="{ item }">
+              <div class="time-table-block">
+                {{item.localStopTime}}
+              </div>
             </template>
 
             <template v-slot:top>
-              <v-toolbar flat color="white">
-                <v-toolbar-title>Smartactivity Table</v-toolbar-title>
-                <v-spacer></v-spacer>
-              </v-toolbar>
 
               <v-text-field
                   v-model="search"
@@ -107,7 +119,7 @@
 
             <template v-slot:expanded-item="{headers, item}">
 
-              <td id="subtable-column" :colspan="15">
+              <td id="subtable-column" style="padding: 0;" :colspan="15">
                 <div id="subtable">
                   <v-app id="subtable-app">
                     <v-data-table
@@ -121,8 +133,12 @@
                     >
 
                       <template v-slot:item.data-table-expand="{ item }">
-                        <div class="subtable-data-table-expand subtable-hidden-value subtable-chart-neighbor"
+                        <div class="subtable-data-table-expand subtable-hidden-value"
                              style="width: 24px;"></div>
+                      </template>
+
+                      <template v-slot:item.focus_chart_data="{ item }">
+                        <div class="subtable-row-chart-column subtable-hidden-value" style="width: 100px;"></div>
                       </template>
 
                       <template v-slot:item.activity_title="{ item }">
@@ -134,15 +150,27 @@
                       </template>
 
                       <template v-slot:item.activity_created="{ item }">
-                        <div class="subtable-acitivty-reated subtable-hidden-value">{{item.activityCreated}}</div>
+                        <div class="subtable-acitivty-reated time-table-block subtable-hidden-value">
+                          {{item.activityCreated}}
+                        </div>
                       </template>
 
                       <template v-slot:item.activity_updated="{ item }">
-                        <div class="subtable-activity-updated subtable-hidden-value">{{item.activityUpdated}}</div>
+                        <div class="subtable-activity-updated time-table-block subtable-hidden-value">
+                          {{item.activityUpdated}}
+                        </div>
                       </template>
 
-                      <template v-slot:item.focus_chart_data="{ item }">
-                        <div class="subtable-row-chart-column subtable-hidden-value" style="width: 100px;"></div>
+                      <template v-slot:item.local_start_time="{ item }">
+                        <div class="time-table-block">
+                          {{item.localStartTime}}
+                        </div>
+                      </template>
+
+                      <template v-slot:item.local_stop_time="{ item }">
+                        <div class="time-table-block">
+                          {{item.localStopTime}}
+                        </div>
                       </template>
 
                     </v-data-table>

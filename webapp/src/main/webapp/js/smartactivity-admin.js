@@ -95,6 +95,7 @@
           singleExpand : true,
           headers : [
             {text : '', value : 'data-table-expand'},
+            {text : 'Total Focus Chart', sortable : false, value : 'focus_chart_data'},
             {
               text : 'Activity Data (Title)',
               align : 'left',
@@ -103,8 +104,8 @@
             },
             {text : 'Created', value : 'activity_created'},
             {text : 'Updated', value : 'activity_updated'},
-            {text : 'Start Time', value : 'localStartTime'},
-            {text : 'Stop Time', value : 'localStopTime'},
+            {text : 'Start Time', value : 'local_start_time'},
+            {text : 'Stop Time', value : 'local_stop_time'},
             {text : 'Total Focus', value : 'totalShown'},
             {text : 'Content Focus', value : 'contentShown'},
             {text : 'Convo Focus', value : 'convoShown'},
@@ -113,7 +114,6 @@
             {text : 'App Hits', value : 'appHits'},
             {text : 'Profile Hits', value : 'profileHits'},
             {text : 'Link Hits', value : 'linkHits'},
-            {text : 'Total Focus Chart', value : 'focus_chart_data'},
           ],
           tableVal : tableValues,
           subtableVal : [],
@@ -297,6 +297,12 @@
               break;
           }
 
+          //clear values for subtable scaling
+          activitiesStreamPrettyIdMaxString = "";
+          activitiesTitleMaxString = "";
+
+          closeExpendedRow();
+
           mainTable.getDataForTheTable();
         }
       }
@@ -374,6 +380,12 @@
             }
           }
 
+          //clear values for subtable scaling
+          activitiesStreamPrettyIdMaxString = "";
+          activitiesTitleMaxString = "";
+
+          closeExpendedRow();
+
           console.log("Selected substream: " + event);
           console.log("Selected substreamId: " + substreamSelectedId);
 
@@ -403,6 +415,8 @@
       tableData.forEach(function (obj) {
         obj.activity_created = obj.activityCreated;
         obj.activity_updated = obj.activityUpdated;
+        obj.activity_updated = obj.activityUpdated;
+        obj.activity_updated = obj.activityUpdated;
         changeObjectPropertyName(obj, "focusChartData", "focus_chart_data");
         changeObjectPropertyName(obj, "activityTitle", "activity_title");
       });
@@ -424,7 +438,20 @@
   function createSubtableChart(subtableData) {
 
     if (subtableData.length != 0) {
-      $('#subtable-column').prepend(`<div id="subtable-chart" class="subchart"></div>`);
+      var subtableChartHeight = 38;
+
+      //dynamic subtable chart height scaling
+      for (var row = 2; row <= 7; ++row) {
+        if (subtableData.length >= row) {
+          subtableChartHeight += 35;
+        } else {
+          break;
+        }
+      }
+
+      $('#subtable-column')
+        .prepend(`<div id="subtable-chart" style="height: ${subtableChartHeight}px;
+                                                margin-bottom: -${subtableChartHeight + 3}px" class="subchart"></div>`);
 
       var headersAndData = [['Time', 'Focus']];
 
@@ -446,6 +473,8 @@
       var chart = new google.visualization.AreaChart(document.getElementById('subtable-chart'));
       chart.draw(data, options);
 
+      /*//search selected point
+
       google.visualization.events.addListener(chart, 'onmouseover', function (e) {
         findHoveredStatistic(data, e.row);
       });
@@ -453,7 +482,7 @@
       $('#subtable-chart').mouseleave(function () {
           mainTable.subtableSearch = '';
         }
-      );
+      );*/
     }
 
     function findHoveredStatistic(chartData, element) {
@@ -603,6 +632,10 @@
     }
 
 
+  }
+
+  function closeExpendedRow() {
+    $('.v-data-table__expand-icon--active').trigger('click');
   }
 })(jqModule, vuetifyModule, vueModule, eXoVueI18nModule, googleChartsModule);
 
