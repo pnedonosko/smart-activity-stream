@@ -17,7 +17,6 @@
 
   google.charts.load('current', {'packages' : ['corechart']});
 
-
   var prefixUrl = pageBaseUrl(location);
 
   var streamSelected = 'All streams';
@@ -335,26 +334,34 @@
       }),
       methods : {
         selectStream : function (event) {
+          var beforeStreamSelected = streamSelected;
+
           streamSelected = event;
           console.log("Selected stream: " + event);
 
           deleteSubstreamSelector();
           streamPointSelectedData.length = 0;
 
-          switch (event) {
+          switch (streamSelected) {
             case "All streams":
               substreamSelected = null;
               substreamSelectedId = null;
               break;
             case "Space":
-              substreamSelected = "All spaces";
-              substreamSelectedId = substreamSelected;
-              getPointsOfTheSelectedStream("user-space");
+              var subselectorHeader = "All spaces";
+
+              defineSelectedSubstream(beforeStreamSelected, streamSelected, subselectorHeader);
+
+              getPointsOfTheSelectedStream(subselectorHeader, "user-space");
+              defaultClickOnSubstreamSelector();
               break;
             case "User":
-              substreamSelected = "All users";
-              substreamSelectedId = substreamSelected;
-              getPointsOfTheSelectedStream("user-connection");
+              var subselectorHeader = "All users";
+
+              defineSelectedSubstream(beforeStreamSelected, streamSelected, subselectorHeader);
+
+              getPointsOfTheSelectedStream(subselectorHeader, "user-connection");
+              defaultClickOnSubstreamSelector();
               break;
           }
 
@@ -367,6 +374,8 @@
           mainTable.getDataForTheTable();
         }
       }
+
+
     });
 
     definePadding();
@@ -375,11 +384,27 @@
       $('#stream-selector .VuetifyApp .v-text-field').css("padding-top", "2px");
       $('#stream-selector .VuetifyApp .v-application .v-text-field ').css("padding-top", "2px");
     }
+
+    //open the substream selector
+    function defaultClickOnSubstreamSelector() {
+      $('#substream-selector .v-input__slot').click();
+    }
+
+    function defineSelectedSubstream(beforeStreamSelected, streamSelected, subselectorHeader) {
+      if (beforeStreamSelected != streamSelected) {
+        substreamSelected = subselectorHeader;
+        substreamSelectedId = substreamSelected;
+      }
+    }
+
+    /*$("#stream-selector").click(function () {
+
+    });*/
   }
 
   console.log("smartactivity-admin.js");
 
-  function getPointsOfTheSelectedStream(dataClass) {
+  function getPointsOfTheSelectedStream(subselectorHeader, dataClass) {
     streamPointSelectedData.length = 0;
 
     $(`.${dataClass}`).each(function (index) {
@@ -390,14 +415,15 @@
     });
 
     addSubstreamSelector();
-    defineSubstreamSelector();
+    defineSubstreamSelector(subselectorHeader);
   }
 
   function addSubstreamSelector() {
     $("#stream-selector").after(`<div id="substream-selector" class="VuetifyApp">
                 <v-app id="substream-selector-app">
                     <div>
-                        <v-select v-on:change="selectSubstream" v-model="substream" :items="substreams"></v-select>
+                        <v-select class="custom-select" v-on:input="selectSubstream" 
+                          v-on:blur="deleteSubstreamSelector" v-model="substream" :items="substreams"></v-select>
                     </div>
                 </v-app>
             </div>`);
@@ -407,10 +433,10 @@
     $("#substream-selector").remove();
   }
 
-  function defineSubstreamSelector() {
+  function defineSubstreamSelector(subselectorHeader) {
     var substreamData = [];
 
-    substreamData.push(substreamSelected);
+    substreamData.push(subselectorHeader);
     for (var element in streamPointSelectedData) {
       substreamData.push(streamPointSelectedData[element].dataValue);
     }
@@ -439,14 +465,27 @@
           activitiesTitleMaxString = "";
 
           closeExpendedRow();
+          this.deleteSubstreamSelector();
 
           console.log("Selected substream: " + event);
           console.log("Selected substreamId: " + substreamSelectedId);
 
           mainTable.getDataForTheTable();
+        },
+        deleteSubstreamSelector : function () {
+          deleteSubstreamSelector();
         }
       }
     });
+
+    //async call
+    setTimeout(defineClickOutsideSubstreamSelectorHandler, 200);
+
+    function defineClickOutsideSubstreamSelectorHandler() {
+      $('#time-scale-app .menuable__content__active').first().mouseleave(function (event) {
+        $('#time-scale-app .menuable__content__active').first().find("div[aria-selected='true']").click();
+      });
+    }
   }
 
   function getUserFocuses(stream, substream) {

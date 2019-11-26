@@ -33,7 +33,10 @@
       <div id="stream-selector">
         <v-app id="stream-selector-app">
           <div>
-            <v-select v-on:change="selectStream" v-model="stream" :items="streams"></v-select>
+            <v-select v-on:input="selectStream" v-model="stream"
+                      :items="streams"
+                      label="Selected Stream"
+                      outlined></v-select>
           </div>
         </v-app>
       </div>
