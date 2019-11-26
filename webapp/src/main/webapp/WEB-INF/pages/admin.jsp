@@ -35,7 +35,7 @@
           <div>
             <v-select v-on:input="selectStream" v-model="stream"
                       :items="streams"
-                      label="Selected Stream"
+                      label="Stream"
                       outlined></v-select>
           </div>
         </v-app>
