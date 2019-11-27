@@ -9,7 +9,7 @@ body {
     font-size: 10px;
 }
 
-.v-input__slot{
+.v-input__slot {
     font-size: 14px;
 }
 
@@ -26,7 +26,7 @@ body {
     margin-bottom: -5px;
 }
 
-#stream-selector-app{
+#stream-selector-app {
     padding-right: 20px;
 }
 
@@ -55,7 +55,7 @@ body {
     z-index: 1000;
 }
 
-#substream-selector-app{
+#substream-selector-app {
     padding-right: 20px;
 }
 
@@ -115,6 +115,11 @@ body {
 
 #app-smartactivity-table-vue-and-vuetify tbody p {
     font-size: 12px;
+}
+
+.activity-title {
+    width: 320px;
+    word-break: break-all;
 }
 
 #subtable .v-application--wrap {

@@ -17,6 +17,9 @@
 
   google.charts.load("current", {"packages" : ["corechart"]});
 
+  var subtableChart;
+  var selectedSubtableRow = false;
+
   var prefixUrl = pageBaseUrl(location);
 
   var streamSelected = "All streams";
@@ -111,10 +114,7 @@
               sortable : false,
               value : "activity_title",
             },
-            {text : "Created", value : "activity_created"},
             {text : "Updated", value : "activity_updated"},
-            {text : "Start Time", value : "local_start_time"},
-            {text : "Stop Time", value : "local_stop_time"},
             {text : "Total Focus", value : "totalShown"},
             {text : "Content Focus", value : "contentShown"},
             {text : "Convo Focus", value : "convoShown"},
@@ -181,6 +181,7 @@
 
           //async call
           setTimeout(defineSubtableColumnChartSelector, 200);
+          setTimeout(defineSubtableRowHoveredPointOnTheChartSelector, 200);
         },
         drawChart : function (item) {
           var id = `chart-div-${item.activityId}-${item.startTime}`;
@@ -191,7 +192,7 @@
           return id;
         },
         customSort : function (items, index, isDesc) {
-
+          closeExpendedRow();
           //default custom sort
           if (index.length == 0) {
             var aRating;
@@ -230,7 +231,7 @@
       $(`#subtable td`).on("click", function () {
         var elementClickedColumn = this.cellIndex;
 
-        if (elementClickedColumn > 6) {
+        if (elementClickedColumn > 3) {
           //clear selection before
           $("#subtable").find("td").css("background-color", "");
 
@@ -241,28 +242,28 @@
           var dataHeader;
 
           switch (elementClickedColumn) {
-            case 7:
+            case 4:
               dataHeader = "totalShown";
               break;
-            case 8:
+            case 5:
               dataHeader = "contentShown";
               break;
-            case 9:
+            case 6:
               dataHeader = "convoShown";
               break;
-            case 10:
+            case 7:
               dataHeader = "contentHits";
               break;
-            case 11:
+            case 8:
               dataHeader = "convoHits";
               break;
-            case 12:
+            case 9:
               dataHeader = "appHits";
               break;
-            case 13:
+            case 10:
               dataHeader = "profileHits";
               break;
-            case 14:
+            case 11:
               dataHeader = "linkHits";
               break;
           }
@@ -273,7 +274,7 @@
       $("#subtable td").hover(function () {
         var elementHoveredColumn = this.cellIndex;
 
-        if (elementHoveredColumn > 6) {
+        if (elementHoveredColumn > 3) {
           $(`#subtable tr`).each(function () {
             $(this).find("td").eq(elementHoveredColumn).css(
               {
@@ -290,7 +291,34 @@
       });
 
       //default column for the chart
-      $("#subtable td").eq(7).click();
+      $("#subtable td").eq(4).click();
+    }
+
+    function defineSubtableRowHoveredPointOnTheChartSelector() {
+
+      $("#subtable tr").click(function () {
+
+        var selectedPoint = subtableChart.getSelection();
+
+        var elementPositionOnTheChart = mainTable.subtableVal.length - $(this).index() - 1;
+
+        $("#subtable tr").css("background-color", "");
+        if (!selectedSubtableRow || selectedPoint[0] == undefined || selectedPoint[0].row != elementPositionOnTheChart) {
+          $(this).css("background-color", "rgb(238,238,238)");
+          subtableChart.setSelection([{row : elementPositionOnTheChart, column : 1}]);
+          selectedSubtableRow = true;
+        } else {
+          selectedSubtableRow = false;
+        }
+
+      });
+
+      $("#subtable tr").hover(function (event) {
+        if (!selectedSubtableRow) {
+          var elementPositionOnTheChart = mainTable.subtableVal.length - $(this).index() - 1;
+          subtableChart.setSelection([{row : elementPositionOnTheChart, column : 1}]);
+        }
+      });
     }
   }
 
@@ -558,8 +586,13 @@
 
       var headersAndData = [["Time", "Value"]];
 
+      var startTime;
+      var valueInPoint;
+
       for (var i = subtableData.length - 1; i >= 0; --i) {
-        headersAndData.push([subtableData[i].localStartTime, Number(subtableData[i][dataHeader])]);
+        startTime = subtableData[i].localStartTime;
+        valueInPoint = Number(subtableData[i][dataHeader]);
+        headersAndData.push([startTime, valueInPoint]);
       }
 
       var data = google.visualization.arrayToDataTable(
@@ -569,12 +602,35 @@
       var options = {
         // title : "Focuses",
         legend : "none",
-        hAxis : {title : "Time", titleTextStyle : {color : "#333"}},
-        vAxis : {minValue : 0}
+        hAxis : {
+          titleTextStyle : {color : "#333"},
+          allowContainerBoundaryTextCufoff : false,
+          textStyle : {fontSize : 12}//color : "#FFF"
+        },
+        vAxis : {minValue : 0},
+        tooltip : {trigger : 'selection'}
       };
 
-      var chart = new google.visualization.AreaChart(document.getElementById("subtable-chart"));
-      chart.draw(data, options);
+      subtableChart = new google.visualization.AreaChart(document.getElementById("subtable-chart"));
+      subtableChart.draw(data, options);
+
+
+      if ($("#subtable-chart text[font-size='12']").length == (headersAndData.length - 1) * 2) {
+        $("#subtable-chart text[font-size='12']:even").remove();
+      }
+
+      var neededToReplaceText = $("#subtable-chart text[font-size='12']");
+
+      var elementPositionCoeff = Math.floor(headersAndData.length / neededToReplaceText.length);
+      var shift = elementPositionCoeff - 1;
+
+      $("#subtable-chart text[font-size='12']").each(function (index) {
+        if (headersAndData != undefined && headersAndData[index + 1] != undefined) {
+          var valueOfTheDate = headersAndData[(index + 1) * elementPositionCoeff - shift][0];
+          var hoursAndMinutes = valueOfTheDate.substring(valueOfTheDate.length - 8, valueOfTheDate.length - 3);
+          $(this).first().text(hoursAndMinutes);
+        }
+      });
 
       /*//search selected point
 

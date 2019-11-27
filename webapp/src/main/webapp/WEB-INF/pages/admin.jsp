@@ -60,7 +60,7 @@
               :custom-sort="customSort"
               class="elevation-1"
               show-expand
-              item-key="activityCreated"
+              item-key="activity_updated"
           >
 
             <template v-slot:item.focus_chart_data="{ item }">
@@ -74,33 +74,17 @@
             </template>
 
             <template v-slot:item.activity_title="{ item }">
-              <p class="activity-data-title" style="margin: 0;">
-                <a :href="item.activityUrl" target="_blank">{{ item.activity_title }}</a>
-              </p>
-              <v-chip color="rgb(193,204,240)" x-small="true" dark>{{ item.activityStreamPrettyId }}</v-chip>
-            </template>
-
-            <template v-slot:item.activity_created="{ item }">
-              <div class="time-table-block">
-                {{item.activityCreated}}
+              <div class="main-table-activity-title activity-title">
+                <p class="activity-data-title" style="margin: 0;">
+                  <a :href="item.activityUrl" target="_blank">{{ item.activity_title }}</a>
+                </p>
+                <v-chip color="rgb(193,204,240)" x-small="true" dark>{{ item.activityStreamPrettyId }}</v-chip>
               </div>
             </template>
 
             <template v-slot:item.activity_updated="{ item }">
               <div class="time-table-block">
                 {{item.activityUpdated}}
-              </div>
-            </template>
-
-            <template v-slot:item.local_start_time="{ item }">
-              <div class="time-table-block">
-                {{item.localStartTime}}
-              </div>
-            </template>
-
-            <template v-slot:item.local_stop_time="{ item }">
-              <div class="time-table-block">
-                {{item.localStopTime}}
               </div>
             </template>
 
@@ -145,34 +129,16 @@
                       </template>
 
                       <template v-slot:item.activity_title="{ item }">
-                        <div class="subtable-activity-title subtable-hidden-value">
+                        <div class="subtable-activity-title subtable-hidden-value activity-title">
                           <p class="subtable-activity-data-title" style="margin: 0; height: 5px">
                             {{item.activity_title}}</p>
                           <v-chip color="rgb(193,204,240)" x-small="true" dark>{{item.activityStreamPrettyId}}</v-chip>
                         </div>
                       </template>
 
-                      <template v-slot:item.activity_created="{ item }">
-                        <div class="subtable-acitivty-reated time-table-block subtable-hidden-value">
-                          {{item.activityCreated}}
-                        </div>
-                      </template>
-
                       <template v-slot:item.activity_updated="{ item }">
-                        <div class="subtable-activity-updated time-table-block subtable-hidden-value">
-                          {{item.activityUpdated}}
-                        </div>
-                      </template>
-
-                      <template v-slot:item.local_start_time="{ item }">
                         <div class="time-table-block">
                           {{item.localStartTime}}
-                        </div>
-                      </template>
-
-                      <template v-slot:item.local_stop_time="{ item }">
-                        <div class="time-table-block">
-                          {{item.localStopTime}}
                         </div>
                       </template>
 
