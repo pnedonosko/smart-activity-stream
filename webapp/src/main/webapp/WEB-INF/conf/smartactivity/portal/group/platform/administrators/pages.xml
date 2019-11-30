@@ -24,17 +24,17 @@
         xsi:schemaLocation="http://www.gatein.org/xml/ns/gatein_objects_1_3 http://www.gatein.org/xml/ns/gatein_objects_1_3"
         xmlns="http://www.gatein.org/xml/ns/gatein_objects_1_3">
   <page>
-    <name>smartactivityadministration</name>
-    <title>Smart Activity Stream Administration</title>
-    <access-permissions>manager:/platform/administrators</access-permissions>
-    <edit-permission>manager:/platform/administrators</edit-permission>
+    <name>statsAdministration</name>
+    <title>Smart Activity Stream Administration Stats</title>
+    <access-permissions>*:/platform/users</access-permissions>
+    <edit-permission>*:/platform/administrators</edit-permission>
     <portlet-application>
       <portlet>
         <application-ref>smartactivity</application-ref>
         <portlet-ref>SmartActivityStreamAdminPortlet</portlet-ref>
       </portlet>
       <title>Smart Activity Stream Administration</title>
-      <access-permissions>*:/platform/administrators</access-permissions>
+      <access-permissions>*:/platform/users</access-permissions>
       <show-info-bar>false</show-info-bar>
     </portlet-application>
   </page>

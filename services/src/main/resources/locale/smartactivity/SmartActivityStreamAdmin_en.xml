@@ -2,7 +2,7 @@
 <bundle>
   <smartactivity>
     <admin>
-      <page>Activity Statistics</page>
+      <page>Stats Administration</page>
       <title>Activity Statistics Administration Page</title>
       <setting-title>Settings controls</setting-title>
       <time-scale-setting-title>Time scale</time-scale-setting-title>
@@ -11,5 +11,8 @@
       <actions>Actions</actions>
       <loading>Loading... Please wait</loading>
     </admin>
+    <user>
+      <page>Stats</page>
+    </user>
   </smartactivity>
 </bundle>

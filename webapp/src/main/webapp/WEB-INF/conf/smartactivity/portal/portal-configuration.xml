@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_3.xsd http://www.exoplatform.org/xml/ns/kernel_1_3.xsd"
-  xmlns="http://www.exoplatform.org/xml/ns/kernel_1_3.xsd">
-  
+               xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_3.xsd http://www.exoplatform.org/xml/ns/kernel_1_3.xsd"
+               xmlns="http://www.exoplatform.org/xml/ns/kernel_1_3.xsd">
+
   <external-component-plugins>
     <target-component>org.exoplatform.portal.config.UserPortalConfigService</target-component>
     <component-plugin>
@@ -20,6 +20,40 @@
           <name>portal.configuration</name>
           <description>description</description>
           <object type="org.exoplatform.portal.config.NewPortalConfig">
+            <field name="ownerType">
+              <string>portal</string>
+            </field>
+            <field name="override">
+              <boolean>true</boolean>
+            </field>
+            <field name="importMode">
+              <string>merge</string>
+            </field>
+            <field name="predefinedOwner">
+              <collection type="java.util.HashSet">
+                <value>
+                  <string>intranet</string>
+                </value>
+              </collection>
+            </field>
+            <field name="templateLocation">
+              <string>war:/conf/smartactivity/portal</string>
+            </field>
+          </object>
+        </object-param>
+        <object-param>
+          <name>group.configuration</name>
+          <description>description</description>
+          <object type="org.exoplatform.portal.config.NewPortalConfig">
+            <field name="ownerType">
+              <string>group</string>
+            </field>
+            <field name="override">
+              <boolean>true</boolean>
+            </field>
+            <field name="importMode">
+              <string>overwrite</string>
+            </field>
             <field name="predefinedOwner">
               <collection type="java.util.HashSet">
                 <value>
@@ -27,15 +61,9 @@
                 </value>
               </collection>
             </field>
-            <field name="ownerType">
-              <string>group</string>
-            </field>
             <field name="templateLocation">
               <string>war:/conf/smartactivity/portal</string>
             </field>
-            <!-- field name="importMode">
-              <string>merge</string>
-            </field -->
           </object>
         </object-param>
       </init-params>

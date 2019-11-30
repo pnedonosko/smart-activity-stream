@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.persistence.PersistenceException;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.exoplatform.smartactivitystream.stats.settings.GlobalSettings;
 import org.exoplatform.smartactivitystream.stats.dao.ActivityStatsDAO;
 import org.exoplatform.smartactivitystream.stats.domain.ActivityStatsEntity;
 import org.exoplatform.social.common.RealtimeListAccess;
@@ -143,6 +144,9 @@ public class ActivityStatsService implements Startable {
   /** The user storage. */
   private Locale                                       userLocale;
 
+  /** The global settings. */
+  private GlobalSettings               configuredGlobalSettings = new GlobalSettings();
+
   /**
    * Instantiates a new smart activity service.
    *
@@ -228,6 +232,10 @@ public class ActivityStatsService implements Startable {
       LOG.debug("<<< getMaxTotalShown");
     }
     return maxTotalShown;
+  }
+
+  public GlobalSettings getSettings() {
+    return this.configuredGlobalSettings.clone();
   }
 
   /**

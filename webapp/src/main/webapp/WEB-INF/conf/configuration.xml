@@ -27,4 +27,5 @@
 
   <import profiles="all">war:/conf/smartactivity/configuration.xml</import>
   <import profiles="all">war:/conf/smartactivity/portal/portal-configuration.xml</import>
+  <import profiles="all">war:/conf/smartactivity/portal/stats-configuration.xml</import>
 </configuration>

@@ -43,6 +43,7 @@
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
+   <resource-bundle>locale.smartactivity.SmartActivityStreamAdmin</resource-bundle>
     <portlet-info>
       <title>Smart Activity stream admin portlet for eXo Platform</title>
       <short-title>Smart Activity stream administration</short-title>
