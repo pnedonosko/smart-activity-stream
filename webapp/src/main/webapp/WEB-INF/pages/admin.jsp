@@ -10,13 +10,11 @@
 <div id="webconferencing-admin" class="container-fluid">
   <h3 class="titleWithBorder">${messages["smartactivity.admin.title"]}</h3>
   <div class="content">
-    <div id="smartactivity-settings">
-      <h4>${messages["smartactivity.admin.setting-title"]}</h4>
+    <div id="smartactivity-settings" class="VuetifyApp">
 
-      <div id="time-scale" class="VuetifyApp">
+      <div id="time-scale">
         <v-app id="time-scale-app">
           <v-card flat color="transparent">
-            <v-subheader>${messages["smartactivity.admin.time-scale-setting-title"]}</v-subheader>
             <v-card-text>
               <v-slider
                   v-model="timeScaleModel"
@@ -32,14 +30,17 @@
         </v-app>
       </div>
 
-      <div id="stream-selector" class="VuetifyApp">
+      <div id="stream-selector">
         <v-app id="stream-selector-app">
-          <v-subheader>Stream selector</v-subheader>
           <div>
-            <v-select v-on:change="selectStream" v-model="stream" :items="streams"></v-select>
+            <v-select v-on:input="selectStream" v-model="stream"
+                      :items="streams"
+                      label="Stream"
+                      outlined></v-select>
           </div>
         </v-app>
       </div>
+
 
     </div>
 
@@ -48,13 +49,10 @@
       <v-container id="app-smartactivity-table-vue-and-vuetify" fluid>
         <v-app id="inspire-test">
 
-
-          <v-btn depressed large v-on:click="getDataForTheTable">Apply</v-btn>
-
           <v-data-table
               :headers="headers"
               :items="tableVal"
-              :items-per-page="10"
+              :items-per-page="7"
               :search="search"
               v-on:item-expanded="selectTableRow"
               :single-expand="true"
@@ -62,13 +60,13 @@
               :custom-sort="customSort"
               class="elevation-1"
               show-expand
-              item-key="activityCreated"
+              item-key="activity_updated"
           >
 
             <template v-slot:item.focus_chart_data="{ item }">
               <v-sheet
                   :width="100"
-                  :height="70"
+                  :height="60"
                   :elevation="0"
               >
                 <div v-bind:id="drawChart(item)" class='chart' style="width: 100%; height: 100%;"></div>
@@ -76,25 +74,21 @@
             </template>
 
             <template v-slot:item.activity_title="{ item }">
-              <p class="activity-data-title" style="margin: 0;">
-                <a :href="item.activityUrl" target="_blank">{{ item.activity_title }}</a>
-              </p>
-              <v-chip color="rgb(193,204,240)" x-small="true" dark>{{ item.activityStreamPrettyId }}</v-chip>
-            </template>
-
-            <template v-slot:item.activity_created="{ item }">
-              {{item.activityCreated}}
+              <div class="main-table-activity-title activity-title">
+                <p class="activity-data-title" style="margin: 0;">
+                  <a :href="item.activityUrl" target="_blank">{{ item.activity_title }}</a>
+                </p>
+                <v-chip color="rgb(193,204,240)" x-small="true" dark>{{ item.activityStreamPrettyId }}</v-chip>
+              </div>
             </template>
 
             <template v-slot:item.activity_updated="{ item }">
-              {{item.activityUpdated}}
+              <div class="time-table-block">
+                {{item.activityUpdated}}
+              </div>
             </template>
 
             <template v-slot:top>
-              <v-toolbar flat color="white">
-                <v-toolbar-title>Smartactivity Table</v-toolbar-title>
-                <v-spacer></v-spacer>
-              </v-toolbar>
 
               <v-text-field
                   v-model="search"
@@ -112,7 +106,7 @@
 
             <template v-slot:expanded-item="{headers, item}">
 
-              <td id="subtable-column" :colspan="15">
+              <td id="subtable-column" style="padding: 0;" :colspan="15">
                 <div id="subtable">
                   <v-app id="subtable-app">
                     <v-data-table
@@ -126,27 +120,26 @@
                     >
 
                       <template v-slot:item.data-table-expand="{ item }">
-                        <div class="subtable-data-table-expand subtable-hidden-value subtable-chart-neighbor"
+                        <div class="subtable-data-table-expand subtable-hidden-value"
                              style="width: 24px;"></div>
-                      </template>
-
-                      <template v-slot:item.activity_title="{ item }">
-                        <div class="subtable-activity-title subtable-hidden-value">
-                          <p class="subtable-activity-data-title" style="margin: 0;">{{item.activity_title}}</p>
-                          <v-chip color="rgb(193,204,240)" x-small="true" dark>{{item.activityStreamPrettyId}}</v-chip>
-                        </div>
-                      </template>
-
-                      <template v-slot:item.activity_created="{ item }">
-                        <div class="subtable-acitivty-reated subtable-hidden-value">{{item.activityCreated}}</div>
-                      </template>
-
-                      <template v-slot:item.activity_updated="{ item }">
-                        <div class="subtable-activity-updated subtable-hidden-value">{{item.activityUpdated}}</div>
                       </template>
 
                       <template v-slot:item.focus_chart_data="{ item }">
                         <div class="subtable-row-chart-column subtable-hidden-value" style="width: 100px;"></div>
+                      </template>
+
+                      <template v-slot:item.activity_title="{ item }">
+                        <div class="subtable-activity-title subtable-hidden-value activity-title">
+                          <p class="subtable-activity-data-title" style="margin: 0; height: 5px">
+                            {{item.activity_title}}</p>
+                          <v-chip color="rgb(193,204,240)" x-small="true" dark>{{item.activityStreamPrettyId}}</v-chip>
+                        </div>
+                      </template>
+
+                      <template v-slot:item.activity_updated="{ item }">
+                        <div class="time-table-block">
+                          {{item.localStartTime}}
+                        </div>
                       </template>
 
                     </v-data-table>

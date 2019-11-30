@@ -15,43 +15,45 @@
     return theLocation.protocol + "//" + theHostName;
   };
 
-  google.charts.load('current', {'packages' : ['corechart']});
+  google.charts.load("current", {"packages" : ["corechart"]});
 
+  var subtableChart;
+  var selectedSubtableRow = false;
 
   var prefixUrl = pageBaseUrl(location);
 
-  var streamSelected = 'All streams';
+  var streamSelected = "All streams";
   var substreamSelected = null;
   var substreamSelectedId = null;
   var streamPointSelectedData = [];
 
   var streamSettingsVars = [
-    'All streams',
-    'Space',
-    'User',
+    "All streams",
+    "Space",
+    "User",
   ];
 
   var timeScaleValue = 3;
   var timeScaleMinutes = 60;
 
   var timeScaleSettingsVars = [
-    '10 min',
-    '20 min',
-    '30 min',
-    '1 hour',
-    '4 hours',
-    '1 day',
-    '1 week',
+    "10 min",
+    "20 min",
+    "30 min",
+    "1 hour",
+    "4 hours",
+    "1 day",
+    "1 week",
   ];
 
   var tableValues = [];
 
-  var focusChartDatesAndValues = [['2013', '684'],
-    ['2014', '721'],
-    ['2015', '816'],
-    ['2016', '932'],
-    ['2016', '546'],
-    ['2016', '758'],
+  var focusChartDatesAndValues = [["2013", "684"],
+    ["2014", "721"],
+    ["2015", "816"],
+    ["2016", "932"],
+    ["2016", "546"],
+    ["2016", "758"],
   ];
 
   var mainTable;
@@ -65,9 +67,19 @@
   //activity stats max total shown
   var maxTotalShown;
 
+
+  if (eXo) {
+    if (!eXo.smartactivity) {
+      eXo.smartactivity = {
+        debug : false
+      };
+    }
+  }
+  eXo.smartactivity.debug = false; // for dev purpose
+
   $(document).ready(function () {
 
-    console.log("prefixUrl: " + prefixUrl);
+    debug("prefixUrl: " + prefixUrl);
 
     defineMainTable();
 
@@ -75,40 +87,42 @@
 
     defineStreamSelector();
 
-    console.log("smartactivity-admin.js and page ready!");
+    //get all default table data
+    substreamSelected = null;
+    substreamSelectedId = null;
+    mainTable.getDataForTheTable();
+
+    debug("smartactivity-admin.js and page ready");
   });
 
   function defineMainTable() {
     mainTable = new Vue({
-      el : '#app-smartactivity-table-vue-and-vuetify',
+      el : "#app-smartactivity-table-vue-and-vuetify",
       vuetify : new Vuetify(),
       data() {
         return {
           expanded : [],
-          search : '',
-          subtableSearch : '',
+          search : "",
+          subtableSearch : "",
           singleExpand : true,
           headers : [
-            {text : '', value : 'data-table-expand'},
+            {text : "", value : "data-table-expand"},
+            {text : "Total Focus Chart", sortable : false, value : "focus_chart_data"},
             {
-              text : 'Activity Data (Title)',
-              align : 'left',
+              text : "Activity Data (Title)",
+              align : "left",
               sortable : false,
-              value : 'activity_title',
+              value : "activity_title",
             },
-            {text : 'Created', value : 'activity_created'},
-            {text : 'Updated', value : 'activity_updated'},
-            {text : 'Start Time', value : 'localStartTime'},
-            {text : 'Stop Time', value : 'localStopTime'},
-            {text : 'Total Focus', value : 'totalShown'},
-            {text : 'Content Focus', value : 'contentShown'},
-            {text : 'Convo Focus', value : 'convoShown'},
-            {text : 'Content Hits', value : 'contentHits'},
-            {text : 'Convo Hits', value : 'convoHits'},
-            {text : 'App Hits', value : 'appHits'},
-            {text : 'Profile Hits', value : 'profileHits'},
-            {text : 'Link Hits', value : 'linkHits'},
-            {text : 'Total Focus Chart', value : 'focus_chart_data'},
+            {text : "Updated", value : "activity_updated"},
+            {text : "Total Focus", value : "totalShown"},
+            {text : "Content Focus", value : "contentShown"},
+            {text : "Convo Focus", value : "convoShown"},
+            {text : "Content Hits", value : "contentHits"},
+            {text : "Convo Hits", value : "convoHits"},
+            {text : "App Hits", value : "appHits"},
+            {text : "Profile Hits", value : "profileHits"},
+            {text : "Link Hits", value : "linkHits"},
           ],
           tableVal : tableValues,
           subtableVal : [],
@@ -117,15 +131,15 @@
       methods : {
         selectTableRow : function (event) {
 
-          $('#subtable-chart').remove();
+          $("#subtable-chart").remove();
 
           if (event.value == true) {
-            var activityTitle = event.item.activityTitle;
+            var activityTitle = event.item.activity_title;
 
             lastOpenedMainTableRow = event.item;
 
             getActivityFocuses(lastOpenedMainTableRow.activityId);
-            console.log("Opened row: " + event);
+            debug("Opened row: " + activityTitle);
           }
         },
         getDataForTheTable : function (event) {
@@ -165,31 +179,28 @@
             activityFocus.activityUpdated = lastOpenedMainTableRow.activityUpdated;
           }
 
-          this.drawSubtableChart();
+          //async call
+          setTimeout(defineSubtableColumnChartSelector, 200);
+          setTimeout(defineSubtableRowHoveredPointOnTheChartSelector, 200);
         },
         drawChart : function (item) {
-          var id = 'chart-div-' + item.activityId + '-' + item.startTime;
+          var id = `chart-div-${item.activityId}-${item.startTime}`;
 
+          var iteration = 0;
           //async call
-          setTimeout(createTableChart, 25, id, item);
-
+          setTimeout(createTableChart, 25, id, item, iteration);
           return id;
         },
-        drawSubtableChart : function (items) {
-          //async call
-          //setTimeout(createSubtableChart, 25, this.subtableVal);
-          createSubtableChart(this.subtableVal);
-        },
         customSort : function (items, index, isDesc) {
-
+          closeExpendedRow();
           //default custom sort
           if (index.length == 0) {
             var aRating;
             var bRating;
 
             items.sort((a, b) => {
-              aRating = a.totalShown / (a.stopTime - a.startTime);
-              bRating = b.totalShown / (b.stopTime - b.startTime);
+              aRating = a.totalShown * 60000 / (a.stopTime - a.activity_created);
+              bRating = b.totalShown * 60000 / (b.stopTime - b.activity_created);
 
               return bRating - aRating;
             });
@@ -215,11 +226,105 @@
         }
       }
     });
+
+    function defineSubtableColumnChartSelector() {
+      $(`#subtable td`).on("click", function () {
+        var elementClickedColumn = this.cellIndex;
+
+        if (elementClickedColumn > 3) {
+          //clear selection before
+          $("#subtable").find("td").css("background-color", "");
+
+          $("#subtable tr").each(function () {
+            $(this).find("td").eq(elementClickedColumn).css("background-color", "#e6e6e6");
+          });
+
+          var dataHeader;
+
+          switch (elementClickedColumn) {
+            case 4:
+              dataHeader = "totalShown";
+              break;
+            case 5:
+              dataHeader = "contentShown";
+              break;
+            case 6:
+              dataHeader = "convoShown";
+              break;
+            case 7:
+              dataHeader = "contentHits";
+              break;
+            case 8:
+              dataHeader = "convoHits";
+              break;
+            case 9:
+              dataHeader = "appHits";
+              break;
+            case 10:
+              dataHeader = "profileHits";
+              break;
+            case 11:
+              dataHeader = "linkHits";
+              break;
+          }
+          createSubtableChart(mainTable.subtableVal, dataHeader);
+        }
+      });
+
+      $("#subtable td").hover(function () {
+        var elementHoveredColumn = this.cellIndex;
+
+        if (elementHoveredColumn > 3) {
+          $(`#subtable tr`).each(function () {
+            $(this).find("td").eq(elementHoveredColumn).css(
+              {
+                "box-shadow" : "inset 15px 0px 20px -25px rgba(0,0,0,0.45), inset -15px 0px 20px -25px rgba(0,0,0,0.45)"
+              }
+            );
+          });
+        }
+      }, function () {
+        //clear hovered before
+        $("#subtable").find("td").css({
+          "box-shadow" : ""
+        });
+      });
+
+      //default column for the chart
+      $("#subtable td").eq(4).click();
+    }
+
+    function defineSubtableRowHoveredPointOnTheChartSelector() {
+
+      $("#subtable tr").click(function () {
+
+        var selectedPoint = subtableChart.getSelection();
+
+        var elementPositionOnTheChart = mainTable.subtableVal.length - $(this).index() - 1;
+
+        $("#subtable tr").css("background-color", "");
+        if (!selectedSubtableRow || selectedPoint[0] == undefined || selectedPoint[0].row != elementPositionOnTheChart) {
+          $(this).css("background-color", "rgb(238,238,238)");
+          subtableChart.setSelection([{row : elementPositionOnTheChart, column : 1}]);
+          selectedSubtableRow = true;
+        } else {
+          selectedSubtableRow = false;
+        }
+
+      });
+
+      $("#subtable tr").hover(function (event) {
+        if (!selectedSubtableRow) {
+          var elementPositionOnTheChart = mainTable.subtableVal.length - $(this).index() - 1;
+          subtableChart.setSelection([{row : elementPositionOnTheChart, column : 1}]);
+        }
+      });
+    }
   }
 
   function defineTimeScaler() {
     new Vue({
-      el : '#time-scale',
+      el : "#time-scale",
       vuetify : new Vuetify(),
       data() {
         return {
@@ -230,7 +335,9 @@
       },
       methods : {
         selectTimeScale : function (event) {
-          console.log("Time scale: " + event);
+          debug("Time scale: " + event);
+
+          closeExpendedRow();
 
           switch (event) {
             case 0:
@@ -255,7 +362,7 @@
               timeScaleMinutes = 10080;
               break;
           }
-          console.log(timeScaleMinutes);
+          debug("Minutes: " + timeScaleMinutes);
         }
       }
     });
@@ -263,7 +370,7 @@
 
   function defineStreamSelector() {
     new Vue({
-      el : '#stream-selector',
+      el : "#stream-selector",
       vuetify : new Vuetify(),
       data : () => ({
         stream : streamSelected,
@@ -271,36 +378,71 @@
       }),
       methods : {
         selectStream : function (event) {
+          var beforeStreamSelected = streamSelected;
+
           streamSelected = event;
-          console.log("Selected stream: " + event);
+          debug("Selected stream: " + event);
 
           deleteSubstreamSelector();
           streamPointSelectedData.length = 0;
 
-          switch (event) {
+          switch (streamSelected) {
             case "All streams":
               substreamSelected = null;
               substreamSelectedId = null;
               break;
             case "Space":
-              substreamSelected = "All spaces";
-              substreamSelectedId = substreamSelected;
-              getPointsOfTheSelectedStream("user-space");
+              var subselectorHeader = "All spaces";
+
+              defineSelectedSubstream(beforeStreamSelected, streamSelected, subselectorHeader);
+
+              getPointsOfTheSelectedStream(subselectorHeader, "user-space");
+              defaultClickOnSubstreamSelector();
               break;
             case "User":
-              substreamSelected = "All users";
-              substreamSelectedId = substreamSelected;
-              getPointsOfTheSelectedStream("user-connection");
+              var subselectorHeader = "All users";
+
+              defineSelectedSubstream(beforeStreamSelected, streamSelected, subselectorHeader);
+
+              getPointsOfTheSelectedStream(subselectorHeader, "user-connection");
+              defaultClickOnSubstreamSelector();
               break;
           }
+
+          //clear values for subtable scaling
+          activitiesStreamPrettyIdMaxString = "";
+          activitiesTitleMaxString = "";
+
+          closeExpendedRow();
+
+          mainTable.getDataForTheTable();
         }
       }
+
+
     });
+
+    definePadding();
+
+    function definePadding() {
+      $("#stream-selector .VuetifyApp .v-text-field").css("padding-top", "2px");
+      $("#stream-selector .VuetifyApp .v-application .v-text-field ").css("padding-top", "2px");
+    }
+
+    //open the substream selector
+    function defaultClickOnSubstreamSelector() {
+      $("#substream-selector .v-input__slot").click();
+    }
+
+    function defineSelectedSubstream(beforeStreamSelected, streamSelected, subselectorHeader) {
+      if (beforeStreamSelected != streamSelected) {
+        substreamSelected = subselectorHeader;
+        substreamSelectedId = substreamSelected;
+      }
+    }
   }
 
-  console.log("smartactivity-admin.js");
-
-  function getPointsOfTheSelectedStream(dataClass) {
+  function getPointsOfTheSelectedStream(subselectorHeader, dataClass) {
     streamPointSelectedData.length = 0;
 
     $(`.${dataClass}`).each(function (index) {
@@ -311,14 +453,15 @@
     });
 
     addSubstreamSelector();
-    defineSubstreamSelector();
+    defineSubstreamSelector(subselectorHeader);
   }
 
   function addSubstreamSelector() {
     $("#stream-selector").after(`<div id="substream-selector" class="VuetifyApp">
                 <v-app id="substream-selector-app">
                     <div>
-                        <v-select v-on:change="selectSubstream" v-model="substream" :items="substreams"></v-select>
+                        <v-select class="custom-select" v-on:input="selectSubstream" 
+                          v-on:blur="deleteSubstreamSelector" v-model="substream" :items="substreams"></v-select>
                     </div>
                 </v-app>
             </div>`);
@@ -328,16 +471,16 @@
     $("#substream-selector").remove();
   }
 
-  function defineSubstreamSelector() {
+  function defineSubstreamSelector(subselectorHeader) {
     var substreamData = [];
 
-    substreamData.push(substreamSelected);
+    substreamData.push(subselectorHeader);
     for (var element in streamPointSelectedData) {
       substreamData.push(streamPointSelectedData[element].dataValue);
     }
 
     new Vue({
-      el : '#substream-selector',
+      el : "#substream-selector",
       vuetify : new Vuetify(),
       data : () => ({
         substream : substreamSelected,
@@ -355,11 +498,32 @@
             }
           }
 
-          console.log("Selected substream: " + event);
-          console.log("Selected substreamId: " + substreamSelectedId);
+          //clear values for subtable scaling
+          activitiesStreamPrettyIdMaxString = "";
+          activitiesTitleMaxString = "";
+
+          closeExpendedRow();
+          this.deleteSubstreamSelector();
+
+          debug("Selected substream: " + event);
+          debug("Selected substreamId: " + substreamSelectedId);
+
+          mainTable.getDataForTheTable();
+        },
+        deleteSubstreamSelector : function () {
+          deleteSubstreamSelector();
         }
       }
     });
+
+    //async call
+    setTimeout(defineClickOutsideSubstreamSelectorHandler, 200);
+
+    function defineClickOutsideSubstreamSelectorHandler() {
+      $("#time-scale-app .menuable__content__active").first().mouseleave(function (event) {
+        $("#time-scale-app .menuable__content__active").first().find("div[aria-selected='true']").click();
+      });
+    }
   }
 
   function getUserFocuses(stream, substream) {
@@ -369,7 +533,7 @@
       type : "GET",
       url : prefixUrl + `/portal/rest/smartactivity/stats/userfocus/${stream}/${substream}`,
       contentType : "application/json",
-      dataType : 'json',
+      dataType : "json",
       success : successF,
       error : errorF
     });
@@ -382,33 +546,53 @@
       tableData.forEach(function (obj) {
         obj.activity_created = obj.activityCreated;
         obj.activity_updated = obj.activityUpdated;
+        obj.activity_updated = obj.activityUpdated;
+        obj.activity_updated = obj.activityUpdated;
         changeObjectPropertyName(obj, "focusChartData", "focus_chart_data");
         changeObjectPropertyName(obj, "activityTitle", "activity_title");
       });
 
       mainTable.updateTableVal(tableData);
 
-      console.log("ajax data:  " + data);
-      console.log("textStatus:  " + textStatus);
-      console.log("jqXHR:  " + jqXHR);
+      debug("getUserFocuses ajax request success result");
     }
 
     function errorF(jqXHR, textStatus, errorThrown) {
-      console.log("error jqXHR:  " + jqXHR);
-      console.log("error textStatus:  " + textStatus);
-      console.log("error errorThrown:  " + errorThrown);
+      log("getUserFocuses error textStatus:  " + textStatus);
+      log("getUserFocuses errorThrown:  ", errorThrown);
     }
   }
 
-  function createSubtableChart(subtableData) {
+  function createSubtableChart(subtableData, dataHeader) {
 
     if (subtableData.length != 0) {
-      $('#subtable-column').prepend(`<div id="subtable-chart" class="subchart"></div>`);
+      var subtableChartHeight = 38;
 
-      var headersAndData = [['Time', 'Focus']];
+      //dynamic subtable chart height scaling
+      for (var row = 2; row <= 7; ++row) {
+        if (subtableData.length >= row) {
+          subtableChartHeight += 35;
+        } else {
+          break;
+        }
+      }
+
+      //remove chart if exists
+      $("#subtable-chart").remove();
+
+      $("#subtable-column")
+        .prepend(`<div id="subtable-chart" style="height: ${subtableChartHeight}px;
+                                                margin-bottom: -${subtableChartHeight + 3}px" class="subchart"></div>`);
+
+      var headersAndData = [["Time", "Value"]];
+
+      var startTime;
+      var valueInPoint;
 
       for (var i = subtableData.length - 1; i >= 0; --i) {
-        headersAndData.push([subtableData[i].localStartTime, Number(subtableData[i].totalShown)]);
+        startTime = subtableData[i].localStartTime;
+        valueInPoint = Number(subtableData[i][dataHeader]);
+        headersAndData.push([startTime, valueInPoint]);
       }
 
       var data = google.visualization.arrayToDataTable(
@@ -416,29 +600,52 @@
       );
 
       var options = {
-        // title : 'Focuses',
-        legend : 'none',
-        hAxis : {title : 'Time', titleTextStyle : {color : '#333'}},
-        vAxis : {minValue : 0}
+        // title : "Focuses",
+        legend : "none",
+        hAxis : {
+          titleTextStyle : {color : "#333"},
+          allowContainerBoundaryTextCufoff : false,
+          textStyle : {fontSize : 12}//color : "#FFF"
+        },
+        vAxis : {minValue : 0},
+        tooltip : {trigger : 'selection'}
       };
 
-      var chart = new google.visualization.AreaChart(document.getElementById('subtable-chart'));
-      chart.draw(data, options);
+      subtableChart = new google.visualization.AreaChart(document.getElementById("subtable-chart"));
+      subtableChart.draw(data, options);
 
-      google.visualization.events.addListener(chart, 'onmouseover', function (e) {
+
+      if ($("#subtable-chart text[font-size='12']").length == (headersAndData.length - 1) * 2) {
+        $("#subtable-chart text[font-size='12']:even").remove();
+      }
+
+      var neededToReplaceText = $("#subtable-chart text[font-size='12']");
+
+      var elementPositionCoeff = Math.floor(headersAndData.length / neededToReplaceText.length);
+      var shift = elementPositionCoeff - 1;
+
+      $("#subtable-chart text[font-size='12']").each(function (index) {
+        if (headersAndData != undefined && headersAndData[index + 1] != undefined) {
+          var valueOfTheDate = headersAndData[(index + 1) * elementPositionCoeff - shift][0];
+          var hoursAndMinutes = valueOfTheDate.substring(valueOfTheDate.length - 8, valueOfTheDate.length - 3);
+          $(this).first().text(hoursAndMinutes);
+        }
+      });
+
+      /*//search selected point
+
+      google.visualization.events.addListener(chart, "onmouseover", function (e) {
         findHoveredStatistic(data, e.row);
       });
 
-      $('#subtable-chart').mouseleave(function () {
-          mainTable.subtableSearch = '';
+      $("#subtable-chart").mouseleave(function () {
+          mainTable.subtableSearch = "";
         }
-      );
+      );*/
     }
 
     function findHoveredStatistic(chartData, element) {
-      console.log("hovered point");
-      console.log(chartData);
-      console.log(element);
+      debug("hovered the chart point");
 
       //search hovered point
       mainTable.subtableSearch = chartData.jc[element][0].gf;
@@ -453,66 +660,73 @@
     }
   }
 
-  function createTableChart(id, item) {
+  function createTableChart(id, item, iteration) {
 
-    var chartBlock = $(`#${id}`);
+    if (iteration < 100) {
+      if (google != undefined && google.visualization != undefined
+        && google.visualization.arrayToDataTable != undefined && google.visualization.AreaChart != undefined) {
+        var chartBlock = $(`#${id}`);
 
-    if (chartBlock.length) {
-      var headersAndData = [['Time', 'Focus']];
+        if (chartBlock.length) {
+          var headersAndData = [["Time", "Focus"]];
 
-      var focusChartDatesAndValues = item.focus_chart_data;
+          var focusChartDatesAndValues = item.focus_chart_data;
 
-      focusChartDatesAndValues.forEach(function (elem) {
-        elem[1] = Number(elem[1]);
-        headersAndData.push(elem);
-      });
+          focusChartDatesAndValues.forEach(function (elem) {
+            elem[1] = Number(elem[1]);
+            headersAndData.push(elem);
+          });
 
-      var data = google.visualization.arrayToDataTable(
-        headersAndData
-      );
+          var data = google.visualization.arrayToDataTable(
+            headersAndData
+          );
 
-      var options = {
-          legend : 'none',
-          hAxis : {
-            allowContainerBoundaryTextCufoff : true,
-            textStyle : {color : '#FFF', fontSize : 0},
-            showTextEvery : 0,
-            tiks : [],
-            baseline : {
-              color : 'green'
+          var options = {
+            legend : "none",
+            hAxis : {
+              allowContainerBoundaryTextCufoff : true,
+              textStyle : {color : "#FFF", fontSize : 0},
+              showTextEvery : 0,
+              tiks : [],
+              baseline : {
+                color : "green"
+              },
+              gridlines : {
+                color : "#FFF"
+              },
+              minorGridlines : {
+                color : "#FFF"
+              }
             },
-            gridlines : {
-              color : '#FFF'
+            vAxis : {
+              minValue : 0,
+              maxValue : maxTotalShown,
+              textStyle : {
+                color : "#FFF"
+              },
+              gridlines : {
+                color : "#FFF"
+              },
+              minorGridlines : {
+                color : "#FFF"
+              },
+              showTextEvery : 0,
+              baseline : {
+                color : "#FFF"
+              },
             },
-            minorGridlines : {
-              color : '#FFF'
-            }
-          },
-          vAxis : {
-            minValue : 0,
-            maxValue : maxTotalShown,
-            textStyle : {
-              color : '#FFF'
-            },
-            gridlines : {
-              color : '#FFF'
-            },
-            minorGridlines : {
-              color : '#FFF'
-            },
-            showTextEvery : 0,
-            baseline : {
-              color : '#FFF'
-            },
-          },
-          lineWidth : 0,
+            lineWidth : 0,
+          };
+
+          var chart = new google.visualization.AreaChart(document.getElementById(id));
+          chart.draw(data, options);
+
+          chartBlock.parent().parent().css("height", "max-content");
         }
-      ;
-
-      var chart = new google.visualization.AreaChart(document.getElementById(id));
-      chart.draw(data, options);
-
-      chartBlock.parent().parent().css("height", "max-content");
+      } else {
+        //async call
+        setTimeout(createTableChart, 50, id, item, iteration);
+      }
     }
   }
 
@@ -525,7 +739,7 @@
       type : "GET",
       url : prefixUrl + `/portal/rest/smartactivity/stats/activityfocuses/${activityId}/${timeScaleMinutes * 60000}`,
       contentType : "application/json",
-      dataType : 'json',
+      dataType : "json",
       success : successF,
       error : errorF
     });
@@ -539,18 +753,59 @@
 
       mainTable.updateSubtableVal(data);
 
-      console.log("ajax data:  " + data);
-      console.log("textStatus:  " + textStatus);
-      console.log("jqXHR:  " + jqXHR);
+      debug("getActivityFocuses  ajax request success result");
     }
 
     function errorF(jqXHR, textStatus, errorThrown) {
-      console.log("error jqXHR:  " + jqXHR);
-      console.log("error textStatus:  " + textStatus);
-      console.log("error errorThrown:  " + errorThrown);
+      log("getActivityFocuses error textStatus:  " + textStatus);
+      log("getActivityFocuses errorThrown:  ", errorThrown);
     }
 
 
   }
+
+  function closeExpendedRow() {
+    $(".v-data-table__expand-icon--active").trigger("click");
+  }
+
+  /** For debug logging. */
+  function log(msg, err) {
+    const logPrefix = "[smartactivity] ";
+    if (typeof console != "undefined" && typeof console.log != "undefined") {
+      let isoTime = " -- " + new Date().toISOString();
+      let msgLine = msg;
+      if (err) {
+        msgLine += ". Error: ";
+        if (err.name || err.message) {
+          if (err.name) {
+            msgLine += "[" + err.name + "] ";
+          }
+          if (err.message) {
+            msgLine += err.message;
+          }
+        } else {
+          msgLine += (typeof err === "string" ? err : JSON.stringify(err)
+            + (err.toString && typeof err.toString === "function" ? "; " + err.toString() : ""));
+        }
+
+        console.log(logPrefix + msgLine + isoTime);
+        if (typeof err.stack != "undefined") {
+          console.log(err.stack);
+        }
+      } else {
+        if (err !== null && typeof err !== "undefined") {
+          msgLine += ". Error: '" + err + "'";
+        }
+        console.log(logPrefix + msgLine + isoTime);
+      }
+    }
+  }
+
+  function debug(msg, err) {
+    if (eXo.smartactivity.debug) {
+      log(msg, err);
+    }
+  }
+
 })(jqModule, vuetifyModule, vueModule, eXoVueI18nModule, googleChartsModule);
 

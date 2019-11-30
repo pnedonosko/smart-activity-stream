@@ -3,12 +3,123 @@ body {
     overflow-x: hidden;
 }
 
+#time-scale {
+    width: 70%;
+    float: left;
+    font-size: 10px;
+}
+
+.v-input__slot {
+    font-size: 14px;
+}
+
+#time-scale .v-card__text {
+    padding-top: 15px;
+    padding-bottom: 14px;
+}
+
+#stream-selector {
+    width: 30%;
+    float: left;
+    position: sticky;
+    z-index: 1000;
+    margin-bottom: -5px;
+}
+
 #stream-selector-app {
-    padding: 10px;
+    padding-right: 20px;
+}
+
+#stream-selector .v-input {
+    padding-top: 6px;
+}
+
+#stream-selector .v-input__slot {
+    width: unset;
+}
+
+#stream-selector .v-select__selections {
+    box-sizing: border-box;
+    padding: 0;
+}
+
+#stream-selector .v-select__selections input {
+    box-shadow: none;
+}
+
+#substream-selector {
+    float: right;
+    width: 30%;
+    margin-bottom: -10%;
+    position: sticky;
+    z-index: 1000;
 }
 
 #substream-selector-app {
-    padding: 10px;
+    padding-right: 20px;
+}
+
+#substream-selector .v-input {
+    padding-top: 2px;
+}
+
+#substream-selector .v-select__selections input {
+    box-shadow: none;
+}
+
+#substream-selector .v-input__slot {
+    width: unset;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+#substream-selector .v-select__selections {
+    box-sizing: border-box;
+}
+
+#substream-selector .v-input__slot::before {
+    border-style: none;
+}
+
+#substream-selector .v-input__slot::after {
+    border-style: none;
+}
+
+.v-messages {
+    display: none;
+}
+
+
+#app-smartactivity-table-vue-and-vuetify {
+    float: left;
+}
+
+#app-smartactivity-table-vue-and-vuetify .v-text-field {
+    padding-top: 0;
+}
+
+#app-smartactivity-table-vue-and-vuetify thead th {
+    vertical-align: top;
+    padding: 2px 4px 2px 4px;
+    height: fit-content;
+}
+
+#app-smartactivity-table-vue-and-vuetify tbody td {
+    font-size: 12px;
+    padding: 2px 4px 2px 4px;
+}
+
+#app-smartactivity-table-vue-and-vuetify .expanded__content {
+    padding: 0;
+}
+
+#app-smartactivity-table-vue-and-vuetify tbody p {
+    font-size: 12px;
+}
+
+.activity-title {
+    width: 320px;
+    word-break: break-all;
 }
 
 #subtable .v-application--wrap {
@@ -20,6 +131,15 @@ body {
     padding-top: 3px;
 }
 
+#subtable tbody td {
+    font-size: 12px;
+}
+
+#subtable tbody p {
+    font-size: 12px;
+}
+
+
 #subtable .v-data-table-header {
     visibility: hidden;
 }
@@ -30,6 +150,27 @@ body {
 
 #subtable .v-data-footer {
     display: none;
+}
+
+#subtable td {
+    height: 30px;
+}
+
+#subtable thead th {
+    height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+    line-height: 0;
+}
+
+#subtable .v-data-table-header__icon {
+    height: 0;
+}
+
+#subtable span {
+    height: 0;
+    display: inline-block;
 }
 
 #subtable-column {
@@ -49,16 +190,23 @@ body {
 }
 
 .subchart {
-    position: absolute;
+    position: relative;
     margin-top: 3px;
-    width: 370px;
-    height: 110px;
+    width: 470px;
+    height: 100px;
     visibility: visible;
     z-index: 1;
+    margin-bottom: -103px;
 }
 
 #subtable-chart {
     display: block;
 }
+
+.time-table-block {
+    width: 115px;
+}
+
+
 
 

@@ -364,6 +364,10 @@ public class ActivityStatsService implements Startable {
     if (activityStatsEntity != null) {
       String safeActivityTitle = safeText(exoSocialActivity.getTitle());
 
+      if (safeActivityTitle.length() > 40) {
+        safeActivityTitle = safeActivityTitle.substring(0, 40);
+      }
+
       ActivityStream activityStream = exoSocialActivity.getActivityStream();
 
       activityStatsEntity.setActivityTitle(safeActivityTitle);
