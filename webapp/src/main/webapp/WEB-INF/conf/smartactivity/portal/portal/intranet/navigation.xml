@@ -27,8 +27,8 @@
   <page-nodes>
     <node>
       <name>stats</name>
-      <label>#{smartactivity.user.page}</label>
-      <visibility>DISPLAYED</visibility>
+      <label>#{portal.intranet.statsPage}</label>
+      <visibility>HIDDEN</visibility>
       <page-reference>portal::intranet::stats</page-reference>
     </node>
   </page-nodes>

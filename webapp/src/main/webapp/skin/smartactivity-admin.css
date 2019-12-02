@@ -28,6 +28,19 @@ body {
 
 #stream-selector-app {
     padding-right: 20px;
+    padding-top: 7px;
+}
+
+#stream-selector-app fieldset {
+    height: 45px;
+}
+
+#stream-selector-app .v-select__slot {
+    height: 44px;
+}
+
+#stream-selector-app .v-input__append-inner {
+    margin-top: 11px;
 }
 
 #stream-selector .v-input {
@@ -36,6 +49,8 @@ body {
 
 #stream-selector .v-input__slot {
     width: unset;
+    height: 48px;
+    min-height: unset;
 }
 
 #stream-selector .v-select__selections {
@@ -192,7 +207,7 @@ body {
 .subchart {
     position: relative;
     margin-top: 3px;
-    width: 470px;
+    width: 455px;
     height: 100px;
     visibility: visible;
     z-index: 1;

@@ -27,7 +27,8 @@
   <page-nodes>
     <node>
       <name>statsAdministration</name>
-      <label>#{smartactivity.admin.page}</label>
+      <label>#{group.platform.statsPage}</label>
+      <visibility>HIDDEN</visibility>
       <page-reference>group::/platform/administrators::statsAdministration</page-reference>
     </node>
   </page-nodes>
