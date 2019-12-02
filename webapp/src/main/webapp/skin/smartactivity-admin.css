@@ -21,7 +21,7 @@ body {
 #stream-selector {
     width: 30%;
     float: left;
-    position: sticky;
+    position: inherit;
     z-index: 1000;
     margin-bottom: -5px;
 }
