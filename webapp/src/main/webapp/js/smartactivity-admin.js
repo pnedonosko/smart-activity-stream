@@ -79,6 +79,8 @@
 
   $(document).ready(function () {
 
+    addActiveClassToMenuNavigation();
+
     debug("prefixUrl: " + prefixUrl);
 
     defineMainTable();
@@ -760,8 +762,6 @@
       log("getActivityFocuses error textStatus:  " + textStatus);
       log("getActivityFocuses errorThrown:  ", errorThrown);
     }
-
-
   }
 
   function closeExpendedRow() {
@@ -805,6 +805,12 @@
     if (eXo.smartactivity.debug) {
       log(msg, err);
     }
+  }
+
+  function addActiveClassToMenuNavigation() {
+    $(".uiUserNavIconAppStats").parent().parent().addClass("active");
+
+    $(".uiUserNavIconAppStats").css("content", "url(/smartactivity/icon/stats-icon25blue.png) !important");
   }
 
 })(jqModule, vuetifyModule, vueModule, eXoVueI18nModule, googleChartsModule);

@@ -1,0 +1,15 @@
+.uiIconAppStats:before {
+    content: url("/smartactivity/icon/stats-icon14.png") !important;
+}
+
+li:hover .uiIconAppStats:before {
+    content: url("/smartactivity/icon/stats-icon14white.png") !important;
+}
+
+.uiIconAppStats {
+    margin-right: 11px;
+}
+
+.uiUserNavIconAppStats:before {
+    content: url("/smartactivity/icon/stats-icon25.png")
+}

@@ -2,7 +2,7 @@
 <bundle>
   <smartactivity>
     <admin>
-      <title>Activity Statistics Administration Page</title>
+      <title>Activity Statistics</title>
       <setting-title>Settings controls</setting-title>
       <time-scale-setting-title>Time scale</time-scale-setting-title>
       <stream-selector-title>Stream selector</stream-selector-title>

@@ -20,8 +20,8 @@
 
 -->
 <portlet-app xmlns="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd" version="2.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd
    http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd">
   <portlet>
     <portlet-name>SmartActivityStreamPortlet</portlet-name>
@@ -43,11 +43,26 @@
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
-   <resource-bundle>locale.smartactivity.SmartActivityStreamAdmin</resource-bundle>
+    <resource-bundle>locale.smartactivity.SmartActivityStreamAdmin</resource-bundle>
     <portlet-info>
       <title>Smart Activity stream admin portlet for eXo Platform</title>
       <short-title>Smart Activity stream administration</short-title>
       <keywords>smart activity administration</keywords>
+    </portlet-info>
+  </portlet>
+  <portlet>
+    <portlet-name>StatsLinkPortlet</portlet-name>
+    <display-name xml:lang="EN">Stats Link Application</display-name>
+    <portlet-class>org.exoplatform.smartactivitystream.admin.portlet.SmartActivityStreamAdminLinkPortlet</portlet-class>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <resource-bundle>locale.smartactivity.SmartActivityStreamAdminLink</resource-bundle>
+    <portlet-info>
+      <title>Stats Link Application</title>
+      <keywords>Stats Application</keywords>
     </portlet-info>
   </portlet>
 </portlet-app>

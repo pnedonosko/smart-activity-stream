@@ -35,7 +35,7 @@ import org.exoplatform.smartactivitystream.stats.utils.StatsUtils;
  */
 public class StatsFeaturePlugin extends FeaturePlugin {
 
-  private static final String STATS_FEATURE_NAME = "stats";
+  private static final String  STATS_FEATURE_NAME = "stats";
 
   private ConversationRegistry conversationRegistry;
 

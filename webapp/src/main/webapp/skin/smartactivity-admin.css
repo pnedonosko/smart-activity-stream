@@ -222,6 +222,9 @@ body {
     width: 115px;
 }
 
+.uiUserNavIconAppStats:before {
+    content: url("/smartactivity/icon/stats-icon25blue.png") !important;
+}
 
 
 
