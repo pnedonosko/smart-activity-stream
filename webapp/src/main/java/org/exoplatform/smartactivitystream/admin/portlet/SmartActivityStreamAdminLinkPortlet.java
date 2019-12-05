@@ -41,10 +41,12 @@ public class SmartActivityStreamAdminLinkPortlet extends GenericPortlet {
   /** The Constant LOG. */
   private static final Log    LOG                = ExoLogger.getLogger(SmartActivityStreamAdminLinkPortlet.class);
 
+  /** The Constant STATS_FEATURE_NAME. */
   private static final String STATS_FEATURE_NAME = "stats";
 
   /**
-   * Admin menu link portlet.
+   * Admin menu link portlet (returns the local messages for the user
+   * menus(dropdown-menu and userNavigation menu)).
    *
    * @param request the request
    * @param response the response
@@ -55,10 +57,11 @@ public class SmartActivityStreamAdminLinkPortlet extends GenericPortlet {
   public void doView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
     final String currentUser = request.getRemoteUser();
 
-    Map<String, String> messages = getResourceMessages("locale.smartactivity.SmartActivityStreamAdminLink", request.getLocale());
+    Map<String, String> resourceLocalMessages = getResourceMessages("locale.smartactivity.SmartActivityStreamAdminLink",
+                                                                    request.getLocale());
 
     // Markup
-    request.setAttribute("messages", messages);
+    request.setAttribute("messages", resourceLocalMessages);
 
     try {
       PortletRequestDispatcher prDispatcher = getPortletContext().getRequestDispatcher("/WEB-INF/pages/admin-stats-link.jsp");

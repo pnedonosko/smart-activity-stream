@@ -72,25 +72,35 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
   @Transient
   private String                activityTitle;
 
-  /** The time of the current activity creation in the user locale representation.. */
+  /**
+   * The time of the current activity creation in the user locale representation.
+   */
   @Transient
   private String                activityCreated;
 
   /** The time of the current activity creation in milliseconds. */
   private transient Long        activityCreatedMilliseconds;
 
-  /** The time of the current activity update in the user locale representation. */
+  /**
+   * The time of the current activity update in the user locale representation.
+   */
   @Transient
   private String                activityUpdated;
 
   /** The time of the current activity update in milliseconds. */
   private transient Long        activityUpdatedMilliseconds;
 
-  /** The local start time of the user activity focus in the user locale representation. */
+  /**
+   * The local start time of the user activity focus in the user locale
+   * representation.
+   */
   @Transient
   private String                localStartTime;
 
-  /** The local stop time of the user activity focus in the user locale representation. */
+  /**
+   * The local stop time of the user activity focus in the user locale
+   * representation.
+   */
   @Transient
   private String                localStopTime;
 
@@ -109,9 +119,15 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
   /** The hash code. */
   private transient int         hashCode;
 
+  /**
+   * Instantiates a new ActivityStatsEntity.
+   */
   public ActivityStatsEntity() {
   }
 
+  /**
+   * Sets the user locale date to user fields that have to be in the user locale.
+   */
   private void setLocaleDateToData() {
 
     SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, getUserLocale());
@@ -175,6 +191,11 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
     return userLocale;
   }
 
+  /**
+   * Sets the user locale.
+   *
+   * @param userLocale the user locale to set
+   */
   public void setUserLocale(Locale userLocale) {
     if (userLocale != null) {
       this.userLocale = userLocale;
@@ -184,37 +205,80 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
     setHashCode(0);
   }
 
+  /**
+   * Gets the activity title.
+   *
+   * @return the activityTitle
+   */
   public String getActivityTitle() {
     return activityTitle;
   }
 
+  /**
+   * Sets the activity title.
+   *
+   * @param activityTitle the activity title to set
+   */
   public void setActivityTitle(String activityTitle) {
     this.activityTitle = activityTitle;
     setHashCode(0);
   }
 
+  /**
+   * Gets the timestamp of the activity creation in the user locale
+   * representation.
+   *
+   * @return the activityCreated
+   */
   public String getActivityCreated() {
     return activityCreated;
   }
 
+  /**
+   * Sets the timestamp of the activity creation in the user locale
+   * representation.
+   *
+   * @param activityCreated the timestamp of the activity creation to set
+   */
   public void setActivityCreated(String activityCreated) {
     this.activityCreated = activityCreated;
     setHashCode(0);
   }
 
+  /**
+   * Gets the timestamp of the activity updated in the user locale representation.
+   *
+   * @return the activityUpdated
+   */
   public String getActivityUpdated() {
     return activityUpdated;
   }
 
+  /**
+   * Sets the timestamp of the activity updated in the user locale representation.
+   * 
+   * @param activityUpdated the timestamp of the activity updated to set
+   */
   public void setActivityUpdated(String activityUpdated) {
     this.activityUpdated = activityUpdated;
     setHashCode(0);
   }
 
+  /**
+   * Gets the timestamp of the activity creation in milliseconds.
+   *
+   * @return the activityCreatedMilliseconds
+   */
   public Long getActivityCreatedMilliseconds() {
     return activityCreatedMilliseconds;
   }
 
+  /**
+   * Sets the timestamp of the activity creation in milliseconds.
+   *
+   * @param activityCreatedMilliseconds the timestamp of the activity creation in
+   *          milliseconds to set
+   */
   public void setActivityCreatedMilliseconds(Long activityCreatedMilliseconds) {
     if (activityCreatedMilliseconds != null) {
       this.activityCreatedMilliseconds = activityCreatedMilliseconds;
@@ -224,10 +288,21 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
     setHashCode(0);
   }
 
+  /**
+   * Gets the timestamp of the activity updated in milliseconds.
+   *
+   * @return the activityUpdatedMilliseconds
+   */
   public Long getActivityUpdatedMilliseconds() {
     return activityUpdatedMilliseconds;
   }
 
+  /**
+   * Sets the timestamp of the activity updated in milliseconds.
+   *
+   * @param activityUpdatedMilliseconds the timestamp of the activity updated in
+   *          milliseconds to set
+   */
   public void setActivityUpdatedMilliseconds(Long activityUpdatedMilliseconds) {
     if (activityUpdatedMilliseconds != null) {
       this.activityUpdatedMilliseconds = activityUpdatedMilliseconds;
@@ -237,42 +312,94 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
     setHashCode(0);
   }
 
+  /**
+   * Gets the start time in user locale.
+   *
+   * @return the localStartTime
+   */
   public String getLocalStartTime() {
     return localStartTime;
   }
 
+  /**
+   * Sets the start time in user locale.
+   *
+   * @param localStartTime the start time in user locale to set
+   */
   public void setLocalStartTime(String localStartTime) {
     this.localStartTime = localStartTime;
   }
 
+  /**
+   * Gets the stop time in user locale.
+   *
+   * @return the localStopTime
+   */
   public String getLocalStopTime() {
     return localStopTime;
   }
 
+  /**
+   * Sets the stop time in user locale.
+   *
+   * @param localStopTime the stop time in user locale to set
+   */
   public void setLocalStopTime(String localStopTime) {
     this.localStopTime = localStopTime;
   }
 
+  /**
+   * Gets the activity stream pretty id.
+   *
+   * @return the activityStreamPrettyId
+   */
   public String getActivityStreamPrettyId() {
     return activityStreamPrettyId;
   }
 
+  /**
+   * Sets the activity stream pretty id.
+   *
+   * @param activityStreamPrettyId the activity stream pretty id to set
+   */
   public void setActivityStreamPrettyId(String activityStreamPrettyId) {
     this.activityStreamPrettyId = activityStreamPrettyId;
   }
 
+  /**
+   * Gets the focus chart data (for the main table chart).
+   *
+   * @return the focusChartData
+   */
   public String[][] getFocusChartData() {
     return focusChartData;
   }
 
+  /**
+   * Sets the focus chart data (for the main table chart).
+   *
+   * @param focusChartData the focus chart data to set
+   */
   public void setFocusChartData(String[][] focusChartData) {
     this.focusChartData = focusChartData;
   }
 
+  /**
+   * Gets the activity URL (uses in the main table activity title column, defines
+   * the activity link ).
+   *
+   * @return the activityUrl
+   */
   public String getActivityUrl() {
     return activityUrl;
   }
 
+  /**
+   * Sets the activity URL (uses in the main table activity title column, defines
+   * the activity link ).
+   *
+   * @param activityUrl the activity URL to set
+   */
   public void setActivityUrl(String activityUrl) {
     this.activityUrl = activityUrl;
   }
@@ -282,6 +409,11 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
     return hashCode;
   }
 
+  /**
+   * Sets the hash code.
+   *
+   * @param hashCode the hash code to set
+   */
   public void setHashCode(int hashCode) {
     this.hashCode = hashCode;
   }

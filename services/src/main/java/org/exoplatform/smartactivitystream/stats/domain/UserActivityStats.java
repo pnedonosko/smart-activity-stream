@@ -12,9 +12,19 @@ public class UserActivityStats {
   /** Activity stats entities for the main table. */
   private final List<ActivityStatsEntity> activityStatsEntities;
 
-  /** The activity statistics max total shown value (for the general scaling of the main table charts). */
+  /**
+   * The activity statistics max total shown value (for the general scaling of the
+   * main table charts).
+   */
   private final Long                      maxTotalShown;
 
+  /**
+   * Instantiates a new UserActivityStats.
+   *
+   * @param activityStatsEntities the activity stats entities
+   * @param maxTotalShown the max total shown (the max value for the main table
+   *          charts scaling)
+   */
   public UserActivityStats(List<ActivityStatsEntity> activityStatsEntities, Long maxTotalShown) {
     this.activityStatsEntities = activityStatsEntities;
     this.maxTotalShown = maxTotalShown;

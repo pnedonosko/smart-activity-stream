@@ -47,7 +47,7 @@ public class ActivityStatsId implements Serializable {
   /**
    * Sets the activity id.
    *
-   * @param activityId the activity id
+   * @param activityId the activity id to set
    */
   private void setActivityId(String activityId) {
     this.activityId = activityId;
@@ -65,7 +65,7 @@ public class ActivityStatsId implements Serializable {
   /**
    * Sets the start time.
    *
-   * @param startTime the start time
+   * @param startTime the start time to set
    */
   private void setStartTime(Long startTime) {
     this.startTime = startTime;

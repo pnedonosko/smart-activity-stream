@@ -75,34 +75,49 @@ import org.exoplatform.smartactivitystream.stats.domain.ActivityFocusEntity;
 public class ActivityStatsService implements Startable {
 
   /** The Constant LOG. */
-  private static final Log                             LOG                    = ExoLogger.getLogger(ActivityStatsService.class);
+  private static final Log                             LOG                      = ExoLogger.getLogger(ActivityStatsService.class);
 
   /** The Constant TRACKER_CACHE_NAME. */
-  public static final String                           TRACKER_CACHE_NAME     = "smartactivity.TrackerCache".intern();
+  public static final String                           TRACKER_CACHE_NAME       = "smartactivity.TrackerCache".intern();
 
   /** The Constant TRACKER_CACHE_PERIOD. */
-  public static final int                              TRACKER_CACHE_PERIOD   = 120000;
+  public static final int                              TRACKER_CACHE_PERIOD     = 120000;
 
   /** The Constant ACTIVITY_FOCUS_DEFAULT. */
-  private static final long                            ACTIVITY_FOCUS_DEFAULT = 0;
+  private static final long                            ACTIVITY_FOCUS_DEFAULT   = 0;
+
+  /** The Constant Stream Selector ALL_STREAMS. */
+  public static final String                           ALL_STREAMS              = "All streams";
+
+  /** The Constant Stream Selector SPACE. */
+  public static final String                           SPACE                    = "Space";
+
+  /** The Constant Stream Selector USER. */
+  public static final String                           USER                     = "User";
+
+  /** The Constant Substream Selector ALL_USERS. */
+  public static final String                           ALL_USERS                = "All users";
+
+  /** The Constant Substream Selector ALL_SPACES. */
+  public static final String                           ALL_SPACES               = "All spaces";
 
   /** The text policy. */
-  protected final PolicyFactory                        textPolicy             = new HtmlPolicyBuilder().toFactory();
+  protected final PolicyFactory                        textPolicy               = new HtmlPolicyBuilder().toFactory();
 
   /** The link with href not a hash in local document target. */
-  protected final Pattern                              linkNotLocal           =
+  protected final Pattern                              linkNotLocal             =
                                                                     Pattern.compile("href=['\"][^#][.\\w\\W\\S]*?['\"]",
                                                                                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
                                                                                         | Pattern.DOTALL);
 
   /** The link with target. */
-  protected final Pattern                              linkWithTarget         =
+  protected final Pattern                              linkWithTarget           =
                                                                       Pattern.compile("<a(?=\\s).*?(target=['\"].*?['\"])[^>]*>",
                                                                                       Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
                                                                                           | Pattern.DOTALL);
 
   /** The link without target. */
-  protected final Pattern                              linkWithoutTarget      =
+  protected final Pattern                              linkWithoutTarget        =
                                                                          Pattern.compile("<a(?=\\s)(?:(?!target=).)*?([.\\W\\w\\S\\s[^>]])*?(>)",
                                                                                          Pattern.CASE_INSENSITIVE
                                                                                              | Pattern.MULTILINE
@@ -118,10 +133,10 @@ public class ActivityStatsService implements Startable {
   private final ActivityStatsDAO                       statsStorage;
 
   /** The focus saver. */
-  private final Timer                                  focusSaver             = new Timer();
+  private final Timer                                  focusSaver               = new Timer();
 
   /** The focus saver started. */
-  private final AtomicBoolean                          focusSaverStarted      = new AtomicBoolean(false);
+  private final AtomicBoolean                          focusSaverStarted        = new AtomicBoolean(false);
 
   /** The enable trackers. */
   private final boolean                                enableTrackers;
@@ -145,7 +160,7 @@ public class ActivityStatsService implements Startable {
   private Locale                                       userLocale;
 
   /** The global settings. */
-  private GlobalSettings               configuredGlobalSettings = new GlobalSettings();
+  private GlobalSettings                               configuredGlobalSettings = new GlobalSettings();
 
   /**
    * Instantiates a new smart activity service.
@@ -217,10 +232,11 @@ public class ActivityStatsService implements Startable {
     return this.enableTrackers;
   }
 
-  public ActivityManager getActivityManager() {
-    return this.activityManager;
-  }
-
+  /**
+   * Gets the maxTotalShown.
+   *
+   * @return the maxTotalShown
+   */
   public Long getMaxTotalShown() {
     if (LOG.isDebugEnabled()) {
       LOG.debug(">>> getMaxTotalShown");
@@ -234,12 +250,17 @@ public class ActivityStatsService implements Startable {
     return maxTotalShown;
   }
 
+  /**
+   * Gets global settings.
+   *
+   * @return configured global settings
+   */
   public GlobalSettings getSettings() {
     return this.configuredGlobalSettings.clone();
   }
 
   /**
-   * Gets the data for the subtable
+   * Gets the data for the subtable.
    * 
    * @param activityId the selected activity of the table
    * @param timeScale the time scaling
@@ -265,6 +286,13 @@ public class ActivityStatsService implements Startable {
     return activityFocuses;
   }
 
+  /**
+   * Finds the activity stats (the sum of activity statistics by components
+   * grouped by activity id).
+   *
+   * @param activityId the activity
+   * @return the activity stats entity
+   */
   public ActivityStatsEntity findActivityStats(String activityId) {
     if (LOG.isDebugEnabled()) {
       LOG.debug(">>> findActivityStats");
@@ -279,18 +307,45 @@ public class ActivityStatsService implements Startable {
     return activityStatsRecord;
   }
 
+  /**
+   * Gets the user identity.
+   *
+   * @param userId the user id
+   * @return the activity stats entity
+   */
   public Identity getUserIdentity(String userId) {
     return identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId, true);
   }
 
+  /**
+   * Gets the user spaces.
+   *
+   * @param userId the user id
+   * @return the list of user spaces
+   */
   public List<Space> getUserSpaces(String userId) {
     return spaceStorage.getMemberSpaces(userId);
   }
 
+  /**
+   * Gets the user connections.
+   *
+   * @param userId the user id
+   * @return the list of user identities
+   */
   public List<Identity> getUserConnections(String userId) {
     return relationshipStorage.getConnections(getUserIdentity(userId));
   }
 
+  /**
+   * Gets the user activities focuses.
+   *
+   * @param stream the user id
+   * @param substream the user id
+   * @param currentUserId the user id
+   * @param userLocale the user id
+   * @return the list of activity stats entities
+   */
   public List<ActivityStatsEntity> getUserActivitiesFocuses(String stream,
                                                             String substream,
                                                             String currentUserId,
@@ -308,7 +363,7 @@ public class ActivityStatsService implements Startable {
         this.userLocale = userLocale;
 
         switch (stream) {
-        case "All streams": {
+        case ALL_STREAMS: {
           RealtimeListAccess<ExoSocialActivity> usersActivities = activityManager.getActivityFeedWithListAccess(userIdentity);
           List<ExoSocialActivity> allUserActivities = usersActivities.loadAsList(0, usersActivities.getSize());
           if (LOG.isDebugEnabled()) {
@@ -324,7 +379,7 @@ public class ActivityStatsService implements Startable {
           }
           break;
         }
-        case "Space": {
+        case SPACE: {
           RealtimeListAccess<ExoSocialActivity> usersActivities =
                                                                 activityManager.getActivitiesOfUserSpacesWithListAccess(userIdentity);
           List<ExoSocialActivity> allUserActivities = usersActivities.loadAsList(0, usersActivities.getSize());
@@ -335,7 +390,7 @@ public class ActivityStatsService implements Startable {
           addActivitiesFromUserSpaceToUserFocuses(allUserActivities, substream, activityStatsEntities);
           break;
         }
-        case "User": {
+        case USER: {
           RealtimeListAccess<ExoSocialActivity> usersActivities =
                                                                 activityManager.getActivitiesOfConnectionsWithListAccess(userIdentity);
           List<ExoSocialActivity> allUserActivities = usersActivities.loadAsList(0, usersActivities.getSize());
@@ -357,13 +412,21 @@ public class ActivityStatsService implements Startable {
     return activityStatsEntities;
   }
 
+  /**
+   * Adds the activity stats to the activityStatsEntities list.
+   *
+   * @param exoSocialActivity the exo social activity
+   * @param activityStatsEntities the list of activity stats entities
+   */
   private void addActivityToUserFocuses(ExoSocialActivity exoSocialActivity, List<ActivityStatsEntity> activityStatsEntities) {
     String exoSocialActivityId = exoSocialActivity.getId();
     ActivityStatsEntity activityStatsEntity = findActivityStats(exoSocialActivityId);
 
     if (activityStatsEntity != null) {
+      // Creates the safe activity title
       String safeActivityTitle = safeText(exoSocialActivity.getTitle());
 
+      // Limits the activity title (40 characters)
       if (safeActivityTitle.length() > 40) {
         safeActivityTitle = safeActivityTitle.substring(0, 40);
       }
@@ -378,24 +441,33 @@ public class ActivityStatsService implements Startable {
 
       activityStatsEntity.setActivityStreamPrettyId(activityStream.getPrettyId());
 
+      // Defines a data for charts of the main table
       activityStatsEntity.setFocusChartData(statsStorage.findActivityFocusChartData(exoSocialActivityId)
                                                         .toArray(new String[0][]));
 
       activityStatsEntity.setActivityUrl(LinkProvider.getSingleActivityUrl(exoSocialActivity.getId()));
 
+      // Sets the locale and localizes time variables
       activityStatsEntity.setUserLocale(userLocale);
 
       activityStatsEntities.add(activityStatsEntity);
     }
   }
 
+  /**
+   * Adds activities from the user space to the activityStatsEntities list.
+   *
+   * @param allUserActivities all user activities
+   * @param substreamSelected the substream selected
+   * @param activityStatsEntities the list of activity stats entities
+   */
   private void addActivitiesFromUserSpaceToUserFocuses(List<ExoSocialActivity> allUserActivities,
                                                        String substreamSelected,
                                                        List<ActivityStatsEntity> activityStatsEntities) {
     if (substreamSelected != null) {
-      if ("All spaces".equals(substreamSelected)) {
+      if (ALL_SPACES.equals(substreamSelected)) {
         if (LOG.isDebugEnabled()) {
-          LOG.debug("All spaces");
+          LOG.debug(ALL_SPACES);
         }
 
         for (ExoSocialActivity exoSocialActivity : allUserActivities) {
@@ -423,13 +495,20 @@ public class ActivityStatsService implements Startable {
     }
   }
 
+  /**
+   * Adds activities from the user connections to the activityStatsEntities list.
+   *
+   * @param allUserActivities all user activities
+   * @param substreamSelected the substream selected
+   * @param activityStatsEntities the list of activity stats entities
+   */
   private void addActivitiesFromUserConnectionsToUserFocuses(List<ExoSocialActivity> allUserActivities,
                                                              String substreamSelected,
                                                              List<ActivityStatsEntity> activityStatsEntities) {
     if (substreamSelected != null) {
-      if ("All users".equals(substreamSelected)) {
+      if (ALL_USERS.equals(substreamSelected)) {
         if (LOG.isDebugEnabled()) {
-          LOG.debug("All users");
+          LOG.debug(ALL_USERS);
         }
 
         for (ExoSocialActivity exoSocialActivity : allUserActivities) {

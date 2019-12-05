@@ -8,18 +8,32 @@ public class GlobalSettings implements Serializable, Cloneable {
 
   private static final long serialVersionUID = 8987967110410722896L;
 
-  private String            accessPermission = "*:/platform/users"; // null *:/platform/administrators
+  private String            accessPermission = "*:/platform/users"; // null "*:/platform/administrators"
 
   private boolean           enabled;
 
+  /**
+   * Instantiates a new GlobalSettings.
+   */
   public GlobalSettings() {
   }
 
+  /**
+   * Instantiates a new GlobalSettings.
+   *
+   * @param accessPermission the access permission
+   * @param enabled the enabled
+   */
   public GlobalSettings(String accessPermission, boolean enabled) {
     this.accessPermission = accessPermission;
     this.enabled = enabled;
   }
 
+  /**
+   * Instantiates a new GlobalSettings (copy).
+   *
+   * @param globalSettings the access permission
+   */
   public GlobalSettings(GlobalSettings globalSettings) {
     if (globalSettings != null) {
       try {

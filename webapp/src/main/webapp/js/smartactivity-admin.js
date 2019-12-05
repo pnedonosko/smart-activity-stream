@@ -19,7 +19,10 @@
   //Loading the google charts, 'google' is the global variable (it depends the google charts)
   google.charts.load("current", {"packages" : ["corechart"]});
 
+  //The subtable chart
   var subtableChart;
+
+  //The selected subtable row flag (boolean)
   var selectedSubtableRow = false;
 
   //The base page URL
@@ -84,6 +87,8 @@
   }
   eXo.smartactivity.debug = false; // for dev purpose
 
+
+  //The start block. Defines all elements when the document ready
   $(document).ready(function () {
 
     addActiveClassToMenuNavigation();
@@ -139,7 +144,7 @@
       },
       methods : {
         selectTableRow : function (event) {
-
+          //Deletes the old subtable char if exists
           $("#subtable-chart").remove();
 
           if (event.value == true) {
@@ -155,6 +160,7 @@
           getUserFocuses(streamSelected, substreamSelectedId);
         },
         updateTableVal : function (newData) {
+          //Deletes values of the table
           this.tableVal.splice(0, this.tableVal.length);
 
           for (var index in newData) {
@@ -172,6 +178,7 @@
             }
           }
         },
+        //Deletes values of the subtable
         clearSubtableVal : function () {
           this.subtableVal.splice(0, this.subtableVal.length);
         },
@@ -188,7 +195,7 @@
             activityFocus.activityUpdated = lastOpenedMainTableRow.activityUpdated;
           }
 
-          //async call
+          //Async call
           setTimeout(defineSubtableColumnChartSelector, 200);
           setTimeout(defineSubtableRowHoveredPointOnTheChartSelector, 200);
         },
@@ -196,13 +203,13 @@
           var id = `chart-div-${item.activityId}-${item.startTime}`;
 
           var iteration = 0;
-          //async call
+          //Async call
           setTimeout(createTableChart, 25, id, item, iteration);
           return id;
         },
         customSort : function (items, index, isDesc) {
           closeExpendedRow();
-          //default custom sort
+          //Default custom sort
           if (index.length == 0) {
             var aRating;
             var bRating;
@@ -242,17 +249,17 @@
         var elementClickedColumn = this.cellIndex;
 
         if (elementClickedColumn > 3) {
-          //clear selection before
+          //Clears the selection before
           $("#subtable").find("td").css("background-color", "");
 
-          //set background color of the selected column
+          //Sets background color of the selected column
           $("#subtable tr").each(function () {
             $(this).find("td").eq(elementClickedColumn).css("background-color", "#e6e6e6");
           });
 
           var dataHeader;
 
-          //select needed header for the subtable chart
+          //Selects needed header for the subtable chart
           switch (elementClickedColumn) {
             case 4:
               dataHeader = "totalShown";
@@ -280,12 +287,12 @@
               break;
           }
 
-          //display the chart for selected column
+          //Displays the chart for selected column
           createSubtableChart(mainTable.subtableVal, dataHeader);
         }
       });
 
-      //add a shadow over the hovered column
+      //Adds a shadow over the hovered column
       $("#subtable td").hover(function () {
         var elementHoveredColumn = this.cellIndex;
 
@@ -299,18 +306,19 @@
           });
         }
       }, function () {
-        //clear hovered before
+        //Clears a shadow over hovered before columns
         $("#subtable").find("td").css({
           "box-shadow" : ""
         });
       });
 
-      //default column for the chart
+      //Defines the default column for the chart
       $("#subtable td").eq(4).click();
     }
 
     function defineSubtableRowHoveredPointOnTheChartSelector() {
 
+      //Handles a click on the subtable row
       $("#subtable tr").click(function () {
 
         var selectedPoint = subtableChart.getSelection();
@@ -328,6 +336,7 @@
 
       });
 
+      //Handles a mouse hover over the subtable row
       $("#subtable tr").hover(function (event) {
         if (!selectedSubtableRow) {
           var elementPositionOnTheChart = mainTable.subtableVal.length - $(this).index() - 1;
@@ -401,6 +410,7 @@
           deleteSubstreamSelector();
           streamPointSelectedData.length = 0;
 
+          // Handles the selected stream
           switch (streamSelected) {
             case "All streams":
               substreamSelected = null;
@@ -424,7 +434,7 @@
               break;
           }
 
-          //clear values for subtable scaling
+          //Clears values for subtable scaling
           activitiesStreamPrettyIdMaxString = "";
           activitiesTitleMaxString = "";
 
@@ -437,14 +447,14 @@
 
     });
 
-    definePadding();
+    defineStreamSelectorPadding();
 
-    function definePadding() {
+    function defineStreamSelectorPadding() {
       $("#stream-selector .VuetifyApp .v-text-field").css("padding-top", "2px");
       $("#stream-selector .VuetifyApp .v-application .v-text-field ").css("padding-top", "2px");
     }
 
-    //open the substream selector
+    //Opens the substream selector
     function defaultClickOnSubstreamSelector() {
       $("#substream-selector .v-input__slot").click();
     }
@@ -460,6 +470,7 @@
   function getPointsOfTheSelectedStream(subselectorHeader, dataClass) {
     streamPointSelectedData.length = 0;
 
+    //Extracts points from the hidden html block
     $(`.${dataClass}`).each(function (index) {
       streamPointSelectedData.push({
         dataValue : $(this).text(),
@@ -513,7 +524,7 @@
             }
           }
 
-          //clear values for subtable scaling
+          //Clear values for subtable scaling
           activitiesStreamPrettyIdMaxString = "";
           activitiesTitleMaxString = "";
 
@@ -558,6 +569,7 @@
       var tableData = data.activityStatsEntities;
       maxTotalShown = data.maxTotalShown;
 
+      //Updates loaded data titles in order to fits needed style
       tableData.forEach(function (obj) {
         obj.activity_created = obj.activityCreated;
         obj.activity_updated = obj.activityUpdated;
@@ -592,10 +604,10 @@
         }
       }
 
-      //Remove the subtable chart if exists
+      //Removes the subtable chart if exists
       $("#subtable-chart").remove();
 
-      //Add the subtable chart block
+      //Adds the subtable chart block
       $("#subtable-column")
         .prepend(`<div id="subtable-chart" style="height: ${subtableChartHeight}px;
                                                 margin-bottom: -${subtableChartHeight + 3}px" class="subchart"></div>`);
@@ -615,6 +627,7 @@
         headersAndData
       );
 
+      //The chart options
       var options = {
         legend : "none",
         hAxis : {
@@ -630,15 +643,18 @@
       subtableChart.draw(data, options);
 
 
+      //Deletes superfluous time titles under the subtable chart
       if ($("#subtable-chart text[font-size='12']").length == (headersAndData.length - 1) * 2) {
         $("#subtable-chart text[font-size='12']:even").remove();
       }
 
       var neededToReplaceText = $("#subtable-chart text[font-size='12']");
 
+      //The subtable chart time title scaling
       var elementPositionCoeff = Math.floor(headersAndData.length / neededToReplaceText.length);
       var shift = elementPositionCoeff - 1;
 
+      //Changes the default subtable chart time titles
       $("#subtable-chart text[font-size='12']").each(function (index) {
         if (headersAndData != undefined && headersAndData[index + 1] != undefined) {
           var valueOfTheDate = headersAndData[(index + 1) * elementPositionCoeff - shift][0];
@@ -659,12 +675,12 @@
       );*/
     }
 
-    function findHoveredStatistic(chartData, element) {
+    /*function findHoveredStatistic(chartData, element) {
       debug("hovered the chart point");
 
       //search hovered point
       mainTable.subtableSearch = chartData.jc[element][0].gf;
-    }
+    }*/
   }
 
   function changeObjectPropertyName(obj, oldKey, newKey) {

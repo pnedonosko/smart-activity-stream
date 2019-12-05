@@ -60,26 +60,6 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
   public BaseActivityFocusEntity() {
   }
 
-  public BaseActivityFocusEntity(Long stopTime,
-                                 Long totalShown,
-                                 Long contentShown,
-                                 Long convoShown,
-                                 Long contentHits,
-                                 Long convoHits,
-                                 Long appHits,
-                                 Long profileHits,
-                                 Long linkHits) {
-    setStopTime(stopTime);
-    setTotalShown(totalShown);
-    setContentShown(contentShown);
-    setConvoShown(convoShown);
-    setContentHits(contentHits);
-    setConvoHits(convoHits);
-    setAppHits(appHits);
-    setProfileHits(profileHits);
-    setLinkHits(linkHits);
-  }
-
   /**
    * Gets the activity id.
    *

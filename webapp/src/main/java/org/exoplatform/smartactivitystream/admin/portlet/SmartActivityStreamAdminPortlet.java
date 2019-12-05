@@ -51,7 +51,8 @@ public class SmartActivityStreamAdminPortlet extends GenericPortlet {
    * Admin view.
    *
    * @param request the request
-   * @param response the response
+   * @param response the response (the statistics page and attributes (local
+   *          messages, user spaces, user connections))
    * @throws IOException Signals that an I/O exception has occurred.
    * @throws PortletException the portlet exception
    */
@@ -75,8 +76,11 @@ public class SmartActivityStreamAdminPortlet extends GenericPortlet {
     Map<String, String> messages = getResourceMessages("locale.smartactivity.SmartActivityStreamAdmin", request.getLocale());
 
     // Markup
+    // Messages in the user locale
     request.setAttribute("messages", messages);
+    // Available current user spaces
     request.setAttribute("userSpaces", userSpaces.toArray());
+    // Available current user connections
     request.setAttribute("userConnections", customUserConnections.toArray());
 
     try {
