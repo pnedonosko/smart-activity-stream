@@ -18,7 +18,10 @@ import java.util.*;
 public class ActivityStatsDAO extends GenericDAOJPAImpl<ActivityStatsEntity, ActivityStatsId> {
 
   /** The Constant LOG. */
-  private static final Log LOG = ExoLogger.getLogger(ActivityStatsDAO.class);
+  private static final Log LOG                         = ExoLogger.getLogger(ActivityStatsDAO.class);
+
+  /** The max result set for the activity focuses request. */
+  public static final int  ACTIVITY_FOCUSES_MAX_RESULT = 1000;
 
   /**
    * Find stats records for given activity.
@@ -126,7 +129,7 @@ public class ActivityStatsDAO extends GenericDAOJPAImpl<ActivityStatsEntity, Act
     }
 
     try {
-      List<ActivityStatsEntity> activityStatsEntities = query.getResultList();
+      List<ActivityStatsEntity> activityStatsEntities = query.setMaxResults(ACTIVITY_FOCUSES_MAX_RESULT).getResultList();
 
       if (LOG.isDebugEnabled()) {
         LOG.debug("query finished successfully: " + Arrays.toString(activityStatsEntities.toArray(new ActivityStatsEntity[0])));

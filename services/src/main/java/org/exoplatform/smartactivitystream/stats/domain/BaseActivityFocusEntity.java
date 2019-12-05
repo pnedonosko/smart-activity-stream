@@ -15,7 +15,7 @@ public abstract class BaseActivityFocusEntity implements Externalizable {
   /** The Constant TRACKER_VERSION. */
   public static final String TRACKER_VERSION = "1.0";
 
-  /** The stop time. */
+  /** The stop time in milliseconds. */
   @Column(name = "STOP_TIME", nullable = false)
   private Long               stopTime;
 

@@ -1,5 +1,6 @@
 (function ($, vuetify, vue, eXoVueI18n, googleCharts) {
 
+  //Defines the base page URL
   var pageBaseUrl = function (theLocation) {
     if (!theLocation) {
       theLocation = window.location;
@@ -15,27 +16,40 @@
     return theLocation.protocol + "//" + theHostName;
   };
 
+  //Loading the google charts, 'google' is the global variable (it depends the google charts)
   google.charts.load("current", {"packages" : ["corechart"]});
 
   var subtableChart;
   var selectedSubtableRow = false;
 
+  //The base page URL
   var prefixUrl = pageBaseUrl(location);
 
+  //The stream selected default value
   var streamSelected = "All streams";
+
+  //The substream selected default value
   var substreamSelected = null;
+
+  //The substream selected default id value
   var substreamSelectedId = null;
+
+  //The stream point selected data
   var streamPointSelectedData = [];
 
-  var streamSettingsVars = [
+  //Values for the stream selector
+  var streamSelectorVars = [
     "All streams",
     "Space",
     "User",
   ];
 
+  //The time scale default value
   var timeScaleValue = 3;
+  //The time scale default value in minutes
   var timeScaleMinutes = 60;
 
+  //Values for the time scaling
   var timeScaleSettingsVars = [
     "10 min",
     "20 min",
@@ -46,28 +60,21 @@
     "1 week",
   ];
 
-  var tableValues = [];
-
-  var focusChartDatesAndValues = [["2013", "684"],
-    ["2014", "721"],
-    ["2015", "816"],
-    ["2016", "932"],
-    ["2016", "546"],
-    ["2016", "758"],
-  ];
-
+  //The main statistic table
   var mainTable;
 
+  //The last opened main table row
   var lastOpenedMainTableRow;
 
-  //values for subtable scaling
+  //Values for the subtable scaling
   var activitiesStreamPrettyIdMaxString = "";
   var activitiesTitleMaxString = "";
 
-  //activity stats max total shown
+  //Activity stats max total shown value (for the general scaling of the main table charts)
   var maxTotalShown;
 
 
+  //Define the debugging properties
   if (eXo) {
     if (!eXo.smartactivity) {
       eXo.smartactivity = {
@@ -89,7 +96,7 @@
 
     defineStreamSelector();
 
-    //get all default table data
+    //Get all default table data
     substreamSelected = null;
     substreamSelectedId = null;
     mainTable.getDataForTheTable();
@@ -126,7 +133,7 @@
             {text : "Profile Hits", value : "profileHits"},
             {text : "Link Hits", value : "linkHits"},
           ],
-          tableVal : tableValues,
+          tableVal : [],
           subtableVal : [],
         }
       },
@@ -229,6 +236,7 @@
       }
     });
 
+
     function defineSubtableColumnChartSelector() {
       $(`#subtable td`).on("click", function () {
         var elementClickedColumn = this.cellIndex;
@@ -237,12 +245,14 @@
           //clear selection before
           $("#subtable").find("td").css("background-color", "");
 
+          //set background color of the selected column
           $("#subtable tr").each(function () {
             $(this).find("td").eq(elementClickedColumn).css("background-color", "#e6e6e6");
           });
 
           var dataHeader;
 
+          //select needed header for the subtable chart
           switch (elementClickedColumn) {
             case 4:
               dataHeader = "totalShown";
@@ -269,10 +279,13 @@
               dataHeader = "linkHits";
               break;
           }
+
+          //display the chart for selected column
           createSubtableChart(mainTable.subtableVal, dataHeader);
         }
       });
 
+      //add a shadow over the hovered column
       $("#subtable td").hover(function () {
         var elementHoveredColumn = this.cellIndex;
 
@@ -376,7 +389,7 @@
       vuetify : new Vuetify(),
       data : () => ({
         stream : streamSelected,
-        streams : streamSettingsVars,
+        streams : streamSelectorVars,
       }),
       methods : {
         selectStream : function (event) {
@@ -518,7 +531,7 @@
       }
     });
 
-    //async call
+    //Async call
     setTimeout(defineClickOutsideSubstreamSelectorHandler, 200);
 
     function defineClickOutsideSubstreamSelectorHandler() {
@@ -570,7 +583,7 @@
     if (subtableData.length != 0) {
       var subtableChartHeight = 38;
 
-      //dynamic subtable chart height scaling
+      //Dynamic subtable chart height scaling
       for (var row = 2; row <= 7; ++row) {
         if (subtableData.length >= row) {
           subtableChartHeight += 35;
@@ -579,9 +592,10 @@
         }
       }
 
-      //remove chart if exists
+      //Remove the subtable chart if exists
       $("#subtable-chart").remove();
 
+      //Add the subtable chart block
       $("#subtable-column")
         .prepend(`<div id="subtable-chart" style="height: ${subtableChartHeight}px;
                                                 margin-bottom: -${subtableChartHeight + 3}px" class="subchart"></div>`);
@@ -602,12 +616,11 @@
       );
 
       var options = {
-        // title : "Focuses",
         legend : "none",
         hAxis : {
           titleTextStyle : {color : "#333"},
           allowContainerBoundaryTextCufoff : false,
-          textStyle : {fontSize : 12}//color : "#FFF"
+          textStyle : {fontSize : 12}
         },
         vAxis : {minValue : 0},
         tooltip : {trigger : 'selection'}
@@ -726,7 +739,7 @@
           chartBlock.parent().parent().css("height", "max-content");
         }
       } else {
-        //async call
+        //Async call
         setTimeout(createTableChart, 50, id, item, iteration);
       }
     }

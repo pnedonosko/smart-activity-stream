@@ -46,11 +46,13 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
   /** The Constant LOG. */
   protected static final Log    LOG         = ExoLogger.getLogger(ActivityStatsEntity.class);
 
-  /** The date format for ActivityStats */
+  /** The date format for ActivityStats. */
   protected static final String DATE_FORMAT = "dd.MM.yyyy HH:mm:ss";
 
+  /** The null long value. */
   protected static final Long   NULL_LONG   = new Long(-1);
 
+  /** The null string value. */
   protected static final String NULL_STRING = new String("-1");
 
   /** The activity id. */
@@ -63,39 +65,44 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
   @Column(name = "START_TIME", nullable = false)
   private Long                  startTime;
 
+  /** The current user locale. */
   private transient Locale      userLocale;
 
+  /** The activity title. */
   @Transient
   private String                activityTitle;
 
+  /** The time of the current activity creation in the user locale representation.. */
   @Transient
   private String                activityCreated;
 
+  /** The time of the current activity creation in milliseconds. */
   private transient Long        activityCreatedMilliseconds;
 
+  /** The time of the current activity update in the user locale representation. */
   @Transient
   private String                activityUpdated;
 
+  /** The time of the current activity update in milliseconds. */
   private transient Long        activityUpdatedMilliseconds;
 
-  /*
-   * The local start time of the user activity focus
-   */
+  /** The local start time of the user activity focus in the user locale representation. */
   @Transient
   private String                localStartTime;
 
-  /*
-   * The local stop time of the user activity focus
-   */
+  /** The local stop time of the user activity focus in the user locale representation. */
   @Transient
   private String                localStopTime;
 
+  /** The activity stream pretty id. */
   @Transient
   private String                activityStreamPrettyId;
 
+  /** The focus chart data of the main table. */
   @Transient
   private String[][]            focusChartData;
 
+  /** The activity URL (for the link of the title column in main table). */
   @Transient
   private String                activityUrl;
 

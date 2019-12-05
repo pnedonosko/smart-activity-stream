@@ -1,19 +1,20 @@
 $(document).ready(function () {
+  //The hidden localization block
   var blockWithLocalization = $("#stats-link");
 
+  //If the hidden localization block exists
   if (blockWithLocalization.length) {
-    //async call
-    setTimeout(addStatsLinkToProfileMenuNav, 1);
+    var statsMenuLinkTitle = $("#stats-menu-link-title").text();
 
-    //async call
-    setTimeout(addStatsLinkToDropdownUserMenu, 200);
+    //Async call
+    setTimeout(addStatsLinkToProfileMenuNav, 1, statsMenuLinkTitle);
+
+    //Async call
+    setTimeout(addStatsLinkToDropdownUserMenu, 200, statsMenuLinkTitle);
   }
-
 });
 
-function addStatsLinkToDropdownUserMenu() {
-  var statsMenuLinkTitle = $("#stats-menu-link-title").text();
-
+function addStatsLinkToDropdownUserMenu(statsMenuLinkTitle) {
   $("#UIUserPlatformToolBarPortlet .uiIconAppGamification").parent().parent().after(`
   <li>
     <a href="/portal/intranet/stats">
@@ -23,9 +24,7 @@ function addStatsLinkToDropdownUserMenu() {
   `);
 }
 
-function addStatsLinkToProfileMenuNav() {
-  var statsMenuLinkTitle = $("#stats-menu-link-title").text();
-
+function addStatsLinkToProfileMenuNav(statsMenuLinkTitle) {
   $(".userNavigation").append(`
   <li class="item">
     <a href="/portal/intranet/stats">
