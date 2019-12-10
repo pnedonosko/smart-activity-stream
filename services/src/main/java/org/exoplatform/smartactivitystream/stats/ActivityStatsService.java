@@ -160,6 +160,9 @@ public class ActivityStatsService implements Startable {
   private Locale                                       userLocale;
 
   /** The global settings. */
+  @Deprecated
+  // TODO get rid of this, we read from eXo configuration in InitParams (this service component plugin)
+  // See in https://github.com/exo-addons/onlyoffice/blob/develop/services/src/main/java/org/exoplatform/onlyoffice/OnlyofficeEditorServiceImpl.java#L975
   private GlobalSettings                               configuredGlobalSettings = new GlobalSettings();
 
   /**
@@ -255,6 +258,7 @@ public class ActivityStatsService implements Startable {
    *
    * @return configured global settings
    */
+  @Deprecated
   public GlobalSettings getSettings() {
     return this.configuredGlobalSettings.clone();
   }

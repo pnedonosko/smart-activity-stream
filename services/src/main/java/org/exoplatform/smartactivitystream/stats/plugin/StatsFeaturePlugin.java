@@ -51,6 +51,8 @@ public class StatsFeaturePlugin extends FeaturePlugin {
     List<StateKey> stateKeys = getConversationRegistry().getStateKeys(username);
     for (StateKey stateKey : stateKeys) {
       ConversationState state = getConversationRegistry().getState(stateKey);
+      // TODO why we read and then save this flag somewhere, 
+      // this should be calculated each time to reflect actual permissions change
       Boolean statsEnabled = (Boolean) state.getAttribute("stats.enabled");
       if (statsEnabled != null) {
         return statsEnabled;
