@@ -48,7 +48,6 @@ public class StatsFeaturePlugin extends FeaturePlugin {
 
   @Override
   public boolean isFeatureActiveForUser(String featureName, String username) {
-    List<StateKey> stateKeys = getConversationRegistry().getStateKeys(username);
 
     GlobalSettings settings = getActivityStatsService().getSettings();
     if (settings == null) {

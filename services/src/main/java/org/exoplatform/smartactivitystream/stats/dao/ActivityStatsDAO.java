@@ -47,7 +47,7 @@ public class ActivityStatsDAO extends GenericDAOJPAImpl<ActivityStatsEntity, Act
 
       return activityStatsEntity;
     } catch (NoResultException e) {
-      LOG.warn("Cannot find such activity {" + activityId + "}", e);
+      LOG.warn("Cannot find such activity {" + activityId + "}");
       // skip activity (don't return in the result list)
       return null;
     } catch (NonUniqueResultException e) {
