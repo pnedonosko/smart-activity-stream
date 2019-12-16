@@ -17,6 +17,7 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.smartactivitystream.stats.ActivityStatsService;
+import org.exoplatform.smartactivitystream.stats.domain.ChartPoint;
 import org.exoplatform.smartactivitystream.stats.domain.UserActivityStats;
 import org.exoplatform.smartactivitystream.stats.domain.ActivityStatsEntity;
 
@@ -78,6 +79,8 @@ public class RESTActivityStatsService implements ResourceContainer {
    *
    * @param uriInfo the uri info
    * @param request the request
+   * @param stream the stream
+   * @param substream the substream
    * @return user focuses (rows of the parent table)
    */
   @GET
@@ -99,19 +102,30 @@ public class RESTActivityStatsService implements ResourceContainer {
       String currentUserId = convo.getIdentity().getUserId();
       Locale userLocale = request.getLocale();
 
-      List<ActivityStatsEntity> activityStatsEntities = activityStatsService.getUserActivitiesFocuses(stream,
-                                                                                                      substream,
-                                                                                                      currentUserId,
-                                                                                                      userLocale);
+      List<ActivityStatsEntity> activityStatsEntities = null;
 
-      Long maxTotalShown = activityStatsService.getMaxTotalShown();
+      try {
+        activityStatsEntities = activityStatsService.getUserActivitiesFocuses(stream, substream, currentUserId, userLocale);
+      } catch (Exception e) {
+        LOG.error("Database exception, activityStatsEntities is null");
+        return Response.status(Status.INTERNAL_SERVER_ERROR)
+                       .entity("{ \"error\" : \"Internal error\", \"message\" : \"" + e.getMessage() + "\" }")
+                       .build();
+      }
+
+      Long maxTotalShown = null;
+      try {
+        maxTotalShown = activityStatsService.getMaxTotalShown();
+      } catch (Exception e) {
+        LOG.error("Error getting maxTotalShown value:", e);
+        return Response.status(Status.INTERNAL_SERVER_ERROR)
+                       .entity("{ \"error\" : \"Internal error\", \"message\" : \"" + e.getMessage() + "\" }")
+                       .build();
+      }
 
       UserActivityStats userActivityStats = new UserActivityStats(activityStatsEntities, maxTotalShown);
 
       if (LOG.isDebugEnabled()) {
-        LOG.debug("RESTActivityStatsService activityStatsEntities: "
-                + Arrays.toString(activityStatsEntities.toArray(new ActivityStatsEntity[0])));
-
         LOG.debug("<< getUserActivitiesFocuses");
       }
       return Response.status(Status.ACCEPTED).entity(userActivityStats).build();
@@ -128,6 +142,8 @@ public class RESTActivityStatsService implements ResourceContainer {
    *
    * @param uriInfo the uri info
    * @param request the request
+   * @param activityId the activity identifier
+   * @param timeScale the time scaling
    * @return user focuses (rows of the parent table)
    */
   @GET
@@ -144,14 +160,19 @@ public class RESTActivityStatsService implements ResourceContainer {
       LOG.debug("timeScale: " + timeScale);
     }
 
-
-
     ConversationState convo = ConversationState.getCurrent();
     if (convo != null) {
       Locale userLocale = request.getLocale();
 
-      List<ActivityStatsEntity> activityFocusEntities =
-                                                      activityStatsService.getActivityFocuses(activityId, timeScale, userLocale);
+      List<ActivityStatsEntity> activityFocusEntities = null;
+      try {
+        activityFocusEntities = activityStatsService.getActivityFocuses(activityId, timeScale, userLocale);
+      } catch (Exception e) {
+        LOG.error("Error getting activityFocusEntities:", e);
+        return Response.status(Status.INTERNAL_SERVER_ERROR)
+                       .entity("{ \"error\" : \"Internal error\", \"message\" : \"" + e.getMessage() + "\" }")
+                       .build();
+      }
 
       if (LOG.isDebugEnabled()) {
         LOG.debug("<< getActivityFocuses");
@@ -160,6 +181,50 @@ public class RESTActivityStatsService implements ResourceContainer {
     } else {
       if (LOG.isDebugEnabled()) {
         LOG.debug("<< getActivityFocuses conversationState == null");
+      }
+      return Response.status(Status.UNAUTHORIZED).build();
+    }
+  }
+
+  /**
+   * Gets user focuses data for the main table charts(table tows).
+   *
+   * @param uriInfo the uri info
+   * @param request the request
+   * @param activityId the activity identifier
+   * @return user focuses (rows of the parent table)
+   */
+  @GET
+  @RolesAllowed("users")
+  @Path("/activityfocuses/chart/{activityId}")
+  public Response getActivityFocusesForChart(@Context UriInfo uriInfo,
+                                             @Context HttpServletRequest request,
+                                             @PathParam("activityId") String activityId) {
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(">> getActivityFocusesForChart, activity: " + activityId);
+    }
+
+    ConversationState convo = ConversationState.getCurrent();
+    if (convo != null) {
+      Locale userLocale = request.getLocale();
+
+      List<ChartPoint> chartPoints = null;
+      try {
+        chartPoints = activityStatsService.findActivityFocusChartData(activityId, userLocale);
+      } catch (Exception e) {
+        LOG.error("Error getting chartPoints:", e);
+        return Response.status(Status.INTERNAL_SERVER_ERROR)
+                       .entity("{ \"error\" : \"Internal error\", \"message\" : \"" + e.getMessage() + "\" }")
+                       .build();
+      }
+
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("<< getActivityFocusesForChart");
+      }
+      return Response.status(Status.ACCEPTED).entity(chartPoints.toArray()).build();
+    } else {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("<< getActivityFocusesForChart conversationState == null");
       }
       return Response.status(Status.UNAUTHORIZED).build();
     }

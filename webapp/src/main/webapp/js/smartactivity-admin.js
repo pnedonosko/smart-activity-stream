@@ -443,8 +443,6 @@
           mainTable.getDataForTheTable();
         }
       }
-
-
     });
 
     defineStreamSelectorPadding();
@@ -531,6 +529,9 @@
           closeExpendedRow();
           this.deleteSubstreamSelector();
 
+          //Defines the selected stream title in the main selector
+          $("#stream-selector .v-select__selection").first().text(`${streamSelected} (${substreamSelected})`);
+
           debug("Selected substream: " + event);
           debug("Selected substreamId: " + substreamSelectedId);
 
@@ -564,22 +565,23 @@
       error : errorF
     });
 
-    function successF(data, textStatus, jqXHR) {
+    function successF(userActivityStats, textStatus, jqXHR) {
 
-      var tableData = data.activityStatsEntities;
-      maxTotalShown = data.maxTotalShown;
+      var tableData = userActivityStats.activityStatsEntities;
+      maxTotalShown = userActivityStats.maxTotalShown;
 
       //Updates loaded data titles in order to fits needed style
-      tableData.forEach(function (obj) {
-        obj.activity_created = obj.activityCreated;
-        obj.activity_updated = obj.activityUpdated;
-        obj.activity_updated = obj.activityUpdated;
-        obj.activity_updated = obj.activityUpdated;
-        changeObjectPropertyName(obj, "focusChartData", "focus_chart_data");
-        changeObjectPropertyName(obj, "activityTitle", "activity_title");
+      tableData.forEach(function (tableRow) {
+        tableRow.activity_created = tableRow.activityCreated;
+        tableRow.activity_updated = tableRow.activityUpdated;
+        tableRow.activity_updated = tableRow.activityUpdated;
+        tableRow.activity_updated = tableRow.activityUpdated;
+        changeObjectPropertyName(tableRow, "activityTitle", "activity_title");
+        getTableChartPoints(tableRow);
       });
 
-      mainTable.updateTableVal(tableData);
+      //Async call
+      setTimeout(mainTable.updateTableVal, 200, tableData);
 
       debug("getUserFocuses ajax request success result");
     }
@@ -587,6 +589,38 @@
     function errorF(jqXHR, textStatus, errorThrown) {
       log("getUserFocuses error textStatus:  " + textStatus);
       log("getUserFocuses errorThrown:  ", errorThrown);
+    }
+  }
+
+  function getTableChartPoints(tableRow) {
+
+    $.ajax({
+      async : true,
+      type : "GET",
+      url : prefixUrl + `/portal/rest/smartactivity/stats/activityfocuses/chart/${tableRow.activityId}`,
+      contentType : "application/json",
+      dataType : "json",
+      success : successF,
+      error : errorF
+    });
+
+    function successF(chartPoints, textStatus, jqXHR) {
+
+      var tableChartArray = [];
+
+      //Transforms loaded chart points into the needed format
+      chartPoints.forEach(function (chartPoint) {
+        tableChartArray.push([chartPoint.time,chartPoint.value]);
+      });
+
+      tableRow.focus_chart_data = tableChartArray;
+
+      debug("getTableChartData ajax request success result");
+    }
+
+    function errorF(jqXHR, textStatus, errorThrown) {
+      log("getTableChartData error textStatus:  " + textStatus);
+      log("getTableChartData errorThrown:  ", errorThrown);
     }
   }
 
@@ -778,7 +812,6 @@
     function successF(data, textStatus, jqXHR) {
 
       data.forEach(function (obj) {
-        changeObjectPropertyName(obj, "focusChartData", "focus_chart_data");
         changeObjectPropertyName(obj, "activityTitle", "activity_title");
       });
 

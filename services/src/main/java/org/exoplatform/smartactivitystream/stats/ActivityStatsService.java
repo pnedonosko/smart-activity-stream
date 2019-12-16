@@ -19,12 +19,14 @@
 package org.exoplatform.smartactivitystream.stats;
 
 import java.security.PrivilegedAction;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.persistence.PersistenceException;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.exoplatform.smartactivitystream.stats.domain.ChartPoint;
 import org.exoplatform.smartactivitystream.stats.settings.GlobalSettings;
 import org.exoplatform.smartactivitystream.stats.dao.ActivityStatsDAO;
 import org.exoplatform.smartactivitystream.stats.domain.ActivityStatsEntity;
@@ -237,7 +239,7 @@ public class ActivityStatsService implements Startable {
    *
    * @return the maxTotalShown
    */
-  public Long getMaxTotalShown() {
+  public Long getMaxTotalShown() throws Exception {
     if (LOG.isDebugEnabled()) {
       LOG.debug(">>> getMaxTotalShown");
     }
@@ -267,7 +269,7 @@ public class ActivityStatsService implements Startable {
    * @param userLocale the user locale
    * @return list of the activity subtable (user focuses on selected activity)
    */
-  public List<ActivityStatsEntity> getActivityFocuses(String activityId, String timeScale, Locale userLocale) {
+  public List<ActivityStatsEntity> getActivityFocuses(String activityId, String timeScale, Locale userLocale) throws Exception {
 
     if (LOG.isDebugEnabled()) {
       LOG.debug(">>> getActivityFocuses");
@@ -286,6 +288,18 @@ public class ActivityStatsService implements Startable {
     return activityFocuses;
   }
 
+  public List<ChartPoint> findActivityFocusChartData(String exoSocialActivityId, Locale userLocale) throws Exception {
+    List<ChartPoint> chartPoints = statsStorage.findActivityFocusChartData(exoSocialActivityId);
+
+    // Localizes timestamp points
+    SimpleDateFormat dateFormat = new SimpleDateFormat(ActivityStatsEntity.getDateFormat(), userLocale);
+    for (ChartPoint chartPoint : chartPoints) {
+      chartPoint.setTime(dateFormat.format(Long.parseLong(chartPoint.getTime())));
+    }
+
+    return chartPoints;
+  }
+
   /**
    * Finds the activity stats (the sum of activity statistics by components
    * grouped by activity id).
@@ -293,7 +307,7 @@ public class ActivityStatsService implements Startable {
    * @param activityId the activity
    * @return the activity stats entity
    */
-  public ActivityStatsEntity findActivityStats(String activityId) {
+  public ActivityStatsEntity findActivityStats(String activityId) throws Exception {
     if (LOG.isDebugEnabled()) {
       LOG.debug(">>> findActivityStats");
     }
@@ -349,7 +363,7 @@ public class ActivityStatsService implements Startable {
   public List<ActivityStatsEntity> getUserActivitiesFocuses(String stream,
                                                             String substream,
                                                             String currentUserId,
-                                                            Locale userLocale) {
+                                                            Locale userLocale) throws Exception {
     if (LOG.isDebugEnabled()) {
       LOG.debug(">>> getUserActivitiesFocuses");
     }
@@ -418,7 +432,7 @@ public class ActivityStatsService implements Startable {
    * @param exoSocialActivity the exo social activity
    * @param activityStatsEntities the list of activity stats entities
    */
-  private void addActivityToUserFocuses(ExoSocialActivity exoSocialActivity, List<ActivityStatsEntity> activityStatsEntities) {
+  private void addActivityToUserFocuses(ExoSocialActivity exoSocialActivity, List<ActivityStatsEntity> activityStatsEntities) throws Exception {
     String exoSocialActivityId = exoSocialActivity.getId();
     ActivityStatsEntity activityStatsEntity = findActivityStats(exoSocialActivityId);
 
@@ -441,10 +455,6 @@ public class ActivityStatsService implements Startable {
 
       activityStatsEntity.setActivityStreamPrettyId(activityStream.getPrettyId());
 
-      // Defines a data for charts of the main table
-      activityStatsEntity.setFocusChartData(statsStorage.findActivityFocusChartData(exoSocialActivityId)
-                                                        .toArray(new String[0][]));
-
       activityStatsEntity.setActivityUrl(LinkProvider.getSingleActivityUrl(exoSocialActivity.getId()));
 
       // Sets the locale and localizes time variables
@@ -463,7 +473,7 @@ public class ActivityStatsService implements Startable {
    */
   private void addActivitiesFromUserSpaceToUserFocuses(List<ExoSocialActivity> allUserActivities,
                                                        String substreamSelected,
-                                                       List<ActivityStatsEntity> activityStatsEntities) {
+                                                       List<ActivityStatsEntity> activityStatsEntities) throws Exception {
     if (substreamSelected != null) {
       if (ALL_SPACES.equals(substreamSelected)) {
         if (LOG.isDebugEnabled()) {
@@ -504,7 +514,7 @@ public class ActivityStatsService implements Startable {
    */
   private void addActivitiesFromUserConnectionsToUserFocuses(List<ExoSocialActivity> allUserActivities,
                                                              String substreamSelected,
-                                                             List<ActivityStatsEntity> activityStatsEntities) {
+                                                             List<ActivityStatsEntity> activityStatsEntities) throws Exception {
     if (substreamSelected != null) {
       if (ALL_USERS.equals(substreamSelected)) {
         if (LOG.isDebugEnabled()) {

@@ -37,7 +37,7 @@ import java.util.Locale;
         + "GROUP BY (f.START_TIME - MOD(f.START_TIME,:scaleTime))/:scaleTime ORDER BY START_TIME DESC", resultClass = ActivityStatsEntity.class) })
 
 @NamedQueries({
-    @NamedQuery(name = "SmartActivityStats.findActivityFocusChartData", query = "SELECT s.startTime, s.totalShown "
+    @NamedQuery(name = "SmartActivityStats.findActivityFocusChartData", query = "SELECT NEW org.exoplatform.smartactivitystream.stats.domain.ChartPoint(s.startTime, s.totalShown) "
         + "FROM SmartActivityStats s WHERE s.activityId = :activityId ORDER BY s.startTime ASC"),
     @NamedQuery(name = "SmartActivityStats.findMaxTotalFocus", query = "SELECT MAX(s.totalShown) FROM SmartActivityStats s") })
 
@@ -108,10 +108,6 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
   @Transient
   private String                activityStreamPrettyId;
 
-  /** The focus chart data of the main table. */
-  @Transient
-  private String[][]            focusChartData;
-
   /** The activity URL (for the link of the title column in main table). */
   @Transient
   private String                activityUrl;
@@ -146,13 +142,6 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
 
     if (getStopTime() != null) {
       setLocalStopTime(dateFormat.format(getStopTime()));
-    }
-
-    if (getFocusChartData() != null) {
-      String[][] focuses = getFocusChartData();
-      for (int i = 0; i < focuses.length; ++i) {
-        focuses[i][0] = dateFormat.format(Long.parseLong(focuses[i][0]));
-      }
     }
   }
 
@@ -367,24 +356,6 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
   }
 
   /**
-   * Gets the focus chart data (for the main table chart).
-   *
-   * @return the focusChartData
-   */
-  public String[][] getFocusChartData() {
-    return focusChartData;
-  }
-
-  /**
-   * Sets the focus chart data (for the main table chart).
-   *
-   * @param focusChartData the focus chart data to set
-   */
-  public void setFocusChartData(String[][] focusChartData) {
-    this.focusChartData = focusChartData;
-  }
-
-  /**
    * Gets the activity URL (uses in the main table activity title column, defines
    * the activity link ).
    *
@@ -402,6 +373,15 @@ public class ActivityStatsEntity extends BaseActivityFocusEntity {
    */
   public void setActivityUrl(String activityUrl) {
     this.activityUrl = activityUrl;
+  }
+
+  /**
+   * Gets the DATE_FORMAT of ActivityStatsEntity
+   *
+   * @return the DATE_FORMAT
+   */
+  public static String getDateFormat() {
+    return DATE_FORMAT;
   }
 
   @Override
