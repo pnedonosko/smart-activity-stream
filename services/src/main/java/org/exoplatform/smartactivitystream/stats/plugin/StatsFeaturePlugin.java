@@ -49,15 +49,7 @@ public class StatsFeaturePlugin extends FeaturePlugin {
   @Override
   public boolean isFeatureActiveForUser(String featureName, String username) {
     List<StateKey> stateKeys = getConversationRegistry().getStateKeys(username);
-    for (StateKey stateKey : stateKeys) {
-      ConversationState state = getConversationRegistry().getState(stateKey);
-      // TODO why we read and then save this flag somewhere, 
-      // this should be calculated each time to reflect actual permissions change
-      Boolean statsEnabled = (Boolean) state.getAttribute("stats.enabled");
-      if (statsEnabled != null) {
-        return statsEnabled;
-      }
-    }
+
     GlobalSettings settings = getActivityStatsService().getSettings();
     if (settings == null) {
       return false;
@@ -66,12 +58,8 @@ public class StatsFeaturePlugin extends FeaturePlugin {
     if (StringUtils.isBlank(accessPermission)) {
       return true;
     }
-    boolean statsEnabled = StatsUtils.isUserMemberOfSpaceOrGroupOrUser(username, accessPermission);
-    for (StateKey stateKey : stateKeys) {
-      ConversationState state = getConversationRegistry().getState(stateKey);
-      state.setAttribute("stats.enabled", statsEnabled);
-    }
-    return statsEnabled;
+
+    return StatsUtils.isUserMemberOfSpaceOrGroupOrUser(username, accessPermission);
   }
 
   /**

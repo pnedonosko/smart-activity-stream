@@ -8,17 +8,11 @@ public class GlobalSettings implements Serializable, Cloneable {
 
   private static final long serialVersionUID = 8987967110410722896L;
 
-  // TODO this should be configurable via component plugin XML
-  private String            accessPermission = "*:/platform/users"; // null "*:/platform/administrators"
+  /** Defined in ActivityStatsService -> properties-param -> access-permission */
+  private String            accessPermission;                       // null "*:/platform/users" "*:/platform/administrators"
 
+  /** Defined in ActivityStatsService -> properties-param -> service-enabled */
   private boolean           enabled;
-
-  /**
-   * Instantiates a new GlobalSettings.
-   * TODO we don't need this class
-   */
-  public GlobalSettings() {
-  }
 
   /**
    * Instantiates a new GlobalSettings.

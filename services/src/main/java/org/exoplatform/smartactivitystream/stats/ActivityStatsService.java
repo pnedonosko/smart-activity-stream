@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.naming.ConfigurationException;
 import javax.persistence.PersistenceException;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -71,55 +72,69 @@ import org.exoplatform.smartactivitystream.stats.domain.ActivityFocusEntity;
 /**
  * Created by The eXo Platform SAS.
  *
- * @author <a href="mailto:pnedonosko@exoplatform.com">Peter Nedonosko</a>
+ * @author <a href="mailto:pnedonosko@exoplatform.com">Peter Nedonosko and Nick
+ *         Riabovol</a>
  * @version $Id: SmartActivityService.java 00000 Oct 2, 2019 pnedonosko $
  */
 public class ActivityStatsService implements Startable {
 
   /** The Constant LOG. */
-  private static final Log                             LOG                      = ExoLogger.getLogger(ActivityStatsService.class);
+  private static final Log                             LOG                         =
+                                                           ExoLogger.getLogger(ActivityStatsService.class);
 
   /** The Constant TRACKER_CACHE_NAME. */
-  public static final String                           TRACKER_CACHE_NAME       = "smartactivity.TrackerCache".intern();
+  public static final String                           TRACKER_CACHE_NAME          = "smartactivity.TrackerCache".intern();
 
   /** The Constant TRACKER_CACHE_PERIOD. */
-  public static final int                              TRACKER_CACHE_PERIOD     = 120000;
+  public static final int                              TRACKER_CACHE_PERIOD        = 120000;
 
   /** The Constant ACTIVITY_FOCUS_DEFAULT. */
-  private static final long                            ACTIVITY_FOCUS_DEFAULT   = 0;
+  private static final long                            ACTIVITY_FOCUS_DEFAULT      = 0;
 
   /** The Constant Stream Selector ALL_STREAMS. */
-  public static final String                           ALL_STREAMS              = "All streams";
+  public static final String                           ALL_STREAMS                 = "All streams";
 
   /** The Constant Stream Selector SPACE. */
-  public static final String                           SPACE                    = "Space";
+  public static final String                           SPACE                       = "Space";
 
   /** The Constant Stream Selector USER. */
-  public static final String                           USER                     = "User";
+  public static final String                           USER                        = "User";
 
   /** The Constant Substream Selector ALL_USERS. */
-  public static final String                           ALL_USERS                = "All users";
+  public static final String                           ALL_USERS                   = "All users";
 
   /** The Constant Substream Selector ALL_SPACES. */
-  public static final String                           ALL_SPACES               = "All spaces";
+  public static final String                           ALL_SPACES                  = "All spaces";
+
+  /** The Constant SMARTACTIVITY_CONFIGURATION. */
+  public static final String                           SMARTACTIVITY_CONFIGURATION = "smartactivity-configuration";
+
+  /** The Constant ENABLE_TRACKERS. */
+  public static final String                           ENABLE_TRACKERS             = "enable-trackers";
+
+  /** The Constant ACCESS_PERMISSION. */
+  public static final String                           ACCESS_PERMISSION           = "access-permission";
+
+  /** The Constant SERVICE_ENABLED. */
+  public static final String                           SERVICE_ENABLED             = "service-enabled";
 
   /** The text policy. */
-  protected final PolicyFactory                        textPolicy               = new HtmlPolicyBuilder().toFactory();
+  protected final PolicyFactory                        textPolicy                  = new HtmlPolicyBuilder().toFactory();
 
   /** The link with href not a hash in local document target. */
-  protected final Pattern                              linkNotLocal             =
+  protected final Pattern                              linkNotLocal                =
                                                                     Pattern.compile("href=['\"][^#][.\\w\\W\\S]*?['\"]",
                                                                                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
                                                                                         | Pattern.DOTALL);
 
   /** The link with target. */
-  protected final Pattern                              linkWithTarget           =
+  protected final Pattern                              linkWithTarget              =
                                                                       Pattern.compile("<a(?=\\s).*?(target=['\"].*?['\"])[^>]*>",
                                                                                       Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
                                                                                           | Pattern.DOTALL);
 
   /** The link without target. */
-  protected final Pattern                              linkWithoutTarget        =
+  protected final Pattern                              linkWithoutTarget           =
                                                                          Pattern.compile("<a(?=\\s)(?:(?!target=).)*?([.\\W\\w\\S\\s[^>]])*?(>)",
                                                                                          Pattern.CASE_INSENSITIVE
                                                                                              | Pattern.MULTILINE
@@ -135,10 +150,10 @@ public class ActivityStatsService implements Startable {
   private final ActivityStatsDAO                       statsStorage;
 
   /** The focus saver. */
-  private final Timer                                  focusSaver               = new Timer();
+  private final Timer                                  focusSaver                  = new Timer();
 
   /** The focus saver started. */
-  private final AtomicBoolean                          focusSaverStarted        = new AtomicBoolean(false);
+  private final AtomicBoolean                          focusSaverStarted           = new AtomicBoolean(false);
 
   /** The enable trackers. */
   private final boolean                                enableTrackers;
@@ -161,11 +176,12 @@ public class ActivityStatsService implements Startable {
   /** The user storage. */
   private Locale                                       userLocale;
 
+  /** The config. */
+  protected final Map<String, String>                  config;
+
   /** The global settings. */
   @Deprecated
-  // TODO get rid of this, we read from eXo configuration in InitParams (this service component plugin)
-  // See in https://github.com/exo-addons/onlyoffice/blob/develop/services/src/main/java/org/exoplatform/onlyoffice/OnlyofficeEditorServiceImpl.java#L975
-  private GlobalSettings                               configuredGlobalSettings = new GlobalSettings();
+  private GlobalSettings                               configuredGlobalSettings;
 
   /**
    * Instantiates a new smart activity service.
@@ -183,7 +199,8 @@ public class ActivityStatsService implements Startable {
                               IdentityManagerImpl identityManager,
                               IdentityProvider identityProvider,
                               SpaceStorage spaceStorage,
-                              RelationshipStorage relationshipStorage) {
+                              RelationshipStorage relationshipStorage)
+      throws ConfigurationException {
     this.focusStorage = focusStorage;
     this.statsStorage = statsStorage;
     this.trackerCache = cacheService.getCacheInstance(TRACKER_CACHE_NAME);
@@ -194,10 +211,24 @@ public class ActivityStatsService implements Startable {
     this.relationshipStorage = relationshipStorage;
 
     // configuration
-    PropertiesParam param = params.getPropertiesParam("smartactivity-configuration");
+    PropertiesParam param = params.getPropertiesParam(SMARTACTIVITY_CONFIGURATION);
     if (param != null) {
-      String enableTrackers = param.getProperties().get("enable-trackers");
+      config = Collections.unmodifiableMap(param.getProperties());
+    } else {
+      throw new ConfigurationException("Property parameters smartactivity-configuration required.");
+    }
+
+    if (config != null) {
+      String enableTrackers = config.get(ENABLE_TRACKERS);
       this.enableTrackers = enableTrackers != null ? Boolean.parseBoolean(enableTrackers.trim()) : true;
+
+      String accessPermission = config.get(ACCESS_PERMISSION);
+
+      String serviceEnabled = config.get(SERVICE_ENABLED);
+
+      this.configuredGlobalSettings = new GlobalSettings(accessPermission,
+                                                         serviceEnabled != null ? Boolean.parseBoolean(serviceEnabled.trim())
+                                                                                : null);
     } else {
       this.enableTrackers = false;
     }
@@ -436,7 +467,8 @@ public class ActivityStatsService implements Startable {
    * @param exoSocialActivity the exo social activity
    * @param activityStatsEntities the list of activity stats entities
    */
-  private void addActivityToUserFocuses(ExoSocialActivity exoSocialActivity, List<ActivityStatsEntity> activityStatsEntities) throws Exception {
+  private void addActivityToUserFocuses(ExoSocialActivity exoSocialActivity,
+                                        List<ActivityStatsEntity> activityStatsEntities) throws Exception {
     String exoSocialActivityId = exoSocialActivity.getId();
     ActivityStatsEntity activityStatsEntity = findActivityStats(exoSocialActivityId);
 
