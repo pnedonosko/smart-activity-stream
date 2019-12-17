@@ -28,7 +28,6 @@ import javax.persistence.PersistenceException;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.exoplatform.smartactivitystream.stats.domain.ChartPoint;
-import org.exoplatform.smartactivitystream.stats.settings.GlobalSettings;
 import org.exoplatform.smartactivitystream.stats.dao.ActivityStatsDAO;
 import org.exoplatform.smartactivitystream.stats.domain.ActivityStatsEntity;
 import org.exoplatform.social.common.RealtimeListAccess;
@@ -155,6 +154,12 @@ public class ActivityStatsService implements Startable {
   /** The focus saver started. */
   private final AtomicBoolean                          focusSaverStarted           = new AtomicBoolean(false);
 
+  /** The access permission. */
+  private final String                                 accessPermission;
+
+  /** The service enabled. */
+  private final boolean                                serviceEnabled;
+
   /** The enable trackers. */
   private final boolean                                enableTrackers;
 
@@ -178,10 +183,6 @@ public class ActivityStatsService implements Startable {
 
   /** The config. */
   protected final Map<String, String>                  config;
-
-  /** The global settings. */
-  @Deprecated
-  private GlobalSettings                               configuredGlobalSettings;
 
   /**
    * Instantiates a new smart activity service.
@@ -222,14 +223,14 @@ public class ActivityStatsService implements Startable {
       String enableTrackers = config.get(ENABLE_TRACKERS);
       this.enableTrackers = enableTrackers != null ? Boolean.parseBoolean(enableTrackers.trim()) : true;
 
-      String accessPermission = config.get(ACCESS_PERMISSION);
+      this.accessPermission = config.get(ACCESS_PERMISSION);
 
       String serviceEnabled = config.get(SERVICE_ENABLED);
 
-      this.configuredGlobalSettings = new GlobalSettings(accessPermission,
-                                                         serviceEnabled != null ? Boolean.parseBoolean(serviceEnabled.trim())
-                                                                                : null);
+      this.serviceEnabled = serviceEnabled != null ? Boolean.parseBoolean(serviceEnabled.trim()) : true;
     } else {
+      this.accessPermission = null;
+      this.serviceEnabled = false;
       this.enableTrackers = false;
     }
   }
@@ -287,13 +288,21 @@ public class ActivityStatsService implements Startable {
   }
 
   /**
-   * Gets global settings.
+   * Gets the access permission.
    *
-   * @return configured global settings
+   * @return configured access permission
    */
-  @Deprecated
-  public GlobalSettings getSettings() {
-    return this.configuredGlobalSettings.clone();
+  public String getAccessPermission() {
+    return accessPermission;
+  }
+
+  /**
+   * Gets a service enabled pointer.
+   *
+   * @return configured service enabled pointer
+   */
+  public boolean isServiceEnabled() {
+    return serviceEnabled;
   }
 
   /**

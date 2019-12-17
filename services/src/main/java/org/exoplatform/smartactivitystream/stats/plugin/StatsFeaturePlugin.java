@@ -17,15 +17,12 @@
 
 package org.exoplatform.smartactivitystream.stats.plugin;
 
-import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.api.settings.ExoFeatureService;
 import org.exoplatform.commons.api.settings.FeaturePlugin;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.security.*;
-import org.exoplatform.smartactivitystream.stats.settings.GlobalSettings;
 import org.exoplatform.smartactivitystream.stats.ActivityStatsService;
 import org.exoplatform.smartactivitystream.stats.utils.StatsUtils;
 
@@ -49,11 +46,13 @@ public class StatsFeaturePlugin extends FeaturePlugin {
   @Override
   public boolean isFeatureActiveForUser(String featureName, String username) {
 
-    GlobalSettings settings = getActivityStatsService().getSettings();
-    if (settings == null) {
+    ActivityStatsService activityStatsService = getActivityStatsService();
+
+    if (!activityStatsService.isServiceEnabled()) {
       return false;
     }
-    String accessPermission = settings.getAccessPermission();
+
+    String accessPermission = activityStatsService.getAccessPermission();
     if (StringUtils.isBlank(accessPermission)) {
       return true;
     }
