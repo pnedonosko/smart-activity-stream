@@ -34,8 +34,9 @@ public class StatsFeaturePlugin extends FeaturePlugin {
 
   private static final String  STATS_FEATURE_NAME = "stats";
 
+  // TODO should be final
   private ConversationRegistry conversationRegistry;
-
+  // TODO should be final
   private ActivityStatsService activityStatsService;
 
   @Override
@@ -47,7 +48,7 @@ public class StatsFeaturePlugin extends FeaturePlugin {
   public boolean isFeatureActiveForUser(String featureName, String username) {
 
     ActivityStatsService activityStatsService = getActivityStatsService();
-
+    // TODO Why we need this check as such?
     if (!activityStatsService.isServiceEnabled()) {
       return false;
     }
@@ -66,6 +67,7 @@ public class StatsFeaturePlugin extends FeaturePlugin {
    * @return instance of {@link ConversationRegistry} injected in current
    *         container
    */
+  @Deprecated // TODO it's plugin dependency - inject via container
   private ConversationRegistry getConversationRegistry() {
     if (conversationRegistry == null) {
       conversationRegistry = CommonsUtils.getService(ConversationRegistry.class);
@@ -79,6 +81,7 @@ public class StatsFeaturePlugin extends FeaturePlugin {
    * @return instance of {@link ActivityStatsService} injected in current
    *         container
    */
+  @Deprecated // TODO it's plugin dependency - inject via container
   private ActivityStatsService getActivityStatsService() {
     if (activityStatsService == null) {
       activityStatsService = CommonsUtils.getService(ActivityStatsService.class);

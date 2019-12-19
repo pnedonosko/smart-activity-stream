@@ -155,9 +155,11 @@ public class ActivityStatsService implements Startable {
   private final AtomicBoolean                          focusSaverStarted           = new AtomicBoolean(false);
 
   /** The access permission. */
+  // TODO name not self-descriptive as for service level
   private final String                                 accessPermission;
 
   /** The service enabled. */
+  @Deprecated // TODO don't need it?
   private final boolean                                serviceEnabled;
 
   /** The enable trackers. */
@@ -301,6 +303,7 @@ public class ActivityStatsService implements Startable {
    *
    * @return configured service enabled pointer
    */
+  // TODO why we need this?
   public boolean isServiceEnabled() {
     return serviceEnabled;
   }
