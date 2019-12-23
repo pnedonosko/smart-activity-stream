@@ -10,9 +10,8 @@
       <properties-param>
         <name>smartactivity-configuration</name>
         <property name="enable-trackers" value="${smartactivitystream.trackers.enable:true}"/>
-        <!-- Access-permission examples: null "*:/platform/users" "*:/platform/administrators" -->
-        <property name="access-permission" value="${smartactivitystream.settings.permission:*:/platform/users}"/>
-        <property name="service-enabled" value="${smartactivitystream.settings.enabled:true}"/>
+        <!--  "*:/platform/users" "*:/platform/administrators" -->
+        <property name="allowed-identities" value="${smartactivitystream.settings.identities.allowed:nikita_riabovol h_allen}"/>
       </properties-param>
     </init-params>
   </component>

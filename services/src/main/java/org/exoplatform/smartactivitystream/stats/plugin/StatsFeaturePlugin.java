@@ -21,10 +21,12 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.api.settings.ExoFeatureService;
 import org.exoplatform.commons.api.settings.FeaturePlugin;
-import org.exoplatform.commons.utils.CommonsUtils;
-import org.exoplatform.services.security.*;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
+import org.exoplatform.services.security.Authenticator;
+import org.exoplatform.services.security.IdentityRegistry;
+import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.smartactivitystream.stats.ActivityStatsService;
-import org.exoplatform.smartactivitystream.stats.utils.StatsUtils;
 
 /**
  * A plugin added to {@link ExoFeatureService} that determines if 'stats' is
@@ -32,12 +34,26 @@ import org.exoplatform.smartactivitystream.stats.utils.StatsUtils;
  */
 public class StatsFeaturePlugin extends FeaturePlugin {
 
-  private static final String  STATS_FEATURE_NAME = "stats";
+  /** The Constant LOG. */
+  private static final Log           LOG                = ExoLogger.getLogger(StatsFeaturePlugin.class);
 
-  // TODO should be final
-  private ConversationRegistry conversationRegistry;
-  // TODO should be final
-  private ActivityStatsService activityStatsService;
+  private static final String        STATS_FEATURE_NAME = "stats";
+
+  /** The identity registry. */
+  private final IdentityRegistry     identityRegistry;
+
+  /** The authenticator. */
+  private final Authenticator        authenticator;
+
+  private final ActivityStatsService activityStatsService;
+
+  public StatsFeaturePlugin(ActivityStatsService activityStatsService,
+                            IdentityRegistry identityRegistry,
+                            Authenticator authenticator) {
+    this.activityStatsService = activityStatsService;
+    this.identityRegistry = identityRegistry;
+    this.authenticator = authenticator;
+  }
 
   @Override
   public String getName() {
@@ -47,45 +63,61 @@ public class StatsFeaturePlugin extends FeaturePlugin {
   @Override
   public boolean isFeatureActiveForUser(String featureName, String username) {
 
-    ActivityStatsService activityStatsService = getActivityStatsService();
-    // TODO Why we need this check as such?
-    if (!activityStatsService.isServiceEnabled()) {
-      return false;
-    }
-
-    String accessPermission = activityStatsService.getAccessPermission();
-    if (StringUtils.isBlank(accessPermission)) {
+    String allowedIdentities = activityStatsService.getAllowedIdentities();
+    if (StringUtils.isBlank(allowedIdentities)) {
       return true;
     }
 
-    return StatsUtils.isUserMemberOfSpaceOrGroupOrUser(username, accessPermission);
+    return isUserMemberOfGroupOrUser(username, allowedIdentities);
   }
 
-  /**
-   * The Service can't be injected by constructor to avoid cyclic dependency
-   *
-   * @return instance of {@link ConversationRegistry} injected in current
-   *         container
-   */
-  @Deprecated // TODO it's plugin dependency - inject via container
-  private ConversationRegistry getConversationRegistry() {
-    if (conversationRegistry == null) {
-      conversationRegistry = CommonsUtils.getService(ConversationRegistry.class);
+  private final boolean isUserMemberOfGroupOrUser(String username, String allowedIdentities) {
+    if (StringUtils.isBlank(allowedIdentities)) {
+      throw new IllegalArgumentException("AllowedIdentities expression is mandatory");
     }
-    return conversationRegistry;
+    if (StringUtils.isBlank(username)) {
+      return false;
+    }
+
+    org.exoplatform.services.security.Identity identity = identityRegistry.getIdentity(username);
+    if (identity == null) {
+      try {
+        identity = authenticator.createIdentity(username);
+      } catch (Exception e) {
+        LOG.warn("Error getting memberships of user {}", username, e);
+      }
+    }
+    if (identity == null) {
+      return false;
+    }
+
+    MembershipEntry membership = null;
+    boolean isMember = false;
+    boolean isAllowedUser = false;
+
+    String[] allowedIdentitiesParts = allowedIdentities.split(" ");
+    for (String allowedIdentity : allowedIdentitiesParts) {
+      if (allowedIdentity.contains(":")) {
+        String[] permissionExpressionParts = allowedIdentity.split(":");
+        membership = new MembershipEntry(permissionExpressionParts[1], permissionExpressionParts[0]);
+      } else if (allowedIdentity.contains("/")) {
+        membership = new MembershipEntry(allowedIdentity, MembershipEntry.ANY_TYPE);
+      } else {
+        isAllowedUser = StringUtils.equals(username, allowedIdentity);
+
+        if (isAllowedUser) {
+          return isAllowedUser;
+        }
+      }
+
+      isMember = identity.isMemberOf(membership);
+
+      if (isMember) {
+        return isMember;
+      }
+    }
+
+    return isMember;
   }
 
-  /**
-   * The Service can't be injected by constructor to avoid cyclic dependency
-   *
-   * @return instance of {@link ActivityStatsService} injected in current
-   *         container
-   */
-  @Deprecated // TODO it's plugin dependency - inject via container
-  private ActivityStatsService getActivityStatsService() {
-    if (activityStatsService == null) {
-      activityStatsService = CommonsUtils.getService(ActivityStatsService.class);
-    }
-    return activityStatsService;
-  }
 }

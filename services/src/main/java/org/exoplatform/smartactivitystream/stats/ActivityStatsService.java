@@ -27,6 +27,8 @@ import javax.naming.ConfigurationException;
 import javax.persistence.PersistenceException;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.exoplatform.services.security.Authenticator;
+import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.smartactivitystream.stats.domain.ChartPoint;
 import org.exoplatform.smartactivitystream.stats.dao.ActivityStatsDAO;
 import org.exoplatform.smartactivitystream.stats.domain.ActivityStatsEntity;
@@ -41,6 +43,7 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.IdentityManagerImpl;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.RelationshipStorage;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.owasp.html.PolicyFactory;
@@ -111,11 +114,8 @@ public class ActivityStatsService implements Startable {
   /** The Constant ENABLE_TRACKERS. */
   public static final String                           ENABLE_TRACKERS             = "enable-trackers";
 
-  /** The Constant ACCESS_PERMISSION. */
-  public static final String                           ACCESS_PERMISSION           = "access-permission";
-
-  /** The Constant SERVICE_ENABLED. */
-  public static final String                           SERVICE_ENABLED             = "service-enabled";
+  /** The Constant ALLOWED_IDENTITIES. */
+  public static final String                           ALLOWED_IDENTITIES          = "allowed-identities";
 
   /** The text policy. */
   protected final PolicyFactory                        textPolicy                  = new HtmlPolicyBuilder().toFactory();
@@ -155,12 +155,7 @@ public class ActivityStatsService implements Startable {
   private final AtomicBoolean                          focusSaverStarted           = new AtomicBoolean(false);
 
   /** The access permission. */
-  // TODO name not self-descriptive as for service level
-  private final String                                 accessPermission;
-
-  /** The service enabled. */
-  @Deprecated // TODO don't need it?
-  private final boolean                                serviceEnabled;
+  private final String                                 allowedIdentities;
 
   /** The enable trackers. */
   private final boolean                                enableTrackers;
@@ -188,7 +183,7 @@ public class ActivityStatsService implements Startable {
 
   /**
    * Instantiates a new smart activity service.
-   *
+   * 
    * @param focusStorage the focus storage
    * @param statsStorage the stats storage
    * @param cacheService the cache service
@@ -225,14 +220,10 @@ public class ActivityStatsService implements Startable {
       String enableTrackers = config.get(ENABLE_TRACKERS);
       this.enableTrackers = enableTrackers != null ? Boolean.parseBoolean(enableTrackers.trim()) : true;
 
-      this.accessPermission = config.get(ACCESS_PERMISSION);
-
-      String serviceEnabled = config.get(SERVICE_ENABLED);
-
-      this.serviceEnabled = serviceEnabled != null ? Boolean.parseBoolean(serviceEnabled.trim()) : true;
+      this.allowedIdentities = config.get(ALLOWED_IDENTITIES);
     } else {
-      this.accessPermission = null;
-      this.serviceEnabled = false;
+      this.allowedIdentities = null;
+
       this.enableTrackers = false;
     }
   }
@@ -294,18 +285,8 @@ public class ActivityStatsService implements Startable {
    *
    * @return configured access permission
    */
-  public String getAccessPermission() {
-    return accessPermission;
-  }
-
-  /**
-   * Gets a service enabled pointer.
-   *
-   * @return configured service enabled pointer
-   */
-  // TODO why we need this?
-  public boolean isServiceEnabled() {
-    return serviceEnabled;
+  public String getAllowedIdentities() {
+    return allowedIdentities;
   }
 
   /**
